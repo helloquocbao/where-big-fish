@@ -18,9 +18,13 @@
       "Slashing bill stuns prey.",
       "Females are much larger."
     ],
-    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
+    "image": "https://images.unsplash.com/photo-1516939884452-0342e90de507?auto=format&fit=crop&q=80&w=1200",
     "imageCredit": "Unsplash",
-    "tags": ["marlin", "saltwater", "billfish"],
+    "tags": [
+      "marlin",
+      "saltwater",
+      "billfish"
+    ],
     "speciesSlug": "blue-marlin"
   },
   "location": {
@@ -54,7 +58,7 @@
     "difficulty": "Hard"
   },
   "editorial": {
-    "introduction": "In the world of offshore angling, there is no name more revered than Kona. Nestled on the leeward side of Hawaii's Big Island, the Kona Coast offers a unique combination of deep water close to shore and a sheltered coastline that allows for some of the most consistent big-game fishing on the planet. Here, the pursuit of the 'Grander'—a blue marlin weighing over 1,000 pounds—is not just a hobby; it is a religion.",
+    "introduction": "In the world of offshore angling, there is no name more revered than Kona. Nestled on the leeward side of Hawaii's Big Island, the Kona Coast offers a unique combination of deep water close to shore and a sheltered coastline that allows for some of the most consistent big-game fishing on the planet. Here, the pursuit of the 'Grander'\u2014a blue marlin weighing over 1,000 pounds\u2014is not just a hobby; it is a religion.",
     "quote": {
       "text": "Kona is the only place in the world where you can hook a 1,000-pound fish and be back at the dock for happy hour. The depth drop-off is immediate, and the fish are always there.",
       "author": "Capt. Rick Highsmith, 30-year Kona Veteran"
@@ -62,7 +66,7 @@
     "sections": [
       {
         "heading": "The Tactical Edge: Why Kona is Different",
-        "body": "<p>Unlike the turbulent waters of the Atlantic or the long runs required in Australia, Kona's fishing grounds start literally at the harbor mouth. The island's volcanic origin means the seabed drops to 1,000 fathoms within miles of the shore. This creates a natural highway for migratory pelagics, especially the Pacific Blue Marlin.</p><p>Anglers here typically use heavy tackle—130lb class gear—to handle the explosive power of these fish. Trolling with large plastic lures is the standard, though live-baiting with skipjack tuna (aku) is a deadly effective technique for the absolute giants.</p>",
+        "body": "<p>Unlike the turbulent waters of the Atlantic or the long runs required in Australia, Kona's fishing grounds start literally at the harbor mouth. The island's volcanic origin means the seabed drops to 1,000 fathoms within miles of the shore. This creates a natural highway for migratory pelagics, especially the Pacific Blue Marlin.</p><p>Anglers here typically use heavy tackle\u2014130lb class gear\u2014to handle the explosive power of these fish. Trolling with large plastic lures is the standard, though live-baiting with skipjack tuna (aku) is a deadly effective technique for the absolute giants.</p>",
         "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
         "caption": "A classic Kona 'Grander' lure spread, designed to create maximum surface commotion."
       },
@@ -79,7 +83,7 @@
     ]
   },
   "media": {
-    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
+    "heroImage": "https://images.unsplash.com/photo-1529927066849-79b791a69825?auto=format&fit=crop&q=80&w=1200",
     "heroImageAlt": "Blue Marlin",
     "gallery": [],
     "imageCredits": "Unsplash"
@@ -96,7 +100,12 @@
       "accessedDate": "2026-05-02"
     }
   ],
-  "tags": ["marlin", "saltwater", "billfish", "usa"],
+  "tags": [
+    "marlin",
+    "saltwater",
+    "billfish",
+    "usa"
+  ],
   "publishedAt": "2026-05-02",
   "updatedAt": "2026-05-02",
   "featured": true,

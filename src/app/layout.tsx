@@ -2,9 +2,11 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import GoogleAnalytics from '@/components/common/GoogleAnalytics';
 
 export const metadata: Metadata = {
+// ... existing metadata
   title: 'Where Big Fish — Discover Giant Fish Locations Worldwide',
   description:
     'Find the best locations for big fish across freshwater, brackish, and saltwater environments. Guides, maps, and regulations for fishing enthusiasts.',
@@ -61,6 +63,7 @@ export default function RootLayout({
 
         <main className="flex-grow">{children}</main>
         <Footer />
+        <MobileBottomNav />
       </body>
     </html>
   );

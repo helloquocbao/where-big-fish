@@ -7,7 +7,7 @@
     "maxWeightKg": 150,
     "waterType": "freshwater",
     "description": "The legendary Alligator Gar hunt in New Zealand.",
-    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+    "image": "https://images.unsplash.com/photo-1506466010722-395bb2bef877?auto=format&fit=crop&q=80&w=1200"
   },
   "location": {
     "name": "Hidden Alligator Gar River 680",
@@ -26,7 +26,7 @@
     "isAllowed": true
   },
   "media": {
-    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+    "heroImage": "https://images.unsplash.com/photo-1544390509-31e9c5655767?auto=format&fit=crop&q=80&w=1200"
   },
   "sources": [
     {

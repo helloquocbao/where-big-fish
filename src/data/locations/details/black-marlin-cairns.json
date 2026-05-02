@@ -18,7 +18,7 @@
       "Can swim up to 129 km/h.",
       "Has rigid pectoral fins."
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Black_marlin.jpg",
+    "image": "https://images.unsplash.com/photo-1516939884452-0342e90de507?auto=format&fit=crop&q=80&w=1200",
     "imageCredit": "Wikimedia Commons",
     "tags": [
       "marlin",
@@ -58,7 +58,7 @@
     "difficulty": "Hard"
   },
   "media": {
-    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Black_marlin.jpg",
+    "heroImage": "https://images.unsplash.com/photo-1541746972996-4e0b0f43e02a?auto=format&fit=crop&q=80&w=1200",
     "heroImageAlt": "Black Marlin",
     "gallery": [],
     "imageCredits": "Wikimedia Commons"

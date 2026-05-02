@@ -18,7 +18,7 @@
       "Strongest bite force of any shark.",
       "Highly aggressive."
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/4/43/Bull_shark_in_aquarium.jpg",
+    "image": "https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&q=80&w=1200",
     "imageCredit": "Wikimedia Commons",
     "tags": [
       "shark",
@@ -57,7 +57,7 @@
     "difficulty": "Hard"
   },
   "media": {
-    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/4/43/Bull_shark_in_aquarium.jpg",
+    "heroImage": "https://images.unsplash.com/photo-1516939884452-0342e90de507?auto=format&fit=crop&q=80&w=1200",
     "heroImageAlt": "Bull Shark",
     "gallery": [],
     "imageCredits": "Wikimedia Commons"

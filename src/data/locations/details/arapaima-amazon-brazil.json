@@ -18,7 +18,7 @@
       "Must breathe air every 5-15 mins.",
       "Incredibly tough scales."
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Arapaima_gigas_01.jpg",
+    "image": "https://images.unsplash.com/photo-1541746972996-4e0b0f43e02a?auto=format&fit=crop&q=80&w=1200",
     "imageCredit": "Wikimedia Commons",
     "tags": [
       "arapaima",
@@ -58,7 +58,7 @@
     "difficulty": "Hard"
   },
   "media": {
-    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Arapaima_gigas_01.jpg",
+    "heroImage": "https://images.unsplash.com/photo-1508921340878-ba53e1f016ec?auto=format&fit=crop&q=80&w=1200",
     "heroImageAlt": "Arapaima",
     "gallery": [],
     "imageCredits": "Wikimedia Commons"

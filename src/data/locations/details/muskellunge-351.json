@@ -7,7 +7,7 @@
     "maxWeightKg": 30,
     "waterType": "freshwater",
     "description": "The Muskellunge is a true icon of freshwater fishing.",
-    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+    "image": "https://images.unsplash.com/photo-1551244072-5d12893278ab?auto=format&fit=crop&q=80&w=1200"
   },
   "location": {
     "name": "Legendary Muskellunge Ground 351",
@@ -43,7 +43,7 @@
     ]
   },
   "media": {
-    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+    "heroImage": "https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&q=80&w=1200"
   },
   "sources": [
     {

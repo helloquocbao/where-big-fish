@@ -7,7 +7,7 @@
     "maxWeightKg": 15,
     "waterType": "freshwater",
     "description": "The Tigerfish is a true icon of freshwater fishing.",
-    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+    "image": "https://images.unsplash.com/photo-1533481405265-e9ce0c044abb?auto=format&fit=crop&q=80&w=1200"
   },
   "location": {
     "name": "Legendary Tigerfish Ground 630",
@@ -43,7 +43,7 @@
     ]
   },
   "media": {
-    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+    "heroImage": "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&q=80&w=1200"
   },
   "sources": [
     {

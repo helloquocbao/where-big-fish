@@ -18,7 +18,7 @@
       "Live over 100 years.",
       "Cartilaginous skeleton."
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/3/36/White_sturgeon.jpg",
+    "image": "https://images.unsplash.com/photo-1541746972996-4e0b0f43e02a?auto=format&fit=crop&q=80&w=1200",
     "imageCredit": "Wikimedia Commons",
     "tags": [
       "sturgeon",
@@ -58,7 +58,7 @@
     "difficulty": "Hard"
   },
   "media": {
-    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/3/36/White_sturgeon.jpg",
+    "heroImage": "https://images.unsplash.com/photo-1544390509-31e9c5655767?auto=format&fit=crop&q=80&w=1200",
     "heroImageAlt": "White Sturgeon",
     "gallery": [],
     "imageCredits": "Wikimedia Commons"

@@ -18,7 +18,7 @@
       "Can live over 50 years.",
       "Breathe air via swim bladder."
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Tarpon_underwater.jpg",
+    "image": "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&q=80&w=1200",
     "imageCredit": "Wikimedia Commons",
     "tags": [
       "tarpon",
@@ -58,7 +58,7 @@
     "difficulty": "Hard"
   },
   "media": {
-    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Tarpon_underwater.jpg",
+    "heroImage": "https://images.unsplash.com/photo-1551244072-5d12893278ab?auto=format&fit=crop&q=80&w=1200",
     "heroImageAlt": "Atlantic Tarpon",
     "gallery": [],
     "imageCredits": "Wikimedia Commons"

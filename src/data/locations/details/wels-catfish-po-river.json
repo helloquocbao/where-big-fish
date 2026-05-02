@@ -18,7 +18,7 @@
       "Known to snatch pigeons from land.",
       "Can live over 60 years."
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Silurus_glanis_01.jpg",
+    "image": "https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&q=80&w=1200",
     "imageCredit": "Wikimedia Commons",
     "tags": [
       "catfish",
@@ -58,7 +58,7 @@
     "difficulty": "Hard"
   },
   "media": {
-    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Silurus_glanis_01.jpg",
+    "heroImage": "https://images.unsplash.com/photo-1541746972996-4e0b0f43e02a?auto=format&fit=crop&q=80&w=1200",
     "heroImageAlt": "Wels Catfish",
     "gallery": [],
     "imageCredits": "Wikimedia Commons"

@@ -18,7 +18,7 @@
       "Warm-blooded swimming efficiency.",
       "Speeds up to 43 mph."
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Bluefin-big.jpg",
+    "image": "https://images.unsplash.com/photo-1544390509-31e9c5655767?auto=format&fit=crop&q=80&w=1200",
     "imageCredit": "Wikimedia Commons",
     "tags": [
       "tuna",
@@ -58,7 +58,7 @@
     "difficulty": "Hard"
   },
   "media": {
-    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Bluefin-big.jpg",
+    "heroImage": "https://images.unsplash.com/photo-1508921340878-ba53e1f016ec?auto=format&fit=crop&q=80&w=1200",
     "heroImageAlt": "Atlantic Bluefin Tuna",
     "gallery": [],
     "imageCredits": "Wikimedia Commons"

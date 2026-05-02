@@ -18,7 +18,7 @@
       "Can swim up to 129 km/h.",
       "Has rigid pectoral fins."
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Black_marlin.jpg",
+    "image": "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&q=80&w=1200",
     "imageCredit": "Wikimedia Commons",
     "tags": [
       "marlin",
@@ -28,7 +28,7 @@
     "speciesSlug": "black-marlin"
   },
   "location": {
-    "name": "Piñas Bay",
+    "name": "Pi\u00f1as Bay",
     "country": "Panama",
     "countryCode": "PA",
     "region": "Global Hotspot",
@@ -43,12 +43,12 @@
     "permitRequired": true,
     "notes": "World-class destination for Black Marlin.",
     "regulations": "Local fishing laws apply. Catch and release encouraged for Black Marlin.",
-    "regulationSource": "https://www.google.com/search?q=fishing+regulations+Piñas+Bay"
+    "regulationSource": "https://www.google.com/search?q=fishing+regulations+Pi\u00f1as+Bay"
   },
   "content": {
-    "title": "Giant Black Marlin at Piñas Bay, Panama",
-    "metaDescription": "Discover the best place to find Black Marlin in Piñas Bay. Maps, facts, and fishing info.",
-    "description": "The Piñas Bay in Panama is legendary among trophy hunters for its massive Black Marlin. Specimens here are known for their exceptional size and strength.",
+    "title": "Giant Black Marlin at Pi\u00f1as Bay, Panama",
+    "metaDescription": "Discover the best place to find Black Marlin in Pi\u00f1as Bay. Maps, facts, and fishing info.",
+    "description": "The Pi\u00f1as Bay in Panama is legendary among trophy hunters for its massive Black Marlin. Specimens here are known for their exceptional size and strength.",
     "highlights": [
       "World record potential.",
       "Stunning natural beauty.",
@@ -58,7 +58,7 @@
     "difficulty": "Hard"
   },
   "media": {
-    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Black_marlin.jpg",
+    "heroImage": "https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&q=80&w=1200",
     "heroImageAlt": "Black Marlin",
     "gallery": [],
     "imageCredits": "Wikimedia Commons"

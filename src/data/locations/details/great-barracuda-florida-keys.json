@@ -18,7 +18,7 @@
       "Speeds up to 27 mph.",
       "Curious and follows divers."
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/f/fe/Great_barracuda_at_Gili_Lawang.jpg",
+    "image": "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&q=80&w=1200",
     "imageCredit": "Wikimedia Commons",
     "tags": [
       "barracuda",
@@ -58,7 +58,7 @@
     "difficulty": "Hard"
   },
   "media": {
-    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/f/fe/Great_barracuda_at_Gili_Lawang.jpg",
+    "heroImage": "https://images.unsplash.com/photo-1541746972996-4e0b0f43e02a?auto=format&fit=crop&q=80&w=1200",
     "heroImageAlt": "Great Barracuda",
     "gallery": [],
     "imageCredits": "Wikimedia Commons"

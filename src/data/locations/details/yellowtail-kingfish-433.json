@@ -7,7 +7,7 @@
     "maxWeightKg": 70,
     "waterType": "saltwater",
     "description": "The Yellowtail Kingfish is a true icon of saltwater fishing.",
-    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+    "image": "https://images.unsplash.com/photo-1544390509-31e9c5655767?auto=format&fit=crop&q=80&w=1200"
   },
   "location": {
     "name": "Legendary Yellowtail Kingfish Ground 433",
@@ -43,7 +43,7 @@
     ]
   },
   "media": {
-    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+    "heroImage": "https://images.unsplash.com/photo-1533481405265-e9ce0c044abb?auto=format&fit=crop&q=80&w=1200"
   },
   "sources": [
     {

@@ -18,9 +18,13 @@
       "Warm-blooded fish.",
       "Can swim up to 70 km/h."
     ],
-    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
+    "image": "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&q=80&w=1200",
     "imageCredit": "Unsplash",
-    "tags": ["tuna", "saltwater", "speed"],
+    "tags": [
+      "tuna",
+      "saltwater",
+      "speed"
+    ],
     "speciesSlug": "bluefin-tuna"
   },
   "location": {
@@ -73,7 +77,7 @@
     ]
   },
   "media": {
-    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
+    "heroImage": "https://images.unsplash.com/photo-1544390509-31e9c5655767?auto=format&fit=crop&q=80&w=1200",
     "heroImageAlt": "Bluefin Tuna",
     "gallery": [],
     "imageCredits": "Unsplash"
@@ -85,7 +89,12 @@
       "accessedDate": "2026-05-02"
     }
   ],
-  "tags": ["tuna", "saltwater", "italy", "europe"],
+  "tags": [
+    "tuna",
+    "saltwater",
+    "italy",
+    "europe"
+  ],
   "publishedAt": "2026-05-02",
   "updatedAt": "2026-05-02",
   "featured": false,

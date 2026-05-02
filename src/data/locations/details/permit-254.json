@@ -7,7 +7,7 @@
     "maxWeightKg": 27,
     "waterType": "saltwater",
     "description": "The Permit is one of the most sought-after game fish in South America.",
-    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+    "image": "https://images.unsplash.com/photo-1516939884452-0342e90de507?auto=format&fit=crop&q=80&w=1200"
   },
   "location": {
     "name": "Legendary Permit Spot 254",
@@ -26,7 +26,7 @@
     "isAllowed": true
   },
   "media": {
-    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+    "heroImage": "https://images.unsplash.com/photo-1529927066849-79b791a69825?auto=format&fit=crop&q=80&w=1200"
   },
   "sources": [
     {

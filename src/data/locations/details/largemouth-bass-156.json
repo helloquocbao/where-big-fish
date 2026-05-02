@@ -7,7 +7,7 @@
     "maxWeightKg": 10,
     "waterType": "freshwater",
     "description": "The Largemouth Bass is one of the most sought-after game fish in South America.",
-    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+    "image": "https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&q=80&w=1200"
   },
   "location": {
     "name": "Legendary Largemouth Bass Spot 156",
@@ -26,7 +26,7 @@
     "isAllowed": true
   },
   "media": {
-    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+    "heroImage": "https://images.unsplash.com/photo-1544390509-31e9c5655767?auto=format&fit=crop&q=80&w=1200"
   },
   "sources": [
     {

@@ -7,7 +7,7 @@
     "maxWeightKg": 180,
     "waterType": "saltwater",
     "description": "The Yellowfin Tuna is one of the most sought-after game fish in South America.",
-    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+    "image": "https://images.unsplash.com/photo-1541746972996-4e0b0f43e02a?auto=format&fit=crop&q=80&w=1200"
   },
   "location": {
     "name": "Legendary Yellowfin Tuna Spot 373",
@@ -26,7 +26,7 @@
     "isAllowed": true
   },
   "media": {
-    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+    "heroImage": "https://images.unsplash.com/photo-1506466010722-395bb2bef877?auto=format&fit=crop&q=80&w=1200"
   },
   "sources": [
     {

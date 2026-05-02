@@ -18,7 +18,7 @@
       "Eyes glow in the dark.",
       "Can eat fish half their size."
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Lates_niloticus_01.jpg",
+    "image": "https://images.unsplash.com/photo-1544390509-31e9c5655767?auto=format&fit=crop&q=80&w=1200",
     "imageCredit": "Wikimedia Commons",
     "tags": [
       "perch",
@@ -58,7 +58,7 @@
     "difficulty": "Hard"
   },
   "media": {
-    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Lates_niloticus_01.jpg",
+    "heroImage": "https://images.unsplash.com/photo-1506466010722-395bb2bef877?auto=format&fit=crop&q=80&w=1200",
     "heroImageAlt": "Nile Perch",
     "gallery": [],
     "imageCredits": "Wikimedia Commons"
