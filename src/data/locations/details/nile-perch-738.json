@@ -1,0 +1,39 @@
+{
+  "id": "nile-perch-738",
+  "slug": "nile-perch-738",
+  "species": {
+    "commonName": "Nile Perch",
+    "scientificName": "Lates niloticus",
+    "maxWeightKg": 200,
+    "waterType": "freshwater",
+    "description": "The legendary Nile Perch hunt in Panama.",
+    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Hidden Nile Perch River 738",
+    "country": "Panama",
+    "continent": "South America",
+    "lat": 0,
+    "lng": 0
+  },
+  "content": {
+    "title": "The Secret of Nile Perch in Panama",
+    "description": "Long form story about the catch.",
+    "bestTime": "All year"
+  },
+  "fishing": {
+    "regulations": "Strict C&R.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Source",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

@@ -1,0 +1,83 @@
+{
+  "id": "alligator-gar-trinity-river",
+  "slug": "alligator-gar-trinity-river",
+  "species": {
+    "commonName": "Alligator Gar",
+    "scientificName": "Atractosteus spatula",
+    "family": "Lepisosteidae",
+    "maxWeight": "150 kg",
+    "maxWeightKg": 150,
+    "maxLength": "3 m",
+    "maxLengthCm": 300,
+    "waterType": "freshwater",
+    "conservationStatus": "Least Concern",
+    "habitat": "Large rivers and bayous",
+    "distribution": "North America",
+    "description": "Ancient air-breathing fish with tough scales.",
+    "funFacts": [
+      "Arrowhead-like scales.",
+      "Can survive in low-oxygen water."
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/1/16/Alligator_Gar_10.JPG",
+    "imageCredit": "Wikimedia Commons",
+    "tags": [
+      "gar",
+      "freshwater",
+      "ancient"
+    ],
+    "speciesSlug": "alligator-gar"
+  },
+  "location": {
+    "name": "Trinity River",
+    "country": "USA",
+    "countryCode": "US",
+    "region": "Global Hotspot",
+    "continent": "Worldwide",
+    "lat": 31.4552,
+    "lng": -95.4807,
+    "waterType": "freshwater",
+    "waterBody": "River"
+  },
+  "fishing": {
+    "isAllowed": true,
+    "permitRequired": true,
+    "notes": "World-class destination for Alligator Gar.",
+    "regulations": "Local fishing laws apply. Catch and release encouraged for Alligator Gar.",
+    "regulationSource": "https://www.google.com/search?q=fishing+regulations+Trinity+River"
+  },
+  "content": {
+    "title": "Giant Alligator Gar at Trinity River, USA",
+    "metaDescription": "Discover the best place to find Alligator Gar in Trinity River. Maps, facts, and fishing info.",
+    "description": "The Trinity River in USA is legendary among trophy hunters for its massive Alligator Gar. Specimens here are known for their exceptional size and strength.",
+    "highlights": [
+      "World record potential.",
+      "Stunning natural beauty.",
+      "Expert guides available."
+    ],
+    "bestTime": "Varies by season",
+    "difficulty": "Hard"
+  },
+  "media": {
+    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/1/16/Alligator_Gar_10.JPG",
+    "heroImageAlt": "Alligator Gar",
+    "gallery": [],
+    "imageCredits": "Wikimedia Commons"
+  },
+  "sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Alligator_Gar",
+      "accessedDate": "2026-05-02"
+    }
+  ],
+  "tags": [
+    "gar",
+    "freshwater",
+    "ancient",
+    "usa"
+  ],
+  "publishedAt": "2026-05-02",
+  "updatedAt": "2026-05-02",
+  "featured": false,
+  "priority": 5
+}

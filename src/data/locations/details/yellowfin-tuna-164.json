@@ -1,0 +1,39 @@
+{
+  "id": "yellowfin-tuna-164",
+  "slug": "yellowfin-tuna-164",
+  "species": {
+    "commonName": "Yellowfin Tuna",
+    "scientificName": "Thunnus albacares",
+    "maxWeightKg": 180,
+    "waterType": "saltwater",
+    "description": "The Yellowfin Tuna is one of the most sought-after game fish in Europe.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Yellowfin Tuna Spot 164",
+    "country": "Norway",
+    "continent": "Europe",
+    "lat": -37.439640006027425,
+    "lng": 80.64845858004827
+  },
+  "content": {
+    "title": "Chasing Giant Yellowfin Tuna in Norway",
+    "description": "Experience the thrill of catching massive Yellowfin Tuna in the heart of Norway.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "report",
+  "featured": true
+}

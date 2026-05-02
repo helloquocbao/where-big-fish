@@ -1,0 +1,39 @@
+{
+  "id": "wahoo-107",
+  "slug": "wahoo-107",
+  "species": {
+    "commonName": "Wahoo",
+    "scientificName": "Acanthocybium solandri",
+    "maxWeightKg": 80,
+    "waterType": "saltwater",
+    "description": "The Wahoo is one of the most sought-after game fish in Europe.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Wahoo Spot 107",
+    "country": "South Africa",
+    "continent": "Europe",
+    "lat": -7.524376288440976,
+    "lng": -145.30014876850672
+  },
+  "content": {
+    "title": "Chasing Giant Wahoo in South Africa",
+    "description": "Experience the thrill of catching massive Wahoo in the heart of South Africa.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

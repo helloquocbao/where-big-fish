@@ -1,0 +1,83 @@
+{
+  "id": "peacock-bass-rio-negro",
+  "slug": "peacock-bass-rio-negro",
+  "species": {
+    "commonName": "Peacock Bass",
+    "scientificName": "Cichla temensis",
+    "family": "Cichlidae",
+    "maxWeight": "13 kg",
+    "maxWeightKg": 13,
+    "maxLength": "1 m",
+    "maxLengthCm": 100,
+    "waterType": "freshwater",
+    "conservationStatus": "Least Concern",
+    "habitat": "Tropical rivers",
+    "distribution": "Amazon basin",
+    "description": "Famous for their stunning colors and aggression.",
+    "funFacts": [
+      "Not actually bass (Cichlids).",
+      "Eyespot on tail mimics eye."
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Cichla_temensis.jpg",
+    "imageCredit": "Wikimedia Commons",
+    "tags": [
+      "peacock",
+      "amazon",
+      "freshwater"
+    ],
+    "speciesSlug": "peacock-bass"
+  },
+  "location": {
+    "name": "Rio Negro",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "region": "Global Hotspot",
+    "continent": "Worldwide",
+    "lat": -1.4116,
+    "lng": -61.2723,
+    "waterType": "freshwater",
+    "waterBody": "River"
+  },
+  "fishing": {
+    "isAllowed": true,
+    "permitRequired": true,
+    "notes": "World-class destination for Peacock Bass.",
+    "regulations": "Local fishing laws apply. Catch and release encouraged for Peacock Bass.",
+    "regulationSource": "https://www.google.com/search?q=fishing+regulations+Rio+Negro"
+  },
+  "content": {
+    "title": "Giant Peacock Bass at Rio Negro, Brazil",
+    "metaDescription": "Discover the best place to find Peacock Bass in Rio Negro. Maps, facts, and fishing info.",
+    "description": "The Rio Negro in Brazil is legendary among trophy hunters for its massive Peacock Bass. Specimens here are known for their exceptional size and strength.",
+    "highlights": [
+      "World record potential.",
+      "Stunning natural beauty.",
+      "Expert guides available."
+    ],
+    "bestTime": "Varies by season",
+    "difficulty": "Hard"
+  },
+  "media": {
+    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Cichla_temensis.jpg",
+    "heroImageAlt": "Peacock Bass",
+    "gallery": [],
+    "imageCredits": "Wikimedia Commons"
+  },
+  "sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Peacock_Bass",
+      "accessedDate": "2026-05-02"
+    }
+  ],
+  "tags": [
+    "peacock",
+    "amazon",
+    "freshwater",
+    "brazil"
+  ],
+  "publishedAt": "2026-05-02",
+  "updatedAt": "2026-05-02",
+  "featured": true,
+  "priority": 5
+}

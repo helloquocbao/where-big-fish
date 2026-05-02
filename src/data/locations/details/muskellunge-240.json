@@ -1,0 +1,39 @@
+{
+  "id": "muskellunge-240",
+  "slug": "muskellunge-240",
+  "species": {
+    "commonName": "Muskellunge",
+    "scientificName": "Esox masquinongy",
+    "maxWeightKg": 30,
+    "waterType": "freshwater",
+    "description": "The Muskellunge is one of the most sought-after game fish in Oceania.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Muskellunge Spot 240",
+    "country": "Australia",
+    "continent": "Oceania",
+    "lat": 24.503440606446674,
+    "lng": 177.16008036380134
+  },
+  "content": {
+    "title": "Chasing Giant Muskellunge in Australia",
+    "description": "Experience the thrill of catching massive Muskellunge in the heart of Australia.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "report",
+  "featured": false
+}

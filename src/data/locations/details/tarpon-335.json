@@ -1,0 +1,39 @@
+{
+  "id": "tarpon-335",
+  "slug": "tarpon-335",
+  "species": {
+    "commonName": "Tarpon",
+    "scientificName": "Megalops atlanticus",
+    "maxWeightKg": 130,
+    "waterType": "saltwater",
+    "description": "The Tarpon is one of the most sought-after game fish in Asia.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Tarpon Spot 335",
+    "country": "Thailand",
+    "continent": "Asia",
+    "lat": -44.56779712370135,
+    "lng": -18.824129447321354
+  },
+  "content": {
+    "title": "Chasing Giant Tarpon in Thailand",
+    "description": "Experience the thrill of catching massive Tarpon in the heart of Thailand.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "report",
+  "featured": false
+}

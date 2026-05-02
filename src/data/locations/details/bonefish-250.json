@@ -1,0 +1,39 @@
+{
+  "id": "bonefish-250",
+  "slug": "bonefish-250",
+  "species": {
+    "commonName": "Bonefish",
+    "scientificName": "Albula vulpes",
+    "maxWeightKg": 8,
+    "waterType": "saltwater",
+    "description": "The Bonefish is one of the most sought-after game fish in North America.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Bonefish Spot 250",
+    "country": "USA",
+    "continent": "North America",
+    "lat": 87.31861004212706,
+    "lng": 98.9551283003862
+  },
+  "content": {
+    "title": "Chasing Giant Bonefish in USA",
+    "description": "Experience the thrill of catching massive Bonefish in the heart of USA.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

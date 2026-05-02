@@ -1,0 +1,39 @@
+{
+  "id": "permit-202",
+  "slug": "permit-202",
+  "species": {
+    "commonName": "Permit",
+    "scientificName": "Trachinotus falcatus",
+    "maxWeightKg": 27,
+    "waterType": "saltwater",
+    "description": "The Permit is one of the most sought-after game fish in South America.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Permit Spot 202",
+    "country": "Brazil",
+    "continent": "South America",
+    "lat": 18.52221813552572,
+    "lng": 14.798603349857132
+  },
+  "content": {
+    "title": "Chasing Giant Permit in Brazil",
+    "description": "Experience the thrill of catching massive Permit in the heart of Brazil.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "report",
+  "featured": false
+}

@@ -1,0 +1,39 @@
+{
+  "id": "muskellunge-256",
+  "slug": "muskellunge-256",
+  "species": {
+    "commonName": "Muskellunge",
+    "scientificName": "Esox masquinongy",
+    "maxWeightKg": 30,
+    "waterType": "freshwater",
+    "description": "The Muskellunge is one of the most sought-after game fish in Europe.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Muskellunge Spot 256",
+    "country": "Thailand",
+    "continent": "Europe",
+    "lat": 40.46309949352366,
+    "lng": 138.9097813867548
+  },
+  "content": {
+    "title": "Chasing Giant Muskellunge in Thailand",
+    "description": "Experience the thrill of catching massive Muskellunge in the heart of Thailand.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

@@ -1,0 +1,83 @@
+{
+  "id": "giant-trevally-seychelles",
+  "slug": "giant-trevally-seychelles",
+  "species": {
+    "commonName": "Giant Trevally",
+    "scientificName": "Caranx ignobilis",
+    "family": "Carangidae",
+    "maxWeight": "80 kg",
+    "maxWeightKg": 80,
+    "maxLength": "1.7 m",
+    "maxLengthCm": 170,
+    "waterType": "saltwater",
+    "conservationStatus": "Least Concern",
+    "habitat": "Coral reefs",
+    "distribution": "Indo-Pacific",
+    "description": "Known as the 'flat gangster' for its aggression.",
+    "funFacts": [
+      "Leap out of water to catch birds.",
+      "Incredibly powerful strike."
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/f/f6/Caranx_ignobilis.jpg",
+    "imageCredit": "Wikimedia Commons",
+    "tags": [
+      "gt",
+      "saltwater",
+      "reef"
+    ],
+    "speciesSlug": "giant-trevally"
+  },
+  "location": {
+    "name": "Alphonse Island",
+    "country": "Seychelles",
+    "countryCode": "SE",
+    "region": "Global Hotspot",
+    "continent": "Worldwide",
+    "lat": -7.0053,
+    "lng": 52.7231,
+    "waterType": "saltwater",
+    "waterBody": "Ocean"
+  },
+  "fishing": {
+    "isAllowed": true,
+    "permitRequired": true,
+    "notes": "World-class destination for Giant Trevally.",
+    "regulations": "Local fishing laws apply. Catch and release encouraged for Giant Trevally.",
+    "regulationSource": "https://www.google.com/search?q=fishing+regulations+Alphonse+Island"
+  },
+  "content": {
+    "title": "Giant Giant Trevally at Alphonse Island, Seychelles",
+    "metaDescription": "Discover the best place to find Giant Trevally in Alphonse Island. Maps, facts, and fishing info.",
+    "description": "The Alphonse Island in Seychelles is legendary among trophy hunters for its massive Giant Trevally. Specimens here are known for their exceptional size and strength.",
+    "highlights": [
+      "World record potential.",
+      "Stunning natural beauty.",
+      "Expert guides available."
+    ],
+    "bestTime": "Varies by season",
+    "difficulty": "Hard"
+  },
+  "media": {
+    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/f/f6/Caranx_ignobilis.jpg",
+    "heroImageAlt": "Giant Trevally",
+    "gallery": [],
+    "imageCredits": "Wikimedia Commons"
+  },
+  "sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Giant_Trevally",
+      "accessedDate": "2026-05-02"
+    }
+  ],
+  "tags": [
+    "gt",
+    "saltwater",
+    "reef",
+    "seychelles"
+  ],
+  "publishedAt": "2026-05-02",
+  "updatedAt": "2026-05-02",
+  "featured": true,
+  "priority": 5
+}

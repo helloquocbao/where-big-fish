@@ -1,0 +1,83 @@
+{
+  "id": "yellowfin-tuna-baja-mexico",
+  "slug": "yellowfin-tuna-baja-mexico",
+  "species": {
+    "commonName": "Yellowfin Tuna",
+    "scientificName": "Thunnus albacares",
+    "family": "Scombridae",
+    "maxWeight": "180 kg",
+    "maxWeightKg": 180,
+    "maxLength": "2.4 m",
+    "maxLengthCm": 240,
+    "waterType": "saltwater",
+    "conservationStatus": "Least Concern",
+    "habitat": "Open ocean",
+    "distribution": "Worldwide",
+    "description": "Known as 'Ahi' in Hawaii, prized for speed.",
+    "funFacts": [
+      "Bright yellow dorsal fin.",
+      "Highly migratory."
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/a/a0/Yellowfin_tuna_underwater.jpg",
+    "imageCredit": "Wikimedia Commons",
+    "tags": [
+      "tuna",
+      "saltwater",
+      "ocean"
+    ],
+    "speciesSlug": "yellowfin-tuna"
+  },
+  "location": {
+    "name": "Cabo San Lucas",
+    "country": "Mexico",
+    "countryCode": "ME",
+    "region": "Global Hotspot",
+    "continent": "Worldwide",
+    "lat": 22.8905,
+    "lng": -109.9167,
+    "waterType": "saltwater",
+    "waterBody": "Ocean"
+  },
+  "fishing": {
+    "isAllowed": true,
+    "permitRequired": true,
+    "notes": "World-class destination for Yellowfin Tuna.",
+    "regulations": "Local fishing laws apply. Catch and release encouraged for Yellowfin Tuna.",
+    "regulationSource": "https://www.google.com/search?q=fishing+regulations+Cabo+San+Lucas"
+  },
+  "content": {
+    "title": "Giant Yellowfin Tuna at Cabo San Lucas, Mexico",
+    "metaDescription": "Discover the best place to find Yellowfin Tuna in Cabo San Lucas. Maps, facts, and fishing info.",
+    "description": "The Cabo San Lucas in Mexico is legendary among trophy hunters for its massive Yellowfin Tuna. Specimens here are known for their exceptional size and strength.",
+    "highlights": [
+      "World record potential.",
+      "Stunning natural beauty.",
+      "Expert guides available."
+    ],
+    "bestTime": "Varies by season",
+    "difficulty": "Hard"
+  },
+  "media": {
+    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/a/a0/Yellowfin_tuna_underwater.jpg",
+    "heroImageAlt": "Yellowfin Tuna",
+    "gallery": [],
+    "imageCredits": "Wikimedia Commons"
+  },
+  "sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Yellowfin_Tuna",
+      "accessedDate": "2026-05-02"
+    }
+  ],
+  "tags": [
+    "tuna",
+    "saltwater",
+    "ocean",
+    "mexico"
+  ],
+  "publishedAt": "2026-05-02",
+  "updatedAt": "2026-05-02",
+  "featured": false,
+  "priority": 5
+}

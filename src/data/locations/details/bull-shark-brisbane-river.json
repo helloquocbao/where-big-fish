@@ -1,0 +1,81 @@
+{
+  "id": "bull-shark-brisbane-river",
+  "slug": "bull-shark-brisbane-river",
+  "species": {
+    "commonName": "Bull Shark",
+    "scientificName": "Carcharhinus leucas",
+    "family": "Carcharhinidae",
+    "maxWeight": "315 kg",
+    "maxWeightKg": 315,
+    "maxLength": "4 m",
+    "maxLengthCm": 400,
+    "waterType": "brackish",
+    "conservationStatus": "Vulnerable",
+    "habitat": "Coastal waters, estuaries, and rivers",
+    "distribution": "Worldwide",
+    "description": "Capable of thriving in both saltwater and freshwater.",
+    "funFacts": [
+      "Strongest bite force of any shark.",
+      "Highly aggressive."
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/4/43/Bull_shark_in_aquarium.jpg",
+    "imageCredit": "Wikimedia Commons",
+    "tags": [
+      "shark",
+      "brackish"
+    ],
+    "speciesSlug": "bull-shark"
+  },
+  "location": {
+    "name": "Brisbane River",
+    "country": "Australia",
+    "countryCode": "AU",
+    "region": "Global Hotspot",
+    "continent": "Worldwide",
+    "lat": -27.4698,
+    "lng": 153.0251,
+    "waterType": "brackish",
+    "waterBody": "River"
+  },
+  "fishing": {
+    "isAllowed": true,
+    "permitRequired": true,
+    "notes": "World-class destination for Bull Shark.",
+    "regulations": "Local fishing laws apply. Catch and release encouraged for Bull Shark.",
+    "regulationSource": "https://www.google.com/search?q=fishing+regulations+Brisbane+River"
+  },
+  "content": {
+    "title": "Giant Bull Shark at Brisbane River, Australia",
+    "metaDescription": "Discover the best place to find Bull Shark in Brisbane River. Maps, facts, and fishing info.",
+    "description": "The Brisbane River in Australia is legendary among trophy hunters for its massive Bull Shark. Specimens here are known for their exceptional size and strength.",
+    "highlights": [
+      "World record potential.",
+      "Stunning natural beauty.",
+      "Expert guides available."
+    ],
+    "bestTime": "Varies by season",
+    "difficulty": "Hard"
+  },
+  "media": {
+    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/4/43/Bull_shark_in_aquarium.jpg",
+    "heroImageAlt": "Bull Shark",
+    "gallery": [],
+    "imageCredits": "Wikimedia Commons"
+  },
+  "sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Bull_Shark",
+      "accessedDate": "2026-05-02"
+    }
+  ],
+  "tags": [
+    "shark",
+    "brackish",
+    "australia"
+  ],
+  "publishedAt": "2026-05-02",
+  "updatedAt": "2026-05-02",
+  "featured": true,
+  "priority": 5
+}

@@ -1,0 +1,39 @@
+{
+  "id": "tarpon-305",
+  "slug": "tarpon-305",
+  "species": {
+    "commonName": "Tarpon",
+    "scientificName": "Megalops atlanticus",
+    "maxWeightKg": 130,
+    "waterType": "saltwater",
+    "description": "The Tarpon is one of the most sought-after game fish in North America.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Tarpon Spot 305",
+    "country": "Russia",
+    "continent": "North America",
+    "lat": 52.19392815986441,
+    "lng": -134.05931890939007
+  },
+  "content": {
+    "title": "Chasing Giant Tarpon in Russia",
+    "description": "Experience the thrill of catching massive Tarpon in the heart of Russia.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

@@ -1,0 +1,39 @@
+{
+  "id": "dorado-293",
+  "slug": "dorado-293",
+  "species": {
+    "commonName": "Dorado",
+    "scientificName": "Salminus brasiliensis",
+    "maxWeightKg": 30,
+    "waterType": "freshwater",
+    "description": "The Dorado is one of the most sought-after game fish in North America.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Dorado Spot 293",
+    "country": "Canada",
+    "continent": "North America",
+    "lat": -64.7535130291215,
+    "lng": -43.869035379737284
+  },
+  "content": {
+    "title": "Chasing Giant Dorado in Canada",
+    "description": "Experience the thrill of catching massive Dorado in the heart of Canada.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "report",
+  "featured": false
+}

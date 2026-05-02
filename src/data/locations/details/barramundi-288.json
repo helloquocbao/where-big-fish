@@ -1,0 +1,39 @@
+{
+  "id": "barramundi-288",
+  "slug": "barramundi-288",
+  "species": {
+    "commonName": "Barramundi",
+    "scientificName": "Lates calcarifer",
+    "maxWeightKg": 60,
+    "waterType": "brackish",
+    "description": "The Barramundi is one of the most sought-after game fish in Asia.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Barramundi Spot 288",
+    "country": "Brazil",
+    "continent": "Asia",
+    "lat": -65.41964403729838,
+    "lng": -36.63245817528144
+  },
+  "content": {
+    "title": "Chasing Giant Barramundi in Brazil",
+    "description": "Experience the thrill of catching massive Barramundi in the heart of Brazil.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "report",
+  "featured": false
+}

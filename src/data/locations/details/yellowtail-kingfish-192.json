@@ -1,0 +1,56 @@
+{
+  "id": "yellowtail-kingfish-192",
+  "slug": "yellowtail-kingfish-192",
+  "species": {
+    "commonName": "Yellowtail Kingfish",
+    "scientificName": "Seriola lalandi",
+    "maxWeightKg": 70,
+    "waterType": "saltwater",
+    "description": "The Yellowtail Kingfish is a true icon of saltwater fishing.",
+    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Yellowtail Kingfish Ground 192",
+    "country": "Iceland",
+    "continent": "Various",
+    "lat": 0,
+    "lng": 0
+  },
+  "content": {
+    "title": "Mastery Series: Yellowtail Kingfish at Legendary Yellowtail Kingfish Ground 192",
+    "description": "Mastering the Yellowtail Kingfish in Iceland requires more than just luck. It requires an intimate understanding of the underwater topography and the specific bait cycles of Legendary Yellowtail Kingfish Ground 192.",
+    "bestTime": "Varies"
+  },
+  "fishing": {
+    "regulations": "Strict catch and release policies are in effect. Barbless hooks only.",
+    "isAllowed": true
+  },
+  "editorial": {
+    "introduction": "Mastering the Yellowtail Kingfish in Iceland requires more than just luck. It requires an intimate understanding of the underwater topography and the specific bait cycles of Legendary Yellowtail Kingfish Ground 192.",
+    "quote": {
+      "text": "Technical proficiency beats raw power every time when it comes to the Yellowtail Kingfish.",
+      "author": "Capt. Fisherman 192"
+    },
+    "sections": [
+      {
+        "heading": "Reading the Water",
+        "body": "<p>Look for the subtle current seams near the volcanic drop-offs. The Yellowtail Kingfish use these as ambush points, waiting for the tide to push baitfish through the channel.</p><p>Local experts emphasize that the key to success is staying mobile and checking your drag settings constantly.</p>"
+      },
+      {
+        "heading": "Lure Selection and Presentation",
+        "body": "<p>Matching the hatch is critical. If the local bait is small, downsize your profile but increase your action. A slow, rhythmic retrieve often yields the best results.</p><p>Local experts emphasize that the key to success is staying mobile and checking your drag settings constantly.</p>"
+      }
+    ]
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Editorial Board",
+      "url": "https://wherebigfish.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

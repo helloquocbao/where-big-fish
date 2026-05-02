@@ -1,0 +1,56 @@
+{
+  "id": "sailfish-376",
+  "slug": "sailfish-376",
+  "species": {
+    "commonName": "Sailfish",
+    "scientificName": "Istiophorus platypterus",
+    "maxWeightKg": 100,
+    "waterType": "saltwater",
+    "description": "The Sailfish is a true icon of saltwater fishing.",
+    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Sailfish Ground 376",
+    "country": "Iceland",
+    "continent": "Various",
+    "lat": 0,
+    "lng": 0
+  },
+  "content": {
+    "title": "Mastery Series: Sailfish at Legendary Sailfish Ground 376",
+    "description": "Mastering the Sailfish in Iceland requires more than just luck. It requires an intimate understanding of the underwater topography and the specific bait cycles of Legendary Sailfish Ground 376.",
+    "bestTime": "Varies"
+  },
+  "fishing": {
+    "regulations": "Strict catch and release policies are in effect. Barbless hooks only.",
+    "isAllowed": true
+  },
+  "editorial": {
+    "introduction": "Mastering the Sailfish in Iceland requires more than just luck. It requires an intimate understanding of the underwater topography and the specific bait cycles of Legendary Sailfish Ground 376.",
+    "quote": {
+      "text": "Technical proficiency beats raw power every time when it comes to the Sailfish.",
+      "author": "Capt. Fisherman 376"
+    },
+    "sections": [
+      {
+        "heading": "Reading the Water",
+        "body": "<p>Look for the subtle current seams near the volcanic drop-offs. The Sailfish use these as ambush points, waiting for the tide to push baitfish through the channel.</p><p>Local experts emphasize that the key to success is staying mobile and checking your drag settings constantly.</p>"
+      },
+      {
+        "heading": "Lure Selection and Presentation",
+        "body": "<p>Matching the hatch is critical. If the local bait is small, downsize your profile but increase your action. A slow, rhythmic retrieve often yields the best results.</p><p>Local experts emphasize that the key to success is staying mobile and checking your drag settings constantly.</p>"
+      }
+    ]
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Editorial Board",
+      "url": "https://wherebigfish.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

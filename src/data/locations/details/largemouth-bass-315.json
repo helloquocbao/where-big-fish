@@ -1,0 +1,39 @@
+{
+  "id": "largemouth-bass-315",
+  "slug": "largemouth-bass-315",
+  "species": {
+    "commonName": "Largemouth Bass",
+    "scientificName": "Micropterus salmoides",
+    "maxWeightKg": 10,
+    "waterType": "freshwater",
+    "description": "The Largemouth Bass is one of the most sought-after game fish in Asia.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Largemouth Bass Spot 315",
+    "country": "Thailand",
+    "continent": "Asia",
+    "lat": -25.358971488717913,
+    "lng": -153.7781089804505
+  },
+  "content": {
+    "title": "Chasing Giant Largemouth Bass in Thailand",
+    "description": "Experience the thrill of catching massive Largemouth Bass in the heart of Thailand.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": true
+}

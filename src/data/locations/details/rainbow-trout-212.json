@@ -1,0 +1,39 @@
+{
+  "id": "rainbow-trout-212",
+  "slug": "rainbow-trout-212",
+  "species": {
+    "commonName": "Rainbow Trout",
+    "scientificName": "Oncorhynchus mykiss",
+    "maxWeightKg": 22,
+    "waterType": "freshwater",
+    "description": "The Rainbow Trout is one of the most sought-after game fish in Oceania.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Rainbow Trout Spot 212",
+    "country": "South Africa",
+    "continent": "Oceania",
+    "lat": 80.85860261624904,
+    "lng": 61.10433819947514
+  },
+  "content": {
+    "title": "Chasing Giant Rainbow Trout in South Africa",
+    "description": "Experience the thrill of catching massive Rainbow Trout in the heart of South Africa.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "report",
+  "featured": false
+}

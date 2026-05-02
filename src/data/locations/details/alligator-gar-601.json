@@ -1,0 +1,39 @@
+{
+  "id": "alligator-gar-601",
+  "slug": "alligator-gar-601",
+  "species": {
+    "commonName": "Alligator Gar",
+    "scientificName": "Atractosteus spatula",
+    "maxWeightKg": 150,
+    "waterType": "freshwater",
+    "description": "The legendary Alligator Gar hunt in Kenya.",
+    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Hidden Alligator Gar River 601",
+    "country": "Kenya",
+    "continent": "Africa",
+    "lat": 0,
+    "lng": 0
+  },
+  "content": {
+    "title": "The Secret of Alligator Gar in Kenya",
+    "description": "Long form story about the catch.",
+    "bestTime": "All year"
+  },
+  "fishing": {
+    "regulations": "Strict C&R.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Source",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

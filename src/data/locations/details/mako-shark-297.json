@@ -1,0 +1,39 @@
+{
+  "id": "mako-shark-297",
+  "slug": "mako-shark-297",
+  "species": {
+    "commonName": "Mako Shark",
+    "scientificName": "Isurus oxyrinchus",
+    "maxWeightKg": 500,
+    "waterType": "saltwater",
+    "description": "The Mako Shark is one of the most sought-after game fish in Oceania.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Mako Shark Spot 297",
+    "country": "Mexico",
+    "continent": "Oceania",
+    "lat": 61.68280156007984,
+    "lng": 54.649255798105116
+  },
+  "content": {
+    "title": "Chasing Giant Mako Shark in Mexico",
+    "description": "Experience the thrill of catching massive Mako Shark in the heart of Mexico.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

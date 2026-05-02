@@ -1,0 +1,83 @@
+{
+  "id": "black-marlin-panama",
+  "slug": "black-marlin-panama",
+  "species": {
+    "commonName": "Black Marlin",
+    "scientificName": "Istiompax indica",
+    "family": "Istiophoridae",
+    "maxWeight": "750 kg",
+    "maxWeightKg": 750,
+    "maxLength": "4.6 m",
+    "maxLengthCm": 465,
+    "waterType": "saltwater",
+    "conservationStatus": "Data Deficient",
+    "habitat": "Tropical and subtropical Indo-Pacific",
+    "distribution": "Australia, Southeast Asia",
+    "description": "One of the largest marlins and one of the fastest fish.",
+    "funFacts": [
+      "Can swim up to 129 km/h.",
+      "Has rigid pectoral fins."
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Black_marlin.jpg",
+    "imageCredit": "Wikimedia Commons",
+    "tags": [
+      "marlin",
+      "grander",
+      "saltwater"
+    ],
+    "speciesSlug": "black-marlin"
+  },
+  "location": {
+    "name": "Piñas Bay",
+    "country": "Panama",
+    "countryCode": "PA",
+    "region": "Global Hotspot",
+    "continent": "Worldwide",
+    "lat": 7.55,
+    "lng": -78.1833,
+    "waterType": "saltwater",
+    "waterBody": "Ocean"
+  },
+  "fishing": {
+    "isAllowed": true,
+    "permitRequired": true,
+    "notes": "World-class destination for Black Marlin.",
+    "regulations": "Local fishing laws apply. Catch and release encouraged for Black Marlin.",
+    "regulationSource": "https://www.google.com/search?q=fishing+regulations+Piñas+Bay"
+  },
+  "content": {
+    "title": "Giant Black Marlin at Piñas Bay, Panama",
+    "metaDescription": "Discover the best place to find Black Marlin in Piñas Bay. Maps, facts, and fishing info.",
+    "description": "The Piñas Bay in Panama is legendary among trophy hunters for its massive Black Marlin. Specimens here are known for their exceptional size and strength.",
+    "highlights": [
+      "World record potential.",
+      "Stunning natural beauty.",
+      "Expert guides available."
+    ],
+    "bestTime": "Varies by season",
+    "difficulty": "Hard"
+  },
+  "media": {
+    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Black_marlin.jpg",
+    "heroImageAlt": "Black Marlin",
+    "gallery": [],
+    "imageCredits": "Wikimedia Commons"
+  },
+  "sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Black_Marlin",
+      "accessedDate": "2026-05-02"
+    }
+  ],
+  "tags": [
+    "marlin",
+    "grander",
+    "saltwater",
+    "panama"
+  ],
+  "publishedAt": "2026-05-02",
+  "updatedAt": "2026-05-02",
+  "featured": true,
+  "priority": 5
+}

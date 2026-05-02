@@ -1,0 +1,39 @@
+{
+  "id": "muskellunge-303",
+  "slug": "muskellunge-303",
+  "species": {
+    "commonName": "Muskellunge",
+    "scientificName": "Esox masquinongy",
+    "maxWeightKg": 30,
+    "waterType": "freshwater",
+    "description": "The Muskellunge is one of the most sought-after game fish in Asia.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Muskellunge Spot 303",
+    "country": "Argentina",
+    "continent": "Asia",
+    "lat": 18.291669737941334,
+    "lng": -32.08155383594632
+  },
+  "content": {
+    "title": "Chasing Giant Muskellunge in Argentina",
+    "description": "Experience the thrill of catching massive Muskellunge in the heart of Argentina.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "report",
+  "featured": false
+}

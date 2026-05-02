@@ -1,0 +1,56 @@
+{
+  "id": "muskellunge-504",
+  "slug": "muskellunge-504",
+  "species": {
+    "commonName": "Muskellunge",
+    "scientificName": "Esox masquinongy",
+    "maxWeightKg": 30,
+    "waterType": "freshwater",
+    "description": "The Muskellunge is a true icon of freshwater fishing.",
+    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Muskellunge Ground 504",
+    "country": "Australia",
+    "continent": "Various",
+    "lat": 0,
+    "lng": 0
+  },
+  "content": {
+    "title": "Trophy Hunting: Muskellunge at Legendary Muskellunge Ground 504",
+    "description": "The pursuit of a monster Muskellunge is the ultimate test for any serious angler. In the pristine waters of Australia, these giants have reached legendary proportions, whispered about in local tackle shops but rarely tamed.",
+    "bestTime": "Varies"
+  },
+  "fishing": {
+    "regulations": "Strict catch and release policies are in effect. Barbless hooks only.",
+    "isAllowed": true
+  },
+  "editorial": {
+    "introduction": "The pursuit of a monster Muskellunge is the ultimate test for any serious angler. In the pristine waters of Australia, these giants have reached legendary proportions, whispered about in local tackle shops but rarely tamed.",
+    "quote": {
+      "text": "If you want the biggest Muskellunge of your life, you don't just fish Legendary Muskellunge Ground 504; you survive it.",
+      "author": "Capt. Fisherman 504"
+    },
+    "sections": [
+      {
+        "heading": "The Tactical Challenge",
+        "body": "<p>To catch a Muskellunge here, you must master the art of patience. We recommend a heavy-tackle approach, utilizing large swimbaits or live bait to trigger the predatory instincts of these massive specimens.</p><p>Local experts emphasize that the key to success is staying mobile and checking your drag settings constantly.</p>"
+      },
+      {
+        "heading": "Peak Migration Windows",
+        "body": "<p>The best time to target these giants is during the moon phase changes in mid-season. The barometric pressure drops often signal a feeding frenzy that can last for hours.</p><p>Local experts emphasize that the key to success is staying mobile and checking your drag settings constantly.</p>"
+      }
+    ]
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Editorial Board",
+      "url": "https://wherebigfish.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

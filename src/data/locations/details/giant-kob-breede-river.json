@@ -1,0 +1,83 @@
+{
+  "id": "giant-kob-breede-river",
+  "slug": "giant-kob-breede-river",
+  "species": {
+    "commonName": "Giant Kob",
+    "scientificName": "Argyrosomus japonicus",
+    "family": "Sciaenidae",
+    "maxWeight": "75 kg",
+    "maxWeightKg": 75,
+    "maxLength": "1.8 m",
+    "maxLengthCm": 180,
+    "waterType": "brackish",
+    "conservationStatus": "Least Concern",
+    "habitat": "Estuaries and coastal waters",
+    "distribution": "Indo-Pacific",
+    "description": "Prized estuary species in South Africa.",
+    "funFacts": [
+      "Make loud croaking sounds.",
+      "Known as 'Kabeljou'."
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Argyrosomus_japonicus.jpg",
+    "imageCredit": "Wikimedia Commons",
+    "tags": [
+      "kob",
+      "brackish",
+      "estuary"
+    ],
+    "speciesSlug": "giant-kob"
+  },
+  "location": {
+    "name": "Breede River",
+    "country": "South Africa",
+    "countryCode": "SO",
+    "region": "Global Hotspot",
+    "continent": "Worldwide",
+    "lat": -34.4053,
+    "lng": 20.8521,
+    "waterType": "brackish",
+    "waterBody": "River"
+  },
+  "fishing": {
+    "isAllowed": true,
+    "permitRequired": true,
+    "notes": "World-class destination for Giant Kob.",
+    "regulations": "Local fishing laws apply. Catch and release encouraged for Giant Kob.",
+    "regulationSource": "https://www.google.com/search?q=fishing+regulations+Breede+River"
+  },
+  "content": {
+    "title": "Giant Giant Kob at Breede River, South Africa",
+    "metaDescription": "Discover the best place to find Giant Kob in Breede River. Maps, facts, and fishing info.",
+    "description": "The Breede River in South Africa is legendary among trophy hunters for its massive Giant Kob. Specimens here are known for their exceptional size and strength.",
+    "highlights": [
+      "World record potential.",
+      "Stunning natural beauty.",
+      "Expert guides available."
+    ],
+    "bestTime": "Varies by season",
+    "difficulty": "Hard"
+  },
+  "media": {
+    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Argyrosomus_japonicus.jpg",
+    "heroImageAlt": "Giant Kob",
+    "gallery": [],
+    "imageCredits": "Wikimedia Commons"
+  },
+  "sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Giant_Kob",
+      "accessedDate": "2026-05-02"
+    }
+  ],
+  "tags": [
+    "kob",
+    "brackish",
+    "estuary",
+    "south africa"
+  ],
+  "publishedAt": "2026-05-02",
+  "updatedAt": "2026-05-02",
+  "featured": true,
+  "priority": 5
+}

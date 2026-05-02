@@ -1,0 +1,39 @@
+{
+  "id": "bonefish-127",
+  "slug": "bonefish-127",
+  "species": {
+    "commonName": "Bonefish",
+    "scientificName": "Albula vulpes",
+    "maxWeightKg": 8,
+    "waterType": "saltwater",
+    "description": "The Bonefish is one of the most sought-after game fish in Europe.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Bonefish Spot 127",
+    "country": "Norway",
+    "continent": "Europe",
+    "lat": -3.271670396555848,
+    "lng": -63.94037274224904
+  },
+  "content": {
+    "title": "Chasing Giant Bonefish in Norway",
+    "description": "Experience the thrill of catching massive Bonefish in the heart of Norway.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "report",
+  "featured": true
+}

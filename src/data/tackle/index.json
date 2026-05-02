@@ -1,0 +1,694 @@
+[
+  {
+    "slug": "shimano-stella-sw-review",
+    "title": "Shimano Stella SW: The Absolute Apex of Saltwater Reels",
+    "brand": "Shimano",
+    "category": "Reels",
+    "rating": 5,
+    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "We put the world's most expensive spinning reel through 12 months of brutal saltwater testing. Is it still the king?",
+    "tags": [
+      "Reels",
+      "Saltwater",
+      "Premium"
+    ]
+  },
+  {
+    "slug": "st-croix-legend-surf-review",
+    "title": "St. Croix Legend Surf: Casting into the Horizon",
+    "brand": "St. Croix",
+    "category": "Rods",
+    "rating": 4.5,
+    "heroImage": "https://images.unsplash.com/photo-1615848685022-772879590740?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "The Legend Surf series promises unmatched distance and sensitivity. We tested the 11-foot heavy model in the Cape Cod surf.",
+    "tags": [
+      "Rods",
+      "Surf Fishing",
+      "High-End"
+    ]
+  },
+  {
+    "slug": "powerpro-super8-slick-v2",
+    "title": "PowerPro Super8Slick V2: The Quietest Braid?",
+    "brand": "PowerPro",
+    "category": "Lines",
+    "rating": 4.8,
+    "heroImage": "https://images.unsplash.com/photo-1516937941344-00b4e0337589?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Silent casting and incredible abrasion resistance. Why the V2 is a mandatory upgrade for your spinning setups.",
+    "tags": [
+      "Lines",
+      "Braided",
+      "Technical"
+    ]
+  },
+  {
+    "slug": "shimano-lines-elite-series-1",
+    "title": "Review: Shimano Lines Elite Series 1",
+    "brand": "Shimano",
+    "category": "Lines",
+    "rating": 4.5682021732918106,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Shimano Lines Elite Series 1 worth the premium price tag?",
+    "tags": [
+      "Shimano",
+      "Lines"
+    ]
+  },
+  {
+    "slug": "daiwa-lures-elite-series-2",
+    "title": "Review: Daiwa Lures Elite Series 2",
+    "brand": "Daiwa",
+    "category": "Lures",
+    "rating": 4.859021989439097,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Daiwa Lures Elite Series 2 worth the premium price tag?",
+    "tags": [
+      "Daiwa",
+      "Lures"
+    ]
+  },
+  {
+    "slug": "penn-accessories-elite-series-3",
+    "title": "Review: Penn Accessories Elite Series 3",
+    "brand": "Penn",
+    "category": "Accessories",
+    "rating": 4.271768260256363,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Penn Accessories Elite Series 3 worth the premium price tag?",
+    "tags": [
+      "Penn",
+      "Accessories"
+    ]
+  },
+  {
+    "slug": "st.-croix-accessories-elite-series-4",
+    "title": "Review: St. Croix Accessories Elite Series 4",
+    "brand": "St. Croix",
+    "category": "Accessories",
+    "rating": 4.369301223370315,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new St. Croix Accessories Elite Series 4 worth the premium price tag?",
+    "tags": [
+      "St. Croix",
+      "Accessories"
+    ]
+  },
+  {
+    "slug": "penn-accessories-elite-series-5",
+    "title": "Review: Penn Accessories Elite Series 5",
+    "brand": "Penn",
+    "category": "Accessories",
+    "rating": 4.708407669673946,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Penn Accessories Elite Series 5 worth the premium price tag?",
+    "tags": [
+      "Penn",
+      "Accessories"
+    ]
+  },
+  {
+    "slug": "shimano-accessories-elite-series-6",
+    "title": "Review: Shimano Accessories Elite Series 6",
+    "brand": "Shimano",
+    "category": "Accessories",
+    "rating": 4.964181202373364,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Shimano Accessories Elite Series 6 worth the premium price tag?",
+    "tags": [
+      "Shimano",
+      "Accessories"
+    ]
+  },
+  {
+    "slug": "st.-croix-rods-elite-series-7",
+    "title": "Review: St. Croix Rods Elite Series 7",
+    "brand": "St. Croix",
+    "category": "Rods",
+    "rating": 4.525209746547912,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new St. Croix Rods Elite Series 7 worth the premium price tag?",
+    "tags": [
+      "St. Croix",
+      "Rods"
+    ]
+  },
+  {
+    "slug": "shimano-lures-elite-series-8",
+    "title": "Review: Shimano Lures Elite Series 8",
+    "brand": "Shimano",
+    "category": "Lures",
+    "rating": 4.465999127401924,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Shimano Lures Elite Series 8 worth the premium price tag?",
+    "tags": [
+      "Shimano",
+      "Lures"
+    ]
+  },
+  {
+    "slug": "penn-lines-elite-series-9",
+    "title": "Review: Penn Lines Elite Series 9",
+    "brand": "Penn",
+    "category": "Lines",
+    "rating": 4.620705915638284,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Penn Lines Elite Series 9 worth the premium price tag?",
+    "tags": [
+      "Penn",
+      "Lines"
+    ]
+  },
+  {
+    "slug": "shimano-reels-elite-series-10",
+    "title": "Review: Shimano Reels Elite Series 10",
+    "brand": "Shimano",
+    "category": "Reels",
+    "rating": 4.694502711166187,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Shimano Reels Elite Series 10 worth the premium price tag?",
+    "tags": [
+      "Shimano",
+      "Reels"
+    ]
+  },
+  {
+    "slug": "shimano-rods-elite-series-11",
+    "title": "Review: Shimano Rods Elite Series 11",
+    "brand": "Shimano",
+    "category": "Rods",
+    "rating": 4.60842249235068,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Shimano Rods Elite Series 11 worth the premium price tag?",
+    "tags": [
+      "Shimano",
+      "Rods"
+    ]
+  },
+  {
+    "slug": "daiwa-accessories-elite-series-12",
+    "title": "Review: Daiwa Accessories Elite Series 12",
+    "brand": "Daiwa",
+    "category": "Accessories",
+    "rating": 4.864997013046849,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Daiwa Accessories Elite Series 12 worth the premium price tag?",
+    "tags": [
+      "Daiwa",
+      "Accessories"
+    ]
+  },
+  {
+    "slug": "abu-garcia-lines-elite-series-13",
+    "title": "Review: Abu Garcia Lines Elite Series 13",
+    "brand": "Abu Garcia",
+    "category": "Lines",
+    "rating": 4.5067034079043875,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Abu Garcia Lines Elite Series 13 worth the premium price tag?",
+    "tags": [
+      "Abu Garcia",
+      "Lines"
+    ]
+  },
+  {
+    "slug": "shimano-lines-elite-series-14",
+    "title": "Review: Shimano Lines Elite Series 14",
+    "brand": "Shimano",
+    "category": "Lines",
+    "rating": 4.548155686069345,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Shimano Lines Elite Series 14 worth the premium price tag?",
+    "tags": [
+      "Shimano",
+      "Lines"
+    ]
+  },
+  {
+    "slug": "daiwa-accessories-elite-series-15",
+    "title": "Review: Daiwa Accessories Elite Series 15",
+    "brand": "Daiwa",
+    "category": "Accessories",
+    "rating": 4.7076882411004375,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Daiwa Accessories Elite Series 15 worth the premium price tag?",
+    "tags": [
+      "Daiwa",
+      "Accessories"
+    ]
+  },
+  {
+    "slug": "g.-loomis-rods-elite-series-16",
+    "title": "Review: G. Loomis Rods Elite Series 16",
+    "brand": "G. Loomis",
+    "category": "Rods",
+    "rating": 4.0032317577236425,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new G. Loomis Rods Elite Series 16 worth the premium price tag?",
+    "tags": [
+      "G. Loomis",
+      "Rods"
+    ]
+  },
+  {
+    "slug": "penn-accessories-elite-series-17",
+    "title": "Review: Penn Accessories Elite Series 17",
+    "brand": "Penn",
+    "category": "Accessories",
+    "rating": 4.199544835318277,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Penn Accessories Elite Series 17 worth the premium price tag?",
+    "tags": [
+      "Penn",
+      "Accessories"
+    ]
+  },
+  {
+    "slug": "st.-croix-rods-elite-series-18",
+    "title": "Review: St. Croix Rods Elite Series 18",
+    "brand": "St. Croix",
+    "category": "Rods",
+    "rating": 4.622170064253211,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new St. Croix Rods Elite Series 18 worth the premium price tag?",
+    "tags": [
+      "St. Croix",
+      "Rods"
+    ]
+  },
+  {
+    "slug": "st.-croix-accessories-elite-series-19",
+    "title": "Review: St. Croix Accessories Elite Series 19",
+    "brand": "St. Croix",
+    "category": "Accessories",
+    "rating": 4.461846810002258,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new St. Croix Accessories Elite Series 19 worth the premium price tag?",
+    "tags": [
+      "St. Croix",
+      "Accessories"
+    ]
+  },
+  {
+    "slug": "penn-lines-elite-series-20",
+    "title": "Review: Penn Lines Elite Series 20",
+    "brand": "Penn",
+    "category": "Lines",
+    "rating": 4.631037925703089,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Penn Lines Elite Series 20 worth the premium price tag?",
+    "tags": [
+      "Penn",
+      "Lines"
+    ]
+  },
+  {
+    "slug": "st.-croix-accessories-elite-series-21",
+    "title": "Review: St. Croix Accessories Elite Series 21",
+    "brand": "St. Croix",
+    "category": "Accessories",
+    "rating": 4.744399530914249,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new St. Croix Accessories Elite Series 21 worth the premium price tag?",
+    "tags": [
+      "St. Croix",
+      "Accessories"
+    ]
+  },
+  {
+    "slug": "shimano-lures-elite-series-22",
+    "title": "Review: Shimano Lures Elite Series 22",
+    "brand": "Shimano",
+    "category": "Lures",
+    "rating": 4.152865720066055,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Shimano Lures Elite Series 22 worth the premium price tag?",
+    "tags": [
+      "Shimano",
+      "Lures"
+    ]
+  },
+  {
+    "slug": "penn-reels-elite-series-23",
+    "title": "Review: Penn Reels Elite Series 23",
+    "brand": "Penn",
+    "category": "Reels",
+    "rating": 4.9161187720859285,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Penn Reels Elite Series 23 worth the premium price tag?",
+    "tags": [
+      "Penn",
+      "Reels"
+    ]
+  },
+  {
+    "slug": "shimano-lures-elite-series-24",
+    "title": "Review: Shimano Lures Elite Series 24",
+    "brand": "Shimano",
+    "category": "Lures",
+    "rating": 4.636417885795868,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Shimano Lures Elite Series 24 worth the premium price tag?",
+    "tags": [
+      "Shimano",
+      "Lures"
+    ]
+  },
+  {
+    "slug": "st.-croix-accessories-elite-series-25",
+    "title": "Review: St. Croix Accessories Elite Series 25",
+    "brand": "St. Croix",
+    "category": "Accessories",
+    "rating": 4.487535890791734,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new St. Croix Accessories Elite Series 25 worth the premium price tag?",
+    "tags": [
+      "St. Croix",
+      "Accessories"
+    ]
+  },
+  {
+    "slug": "abu-garcia-accessories-elite-series-26",
+    "title": "Review: Abu Garcia Accessories Elite Series 26",
+    "brand": "Abu Garcia",
+    "category": "Accessories",
+    "rating": 4.397400329627815,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Abu Garcia Accessories Elite Series 26 worth the premium price tag?",
+    "tags": [
+      "Abu Garcia",
+      "Accessories"
+    ]
+  },
+  {
+    "slug": "penn-accessories-elite-series-27",
+    "title": "Review: Penn Accessories Elite Series 27",
+    "brand": "Penn",
+    "category": "Accessories",
+    "rating": 4.647695932397408,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Penn Accessories Elite Series 27 worth the premium price tag?",
+    "tags": [
+      "Penn",
+      "Accessories"
+    ]
+  },
+  {
+    "slug": "abu-garcia-reels-elite-series-28",
+    "title": "Review: Abu Garcia Reels Elite Series 28",
+    "brand": "Abu Garcia",
+    "category": "Reels",
+    "rating": 4.375112333096964,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Abu Garcia Reels Elite Series 28 worth the premium price tag?",
+    "tags": [
+      "Abu Garcia",
+      "Reels"
+    ]
+  },
+  {
+    "slug": "shimano-lines-elite-series-29",
+    "title": "Review: Shimano Lines Elite Series 29",
+    "brand": "Shimano",
+    "category": "Lines",
+    "rating": 4.133952631808077,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Shimano Lines Elite Series 29 worth the premium price tag?",
+    "tags": [
+      "Shimano",
+      "Lines"
+    ]
+  },
+  {
+    "slug": "abu-garcia-lures-elite-series-30",
+    "title": "Review: Abu Garcia Lures Elite Series 30",
+    "brand": "Abu Garcia",
+    "category": "Lures",
+    "rating": 4.5506834355961745,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Abu Garcia Lures Elite Series 30 worth the premium price tag?",
+    "tags": [
+      "Abu Garcia",
+      "Lures"
+    ]
+  },
+  {
+    "slug": "g.-loomis-lines-elite-series-31",
+    "title": "Review: G. Loomis Lines Elite Series 31",
+    "brand": "G. Loomis",
+    "category": "Lines",
+    "rating": 4.011137420533542,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new G. Loomis Lines Elite Series 31 worth the premium price tag?",
+    "tags": [
+      "G. Loomis",
+      "Lines"
+    ]
+  },
+  {
+    "slug": "abu-garcia-lures-elite-series-32",
+    "title": "Review: Abu Garcia Lures Elite Series 32",
+    "brand": "Abu Garcia",
+    "category": "Lures",
+    "rating": 4.022797388373152,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Abu Garcia Lures Elite Series 32 worth the premium price tag?",
+    "tags": [
+      "Abu Garcia",
+      "Lures"
+    ]
+  },
+  {
+    "slug": "st.-croix-reels-elite-series-33",
+    "title": "Review: St. Croix Reels Elite Series 33",
+    "brand": "St. Croix",
+    "category": "Reels",
+    "rating": 4.64725694011264,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new St. Croix Reels Elite Series 33 worth the premium price tag?",
+    "tags": [
+      "St. Croix",
+      "Reels"
+    ]
+  },
+  {
+    "slug": "penn-lures-elite-series-34",
+    "title": "Review: Penn Lures Elite Series 34",
+    "brand": "Penn",
+    "category": "Lures",
+    "rating": 4.030662986864063,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Penn Lures Elite Series 34 worth the premium price tag?",
+    "tags": [
+      "Penn",
+      "Lures"
+    ]
+  },
+  {
+    "slug": "abu-garcia-lures-elite-series-35",
+    "title": "Review: Abu Garcia Lures Elite Series 35",
+    "brand": "Abu Garcia",
+    "category": "Lures",
+    "rating": 4.118407686636639,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Abu Garcia Lures Elite Series 35 worth the premium price tag?",
+    "tags": [
+      "Abu Garcia",
+      "Lures"
+    ]
+  },
+  {
+    "slug": "daiwa-rods-elite-series-36",
+    "title": "Review: Daiwa Rods Elite Series 36",
+    "brand": "Daiwa",
+    "category": "Rods",
+    "rating": 4.309748515788561,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Daiwa Rods Elite Series 36 worth the premium price tag?",
+    "tags": [
+      "Daiwa",
+      "Rods"
+    ]
+  },
+  {
+    "slug": "st.-croix-reels-elite-series-37",
+    "title": "Review: St. Croix Reels Elite Series 37",
+    "brand": "St. Croix",
+    "category": "Reels",
+    "rating": 4.569998892374504,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new St. Croix Reels Elite Series 37 worth the premium price tag?",
+    "tags": [
+      "St. Croix",
+      "Reels"
+    ]
+  },
+  {
+    "slug": "g.-loomis-accessories-elite-series-38",
+    "title": "Review: G. Loomis Accessories Elite Series 38",
+    "brand": "G. Loomis",
+    "category": "Accessories",
+    "rating": 4.904210001627439,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new G. Loomis Accessories Elite Series 38 worth the premium price tag?",
+    "tags": [
+      "G. Loomis",
+      "Accessories"
+    ]
+  },
+  {
+    "slug": "g.-loomis-lures-elite-series-39",
+    "title": "Review: G. Loomis Lures Elite Series 39",
+    "brand": "G. Loomis",
+    "category": "Lures",
+    "rating": 4.06233315993464,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new G. Loomis Lures Elite Series 39 worth the premium price tag?",
+    "tags": [
+      "G. Loomis",
+      "Lures"
+    ]
+  },
+  {
+    "slug": "g.-loomis-lines-elite-series-40",
+    "title": "Review: G. Loomis Lines Elite Series 40",
+    "brand": "G. Loomis",
+    "category": "Lines",
+    "rating": 4.411644067532523,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new G. Loomis Lines Elite Series 40 worth the premium price tag?",
+    "tags": [
+      "G. Loomis",
+      "Lines"
+    ]
+  },
+  {
+    "slug": "abu-garcia-rods-elite-series-41",
+    "title": "Review: Abu Garcia Rods Elite Series 41",
+    "brand": "Abu Garcia",
+    "category": "Rods",
+    "rating": 4.960091881092679,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Abu Garcia Rods Elite Series 41 worth the premium price tag?",
+    "tags": [
+      "Abu Garcia",
+      "Rods"
+    ]
+  },
+  {
+    "slug": "g.-loomis-accessories-elite-series-42",
+    "title": "Review: G. Loomis Accessories Elite Series 42",
+    "brand": "G. Loomis",
+    "category": "Accessories",
+    "rating": 4.1220009867491285,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new G. Loomis Accessories Elite Series 42 worth the premium price tag?",
+    "tags": [
+      "G. Loomis",
+      "Accessories"
+    ]
+  },
+  {
+    "slug": "g.-loomis-rods-elite-series-43",
+    "title": "Review: G. Loomis Rods Elite Series 43",
+    "brand": "G. Loomis",
+    "category": "Rods",
+    "rating": 4.9565159511134835,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new G. Loomis Rods Elite Series 43 worth the premium price tag?",
+    "tags": [
+      "G. Loomis",
+      "Rods"
+    ]
+  },
+  {
+    "slug": "g.-loomis-lures-elite-series-44",
+    "title": "Review: G. Loomis Lures Elite Series 44",
+    "brand": "G. Loomis",
+    "category": "Lures",
+    "rating": 4.435531512540935,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new G. Loomis Lures Elite Series 44 worth the premium price tag?",
+    "tags": [
+      "G. Loomis",
+      "Lures"
+    ]
+  },
+  {
+    "slug": "penn-rods-elite-series-45",
+    "title": "Review: Penn Rods Elite Series 45",
+    "brand": "Penn",
+    "category": "Rods",
+    "rating": 4.894935672545393,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Penn Rods Elite Series 45 worth the premium price tag?",
+    "tags": [
+      "Penn",
+      "Rods"
+    ]
+  },
+  {
+    "slug": "st.-croix-accessories-elite-series-46",
+    "title": "Review: St. Croix Accessories Elite Series 46",
+    "brand": "St. Croix",
+    "category": "Accessories",
+    "rating": 4.071186929232658,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new St. Croix Accessories Elite Series 46 worth the premium price tag?",
+    "tags": [
+      "St. Croix",
+      "Accessories"
+    ]
+  },
+  {
+    "slug": "daiwa-rods-elite-series-47",
+    "title": "Review: Daiwa Rods Elite Series 47",
+    "brand": "Daiwa",
+    "category": "Rods",
+    "rating": 4.462410303092786,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Daiwa Rods Elite Series 47 worth the premium price tag?",
+    "tags": [
+      "Daiwa",
+      "Rods"
+    ]
+  },
+  {
+    "slug": "shimano-lines-elite-series-48",
+    "title": "Review: Shimano Lines Elite Series 48",
+    "brand": "Shimano",
+    "category": "Lines",
+    "rating": 4.874654710563153,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new Shimano Lines Elite Series 48 worth the premium price tag?",
+    "tags": [
+      "Shimano",
+      "Lines"
+    ]
+  },
+  {
+    "slug": "g.-loomis-rods-elite-series-49",
+    "title": "Review: G. Loomis Rods Elite Series 49",
+    "brand": "G. Loomis",
+    "category": "Rods",
+    "rating": 4.239425588944938,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new G. Loomis Rods Elite Series 49 worth the premium price tag?",
+    "tags": [
+      "G. Loomis",
+      "Rods"
+    ]
+  },
+  {
+    "slug": "g.-loomis-reels-elite-series-50",
+    "title": "Review: G. Loomis Reels Elite Series 50",
+    "brand": "G. Loomis",
+    "category": "Reels",
+    "rating": 4.262674315756357,
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+    "excerpt": "Is the new G. Loomis Reels Elite Series 50 worth the premium price tag?",
+    "tags": [
+      "G. Loomis",
+      "Reels"
+    ]
+  }
+]

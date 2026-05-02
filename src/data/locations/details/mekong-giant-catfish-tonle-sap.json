@@ -1,0 +1,84 @@
+{
+  "id": "mekong-giant-catfish-tonle-sap",
+  "slug": "mekong-giant-catfish-tonle-sap",
+  "species": {
+    "commonName": "Mekong Giant Catfish",
+    "scientificName": "Pangasianodon gigas",
+    "family": "Pangasiidae",
+    "order": "Siluriformes",
+    "maxWeight": "300 kg",
+    "maxWeightKg": 300,
+    "maxLength": "3 m",
+    "maxLengthCm": 300,
+    "waterType": "freshwater",
+    "conservationStatus": "Critically Endangered",
+    "habitat": "Large rivers and lakes",
+    "distribution": "Mekong River basin",
+    "description": "The Mekong giant catfish is a species of catfish in the shark catfish family. It is among the largest freshwater fish in the world.",
+    "funFacts": [
+      "Grow to the size of a grizzly bear.",
+      "Toothless and feeds on algae."
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Pangasianodon_gigas_size.png",
+    "imageCredit": "Wikimedia Commons",
+    "tags": [
+      "catfish",
+      "giant",
+      "freshwater"
+    ],
+    "speciesSlug": "mekong-giant-catfish"
+  },
+  "location": {
+    "name": "Tonle Sap Lake",
+    "country": "Cambodia",
+    "countryCode": "CA",
+    "region": "Global Hotspot",
+    "continent": "Worldwide",
+    "lat": 12.8333,
+    "lng": 104.0833,
+    "waterType": "freshwater",
+    "waterBody": "Lake"
+  },
+  "fishing": {
+    "isAllowed": true,
+    "permitRequired": true,
+    "notes": "World-class destination for Mekong Giant Catfish.",
+    "regulations": "Local fishing laws apply. Catch and release encouraged for Mekong Giant Catfish.",
+    "regulationSource": "https://www.google.com/search?q=fishing+regulations+Tonle+Sap+Lake"
+  },
+  "content": {
+    "title": "Giant Mekong Giant Catfish at Tonle Sap Lake, Cambodia",
+    "metaDescription": "Discover the best place to find Mekong Giant Catfish in Tonle Sap Lake. Maps, facts, and fishing info.",
+    "description": "The Tonle Sap Lake in Cambodia is legendary among trophy hunters for its massive Mekong Giant Catfish. Specimens here are known for their exceptional size and strength.",
+    "highlights": [
+      "World record potential.",
+      "Stunning natural beauty.",
+      "Expert guides available."
+    ],
+    "bestTime": "Varies by season",
+    "difficulty": "Hard"
+  },
+  "media": {
+    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Pangasianodon_gigas_size.png",
+    "heroImageAlt": "Mekong Giant Catfish",
+    "gallery": [],
+    "imageCredits": "Wikimedia Commons"
+  },
+  "sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Mekong_Giant_Catfish",
+      "accessedDate": "2026-05-02"
+    }
+  ],
+  "tags": [
+    "catfish",
+    "giant",
+    "freshwater",
+    "cambodia"
+  ],
+  "publishedAt": "2026-05-02",
+  "updatedAt": "2026-05-02",
+  "featured": true,
+  "priority": 5
+}

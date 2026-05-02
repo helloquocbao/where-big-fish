@@ -1,0 +1,107 @@
+.location-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--surface-bright);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--surface-variant);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.location-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.card-image-wrapper {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.location-card:hover .card-image {
+  transform: scale(1.05);
+}
+
+.card-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background-color: var(--secondary);
+  color: white;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+}
+
+.card-body {
+  padding: 20px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--on-surface);
+  margin-bottom: 8px;
+  transition: color 0.3s ease;
+}
+
+.location-card:hover .card-title {
+  color: var(--secondary);
+}
+
+.card-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--on-surface-variant);
+  margin-bottom: 16px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.card-stats-bar {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-variant);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--outline);
+}
+
+.stat-pill .material-symbols-outlined {
+  font-size: 14px;
+}
+
+.stat-pill.species {
+  color: #ba1a1a;
+}

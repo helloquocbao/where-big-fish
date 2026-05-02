@@ -1,0 +1,83 @@
+{
+  "id": "pacific-sailfish-iztapa",
+  "slug": "pacific-sailfish-iztapa",
+  "species": {
+    "commonName": "Pacific Sailfish",
+    "scientificName": "Istiophorus platypterus",
+    "family": "Istiophoridae",
+    "maxWeight": "100 kg",
+    "maxWeightKg": 100,
+    "maxLength": "3.4 m",
+    "maxLengthCm": 340,
+    "waterType": "saltwater",
+    "conservationStatus": "Least Concern",
+    "habitat": "Open ocean",
+    "distribution": "Pacific and Indian Oceans",
+    "description": "Fastest fish in the ocean with a massive sail.",
+    "funFacts": [
+      "Speeds over 68 mph.",
+      "Sail helps corral prey."
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/7/77/Istiophorus_platypterus.jpg",
+    "imageCredit": "Wikimedia Commons",
+    "tags": [
+      "sailfish",
+      "saltwater",
+      "speed"
+    ],
+    "speciesSlug": "pacific-sailfish"
+  },
+  "location": {
+    "name": "Iztapa",
+    "country": "Guatemala",
+    "countryCode": "GU",
+    "region": "Global Hotspot",
+    "continent": "Worldwide",
+    "lat": 13.9317,
+    "lng": -90.71,
+    "waterType": "saltwater",
+    "waterBody": "Ocean"
+  },
+  "fishing": {
+    "isAllowed": true,
+    "permitRequired": true,
+    "notes": "World-class destination for Pacific Sailfish.",
+    "regulations": "Local fishing laws apply. Catch and release encouraged for Pacific Sailfish.",
+    "regulationSource": "https://www.google.com/search?q=fishing+regulations+Iztapa"
+  },
+  "content": {
+    "title": "Giant Pacific Sailfish at Iztapa, Guatemala",
+    "metaDescription": "Discover the best place to find Pacific Sailfish in Iztapa. Maps, facts, and fishing info.",
+    "description": "The Iztapa in Guatemala is legendary among trophy hunters for its massive Pacific Sailfish. Specimens here are known for their exceptional size and strength.",
+    "highlights": [
+      "World record potential.",
+      "Stunning natural beauty.",
+      "Expert guides available."
+    ],
+    "bestTime": "Varies by season",
+    "difficulty": "Hard"
+  },
+  "media": {
+    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/7/77/Istiophorus_platypterus.jpg",
+    "heroImageAlt": "Pacific Sailfish",
+    "gallery": [],
+    "imageCredits": "Wikimedia Commons"
+  },
+  "sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Pacific_Sailfish",
+      "accessedDate": "2026-05-02"
+    }
+  ],
+  "tags": [
+    "sailfish",
+    "saltwater",
+    "speed",
+    "guatemala"
+  ],
+  "publishedAt": "2026-05-02",
+  "updatedAt": "2026-05-02",
+  "featured": true,
+  "priority": 5
+}

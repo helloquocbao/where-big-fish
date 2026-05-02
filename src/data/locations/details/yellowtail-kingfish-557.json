@@ -1,0 +1,56 @@
+{
+  "id": "yellowtail-kingfish-557",
+  "slug": "yellowtail-kingfish-557",
+  "species": {
+    "commonName": "Yellowtail Kingfish",
+    "scientificName": "Seriola lalandi",
+    "maxWeightKg": 70,
+    "waterType": "saltwater",
+    "description": "The Yellowtail Kingfish is a true icon of saltwater fishing.",
+    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Yellowtail Kingfish Ground 557",
+    "country": "Vietnam",
+    "continent": "Various",
+    "lat": 0,
+    "lng": 0
+  },
+  "content": {
+    "title": "Remote Expedition: Yellowtail Kingfish at Legendary Yellowtail Kingfish Ground 557",
+    "description": "Journeying to Legendary Yellowtail Kingfish Ground 557 in Vietnam is not for the faint of heart. This is raw, untouched fishing at its finest, where the Yellowtail Kingfish grow old and bold in the absence of commercial pressure.",
+    "bestTime": "Varies"
+  },
+  "fishing": {
+    "regulations": "Strict catch and release policies are in effect. Barbless hooks only.",
+    "isAllowed": true
+  },
+  "editorial": {
+    "introduction": "Journeying to Legendary Yellowtail Kingfish Ground 557 in Vietnam is not for the faint of heart. This is raw, untouched fishing at its finest, where the Yellowtail Kingfish grow old and bold in the absence of commercial pressure.",
+    "quote": {
+      "text": "There is no cell service, no dock, and no room for error. Just you and the Yellowtail Kingfish.",
+      "author": "Capt. Fisherman 557"
+    },
+    "sections": [
+      {
+        "heading": "Navigating the Wilds",
+        "body": "<p>Getting to these grounds requires a multi-day trek or a specialized bush plane. Once there, you'll be fishing in waters that see fewer than a dozen anglers a year.</p><p>Local experts emphasize that the key to success is staying mobile and checking your drag settings constantly.</p>"
+      },
+      {
+        "heading": "Essential Gear for Survival",
+        "body": "<p>Reliability is everything when you're 200 miles from the nearest town. High-quality waterproof reels and multi-piece travel rods are the standard for this expedition.</p><p>Local experts emphasize that the key to success is staying mobile and checking your drag settings constantly.</p>"
+      }
+    ]
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Editorial Board",
+      "url": "https://wherebigfish.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

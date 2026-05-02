@@ -1,0 +1,39 @@
+{
+  "id": "yellowfin-tuna-357",
+  "slug": "yellowfin-tuna-357",
+  "species": {
+    "commonName": "Yellowfin Tuna",
+    "scientificName": "Thunnus albacares",
+    "maxWeightKg": 180,
+    "waterType": "saltwater",
+    "description": "The Yellowfin Tuna is one of the most sought-after game fish in Africa.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Yellowfin Tuna Spot 357",
+    "country": "USA",
+    "continent": "Africa",
+    "lat": 85.58032878111297,
+    "lng": 73.26811318286809
+  },
+  "content": {
+    "title": "Chasing Giant Yellowfin Tuna in USA",
+    "description": "Experience the thrill of catching massive Yellowfin Tuna in the heart of USA.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": true
+}

@@ -1,0 +1,19 @@
+{
+  "slug": "shimano-stella-sw-review",
+  "title": "Shimano Stella SW: The Absolute Apex of Saltwater Reels",
+  "brand": "Shimano",
+  "category": "Reels",
+  "rating": 5,
+  "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
+  "excerpt": "We put the world's most expensive spinning reel through 12 months of brutal saltwater testing. Is it still the king?",
+  "content": {
+    "intro": "The Shimano Stella SW is more than just a fishing reel; it's a statement. Since its inception, the Stella series has been the benchmark against which all other saltwater spinning reels are measured.",
+    "performance": "In our tests, the Infinity Drive system provided a level of cranking power we've never felt in a spinning reel. Fighting 100lb bluefin tuna felt controlled, even at maximum drag settings.",
+    "verdict": "If you can afford the entry price, there is simply no better tool for the job. It is a masterpiece of Japanese engineering."
+  },
+  "specs": [
+    {"label": "Gear Ratio", "value": "6.2:1"},
+    {"label": "Max Drag", "value": "25kg"},
+    {"label": "Weight", "value": "625g"}
+  ]
+}

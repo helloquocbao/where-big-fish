@@ -1,0 +1,39 @@
+{
+  "id": "arapaima-537",
+  "slug": "arapaima-537",
+  "species": {
+    "commonName": "Arapaima",
+    "scientificName": "Arapaima gigas",
+    "maxWeightKg": 200,
+    "waterType": "freshwater",
+    "description": "The legendary Arapaima hunt in Iceland.",
+    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Hidden Arapaima River 537",
+    "country": "Iceland",
+    "continent": "Asia",
+    "lat": 0,
+    "lng": 0
+  },
+  "content": {
+    "title": "The Secret of Arapaima in Iceland",
+    "description": "Long form story about the catch.",
+    "bestTime": "All year"
+  },
+  "fishing": {
+    "regulations": "Strict C&R.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Source",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

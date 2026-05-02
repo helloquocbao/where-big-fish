@@ -1,0 +1,39 @@
+{
+  "id": "barramundi-108",
+  "slug": "barramundi-108",
+  "species": {
+    "commonName": "Barramundi",
+    "scientificName": "Lates calcarifer",
+    "maxWeightKg": 60,
+    "waterType": "brackish",
+    "description": "The Barramundi is one of the most sought-after game fish in Asia.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Barramundi Spot 108",
+    "country": "South Africa",
+    "continent": "Asia",
+    "lat": 34.16507461492611,
+    "lng": 91.61494097419472
+  },
+  "content": {
+    "title": "Chasing Giant Barramundi in South Africa",
+    "description": "Experience the thrill of catching massive Barramundi in the heart of South Africa.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "report",
+  "featured": false
+}

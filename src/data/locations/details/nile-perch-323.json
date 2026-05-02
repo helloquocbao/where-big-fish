@@ -1,0 +1,56 @@
+{
+  "id": "nile-perch-323",
+  "slug": "nile-perch-323",
+  "species": {
+    "commonName": "Nile Perch",
+    "scientificName": "Lates niloticus",
+    "maxWeightKg": 200,
+    "waterType": "freshwater",
+    "description": "The Nile Perch is a true icon of freshwater fishing.",
+    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Nile Perch Ground 323",
+    "country": "Canada",
+    "continent": "Various",
+    "lat": 0,
+    "lng": 0
+  },
+  "content": {
+    "title": "Remote Expedition: Nile Perch at Legendary Nile Perch Ground 323",
+    "description": "Journeying to Legendary Nile Perch Ground 323 in Canada is not for the faint of heart. This is raw, untouched fishing at its finest, where the Nile Perch grow old and bold in the absence of commercial pressure.",
+    "bestTime": "Varies"
+  },
+  "fishing": {
+    "regulations": "Strict catch and release policies are in effect. Barbless hooks only.",
+    "isAllowed": true
+  },
+  "editorial": {
+    "introduction": "Journeying to Legendary Nile Perch Ground 323 in Canada is not for the faint of heart. This is raw, untouched fishing at its finest, where the Nile Perch grow old and bold in the absence of commercial pressure.",
+    "quote": {
+      "text": "There is no cell service, no dock, and no room for error. Just you and the Nile Perch.",
+      "author": "Capt. Fisherman 323"
+    },
+    "sections": [
+      {
+        "heading": "Navigating the Wilds",
+        "body": "<p>Getting to these grounds requires a multi-day trek or a specialized bush plane. Once there, you'll be fishing in waters that see fewer than a dozen anglers a year.</p><p>Local experts emphasize that the key to success is staying mobile and checking your drag settings constantly.</p>"
+      },
+      {
+        "heading": "Essential Gear for Survival",
+        "body": "<p>Reliability is everything when you're 200 miles from the nearest town. High-quality waterproof reels and multi-piece travel rods are the standard for this expedition.</p><p>Local experts emphasize that the key to success is staying mobile and checking your drag settings constantly.</p>"
+      }
+    ]
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Editorial Board",
+      "url": "https://wherebigfish.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

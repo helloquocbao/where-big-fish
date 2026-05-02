@@ -1,0 +1,83 @@
+{
+  "id": "great-barracuda-florida-keys",
+  "slug": "great-barracuda-florida-keys",
+  "species": {
+    "commonName": "Great Barracuda",
+    "scientificName": "Sphyraena barracuda",
+    "family": "Sphyraenidae",
+    "maxWeight": "50 kg",
+    "maxWeightKg": 50,
+    "maxLength": "2 m",
+    "maxLengthCm": 200,
+    "waterType": "saltwater",
+    "conservationStatus": "Least Concern",
+    "habitat": "Reefs and open water",
+    "distribution": "Tropical oceans",
+    "description": "Sleek predatory fish with sharp teeth.",
+    "funFacts": [
+      "Speeds up to 27 mph.",
+      "Curious and follows divers."
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/f/fe/Great_barracuda_at_Gili_Lawang.jpg",
+    "imageCredit": "Wikimedia Commons",
+    "tags": [
+      "barracuda",
+      "saltwater",
+      "predator"
+    ],
+    "speciesSlug": "great-barracuda"
+  },
+  "location": {
+    "name": "Key West",
+    "country": "USA",
+    "countryCode": "US",
+    "region": "Global Hotspot",
+    "continent": "Worldwide",
+    "lat": 24.5551,
+    "lng": -81.78,
+    "waterType": "saltwater",
+    "waterBody": "Ocean"
+  },
+  "fishing": {
+    "isAllowed": true,
+    "permitRequired": true,
+    "notes": "World-class destination for Great Barracuda.",
+    "regulations": "Local fishing laws apply. Catch and release encouraged for Great Barracuda.",
+    "regulationSource": "https://www.google.com/search?q=fishing+regulations+Key+West"
+  },
+  "content": {
+    "title": "Giant Great Barracuda at Key West, USA",
+    "metaDescription": "Discover the best place to find Great Barracuda in Key West. Maps, facts, and fishing info.",
+    "description": "The Key West in USA is legendary among trophy hunters for its massive Great Barracuda. Specimens here are known for their exceptional size and strength.",
+    "highlights": [
+      "World record potential.",
+      "Stunning natural beauty.",
+      "Expert guides available."
+    ],
+    "bestTime": "Varies by season",
+    "difficulty": "Hard"
+  },
+  "media": {
+    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/f/fe/Great_barracuda_at_Gili_Lawang.jpg",
+    "heroImageAlt": "Great Barracuda",
+    "gallery": [],
+    "imageCredits": "Wikimedia Commons"
+  },
+  "sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Great_Barracuda",
+      "accessedDate": "2026-05-02"
+    }
+  ],
+  "tags": [
+    "barracuda",
+    "saltwater",
+    "predator",
+    "usa"
+  ],
+  "publishedAt": "2026-05-02",
+  "updatedAt": "2026-05-02",
+  "featured": false,
+  "priority": 5
+}

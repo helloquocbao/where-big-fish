@@ -1,0 +1,39 @@
+{
+  "id": "tarpon-366",
+  "slug": "tarpon-366",
+  "species": {
+    "commonName": "Tarpon",
+    "scientificName": "Megalops atlanticus",
+    "maxWeightKg": 130,
+    "waterType": "saltwater",
+    "description": "The Tarpon is one of the most sought-after game fish in Oceania.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Tarpon Spot 366",
+    "country": "USA",
+    "continent": "Oceania",
+    "lat": 1.8867181641768695,
+    "lng": 74.08929772843072
+  },
+  "content": {
+    "title": "Chasing Giant Tarpon in USA",
+    "description": "Experience the thrill of catching massive Tarpon in the heart of USA.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "report",
+  "featured": false
+}

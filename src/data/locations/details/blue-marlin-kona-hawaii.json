@@ -1,0 +1,104 @@
+{
+  "id": "blue-marlin-kona-hawaii",
+  "slug": "blue-marlin-kona-hawaii",
+  "species": {
+    "commonName": "Blue Marlin",
+    "scientificName": "Makaira nigricans",
+    "family": "Istiophoridae",
+    "maxWeight": "818 kg",
+    "maxWeightKg": 818,
+    "maxLength": "5 m",
+    "maxLengthCm": 500,
+    "waterType": "saltwater",
+    "conservationStatus": "Vulnerable",
+    "habitat": "Open ocean",
+    "distribution": "Atlantic and Pacific",
+    "description": "Highly migratory billfish prized by sport anglers.",
+    "funFacts": [
+      "Slashing bill stuns prey.",
+      "Females are much larger."
+    ],
+    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
+    "imageCredit": "Unsplash",
+    "tags": ["marlin", "saltwater", "billfish"],
+    "speciesSlug": "blue-marlin"
+  },
+  "location": {
+    "name": "Kona Coast",
+    "country": "USA",
+    "countryCode": "US",
+    "region": "Global Hotspot",
+    "continent": "Worldwide",
+    "lat": 19.6419,
+    "lng": -155.9961,
+    "waterType": "saltwater",
+    "waterBody": "Ocean"
+  },
+  "fishing": {
+    "isAllowed": true,
+    "permitRequired": true,
+    "notes": "World-class destination for Blue Marlin.",
+    "regulations": "Local fishing laws apply. Catch and release encouraged for Blue Marlin.",
+    "regulationSource": "https://www.google.com/search?q=fishing+regulations+Kona+Coast"
+  },
+  "content": {
+    "title": "The Grander Quest: Chasing Blue Marlin at the Kona Coast",
+    "metaDescription": "A deep dive into the legendary marlin grounds of Hawaii. Tactics, gear, and stories from the deep.",
+    "description": "The Kona Coast in USA is legendary among trophy hunters for its massive Blue Marlin.",
+    "highlights": [
+      "World record potential.",
+      "Stunning natural beauty.",
+      "Expert guides available."
+    ],
+    "bestTime": "June to September",
+    "difficulty": "Hard"
+  },
+  "editorial": {
+    "introduction": "In the world of offshore angling, there is no name more revered than Kona. Nestled on the leeward side of Hawaii's Big Island, the Kona Coast offers a unique combination of deep water close to shore and a sheltered coastline that allows for some of the most consistent big-game fishing on the planet. Here, the pursuit of the 'Grander'—a blue marlin weighing over 1,000 pounds—is not just a hobby; it is a religion.",
+    "quote": {
+      "text": "Kona is the only place in the world where you can hook a 1,000-pound fish and be back at the dock for happy hour. The depth drop-off is immediate, and the fish are always there.",
+      "author": "Capt. Rick Highsmith, 30-year Kona Veteran"
+    },
+    "sections": [
+      {
+        "heading": "The Tactical Edge: Why Kona is Different",
+        "body": "<p>Unlike the turbulent waters of the Atlantic or the long runs required in Australia, Kona's fishing grounds start literally at the harbor mouth. The island's volcanic origin means the seabed drops to 1,000 fathoms within miles of the shore. This creates a natural highway for migratory pelagics, especially the Pacific Blue Marlin.</p><p>Anglers here typically use heavy tackle—130lb class gear—to handle the explosive power of these fish. Trolling with large plastic lures is the standard, though live-baiting with skipjack tuna (aku) is a deadly effective technique for the absolute giants.</p>",
+        "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
+        "caption": "A classic Kona 'Grander' lure spread, designed to create maximum surface commotion."
+      },
+      {
+        "heading": "Seasonality and Weather Patterns",
+        "body": "<p>While marlin can be caught year-round in Hawaii, the summer months of June, July, and August are considered peak 'Grander' season. The ocean is typically calmer during this window, and the water temperatures are at their most inviting for large females.</p><p>The leeward nature of the coast means that even when the trade winds are howling elsewhere in the islands, the waters off Kona remain relatively flat. This 'lake-like' environment is perfect for high-speed trolling and precise bait presentation.</p>"
+      },
+      {
+        "heading": "Recommended Gear for Hawaii Billfish",
+        "body": "<p>To win a battle against a Pacific Blue, you need hardware that won't fail. We recommend the following setup:</p><ul><li><strong>Reel:</strong> Shimano Stella 30000 or Tiagra 130A for heavy trolling.</li><li><strong>Rod:</strong> Custom 130lb class chair rods or heavy-duty stand-up tuna sticks.</li><li><strong>Leader:</strong> 400lb to 600lb monofilament for abrasion resistance against the marlin's bill.</li></ul>",
+        "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000",
+        "caption": "Heavy-duty offshore tackle is mandatory for the volcanic waters of the Big Island."
+      }
+    ]
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
+    "heroImageAlt": "Blue Marlin",
+    "gallery": [],
+    "imageCredits": "Unsplash"
+  },
+  "sources": [
+    {
+      "name": "Hawaii Deep Sea Fishing Association",
+      "url": "https://example.com/hawaii-fishing",
+      "accessedDate": "2026-05-02"
+    },
+    {
+      "name": "IGFA World Records",
+      "url": "https://igfa.org",
+      "accessedDate": "2026-05-02"
+    }
+  ],
+  "tags": ["marlin", "saltwater", "billfish", "usa"],
+  "publishedAt": "2026-05-02",
+  "updatedAt": "2026-05-02",
+  "featured": true,
+  "priority": 5
+}

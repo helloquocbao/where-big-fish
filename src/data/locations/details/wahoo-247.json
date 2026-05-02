@@ -1,0 +1,39 @@
+{
+  "id": "wahoo-247",
+  "slug": "wahoo-247",
+  "species": {
+    "commonName": "Wahoo",
+    "scientificName": "Acanthocybium solandri",
+    "maxWeightKg": 80,
+    "waterType": "saltwater",
+    "description": "The Wahoo is one of the most sought-after game fish in Oceania.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Wahoo Spot 247",
+    "country": "Australia",
+    "continent": "Oceania",
+    "lat": -8.425316636011232,
+    "lng": -70.62947045056227
+  },
+  "content": {
+    "title": "Chasing Giant Wahoo in Australia",
+    "description": "Experience the thrill of catching massive Wahoo in the heart of Australia.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

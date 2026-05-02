@@ -1,0 +1,12 @@
+.stories-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columns inside the 6-column canvas */
+  gap: 32px;
+  padding-bottom: 64px;
+}
+
+@media (max-width: 640px) {
+  .stories-grid {
+    grid-template-columns: 1fr;
+  }
+}

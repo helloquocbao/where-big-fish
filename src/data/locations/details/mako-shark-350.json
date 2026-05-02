@@ -1,0 +1,39 @@
+{
+  "id": "mako-shark-350",
+  "slug": "mako-shark-350",
+  "species": {
+    "commonName": "Mako Shark",
+    "scientificName": "Isurus oxyrinchus",
+    "maxWeightKg": 500,
+    "waterType": "saltwater",
+    "description": "The Mako Shark is one of the most sought-after game fish in Europe.",
+    "image": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Mako Shark Spot 350",
+    "country": "Russia",
+    "continent": "Europe",
+    "lat": -16.198009286750633,
+    "lng": 143.82899690864582
+  },
+  "content": {
+    "title": "Chasing Giant Mako Shark in Russia",
+    "description": "Experience the thrill of catching massive Mako Shark in the heart of Russia.",
+    "bestTime": "Spring/Summer"
+  },
+  "fishing": {
+    "regulations": "Local limits apply. Always check with local authorities.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1534351590666-13c3e96b5017?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Global Fishing Data",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": true
+}

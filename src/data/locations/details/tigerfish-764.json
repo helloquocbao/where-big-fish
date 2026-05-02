@@ -1,0 +1,39 @@
+{
+  "id": "tigerfish-764",
+  "slug": "tigerfish-764",
+  "species": {
+    "commonName": "Tigerfish",
+    "scientificName": "Hydrocynus vittatus",
+    "maxWeightKg": 15,
+    "waterType": "freshwater",
+    "description": "The legendary Tigerfish hunt in Russia.",
+    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Hidden Tigerfish River 764",
+    "country": "Russia",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  "content": {
+    "title": "The Secret of Tigerfish in Russia",
+    "description": "Long form story about the catch.",
+    "bestTime": "All year"
+  },
+  "fishing": {
+    "regulations": "Strict C&R.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Source",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

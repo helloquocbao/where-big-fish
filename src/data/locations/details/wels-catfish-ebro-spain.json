@@ -1,0 +1,83 @@
+{
+  "id": "wels-catfish-ebro-spain",
+  "slug": "wels-catfish-ebro-spain",
+  "species": {
+    "commonName": "Wels Catfish",
+    "scientificName": "Silurus glanis",
+    "family": "Siluridae",
+    "maxWeight": "144 kg",
+    "maxWeightKg": 144,
+    "maxLength": "3 m",
+    "maxLengthCm": 300,
+    "waterType": "freshwater",
+    "conservationStatus": "Least Concern",
+    "habitat": "Large rivers and lakes",
+    "distribution": "Europe",
+    "description": "Large predatory catfish native to Europe.",
+    "funFacts": [
+      "Known to snatch pigeons from land.",
+      "Can live over 60 years."
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Silurus_glanis_01.jpg",
+    "imageCredit": "Wikimedia Commons",
+    "tags": [
+      "catfish",
+      "freshwater",
+      "europe"
+    ],
+    "speciesSlug": "wels-catfish"
+  },
+  "location": {
+    "name": "Ebro River",
+    "country": "Spain",
+    "countryCode": "SP",
+    "region": "Global Hotspot",
+    "continent": "Worldwide",
+    "lat": 41.2292,
+    "lng": 0.1664,
+    "waterType": "freshwater",
+    "waterBody": "River"
+  },
+  "fishing": {
+    "isAllowed": true,
+    "permitRequired": true,
+    "notes": "World-class destination for Wels Catfish.",
+    "regulations": "Local fishing laws apply. Catch and release encouraged for Wels Catfish.",
+    "regulationSource": "https://www.google.com/search?q=fishing+regulations+Ebro+River"
+  },
+  "content": {
+    "title": "Giant Wels Catfish at Ebro River, Spain",
+    "metaDescription": "Discover the best place to find Wels Catfish in Ebro River. Maps, facts, and fishing info.",
+    "description": "The Ebro River in Spain is legendary among trophy hunters for its massive Wels Catfish. Specimens here are known for their exceptional size and strength.",
+    "highlights": [
+      "World record potential.",
+      "Stunning natural beauty.",
+      "Expert guides available."
+    ],
+    "bestTime": "Varies by season",
+    "difficulty": "Hard"
+  },
+  "media": {
+    "heroImage": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Silurus_glanis_01.jpg",
+    "heroImageAlt": "Wels Catfish",
+    "gallery": [],
+    "imageCredits": "Wikimedia Commons"
+  },
+  "sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Wels_Catfish",
+      "accessedDate": "2026-05-02"
+    }
+  ],
+  "tags": [
+    "catfish",
+    "freshwater",
+    "europe",
+    "spain"
+  ],
+  "publishedAt": "2026-05-02",
+  "updatedAt": "2026-05-02",
+  "featured": false,
+  "priority": 5
+}

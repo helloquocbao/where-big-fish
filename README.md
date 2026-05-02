@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🐟 Where Big Fish
+
+> Discover Giant Fish Locations Worldwide — Freshwater, Brackish & Saltwater
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com)
+
+## About
+
+Where Big Fish is a comprehensive directory of the world's best locations for encountering giant fish species. From the Mekong Giant Catfish in Cambodia to Great White Sharks off Guadalupe Island, we catalog the biggest fish on Earth — and tell you if you can fish for them.
+
+## Features
+
+- 🗺️ **100+ Locations** — Giant fish spots across all continents
+- 💧 **3 Water Types** — Freshwater, Brackish, Saltwater
+- 🎣 **Fishing Regulations** — Know before you go
+- 🔍 **Smart Search** — Find by species, country, or water type
+- 📍 **Interactive Maps** — Google Maps for every location
+- 📱 **Responsive** — Beautiful on every device
+- 🌙 **Dark/Light Mode** — Easy on the eyes
+
+## Tech Stack
+
+- **Framework**: Next.js 14+ (Static Site Generation)
+- **Styling**: Vanilla CSS
+- **Data**: JSON files (no database)
+- **Maps**: Google Maps Embed (free)
+- **Search**: Fuse.js (client-side)
+- **Hosting**: Vercel (free tier)
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build for production
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Documentation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Document                                         | Description                 |
+| ------------------------------------------------ | --------------------------- |
+| [Project Overview](docs/PROJECT_OVERVIEW.md)     | Vision, goals, architecture |
+| [Tech Stack](docs/TECH_STACK.md)                 | Detailed technology choices |
+| [Data Schema](docs/DATA_SCHEMA.md)               | JSON data structure         |
+| [Scraping Guide](docs/SCRAPING_GUIDE.md)         | Data collection process     |
+| [UI Design](docs/UI_DESIGN.md)                   | Component specifications    |
+| [SEO Strategy](docs/SEO_STRATEGY.md)             | Search optimization         |
+| [Monetization](docs/MONETIZATION.md)             | Revenue strategy            |
+| [Deployment](docs/DEPLOYMENT.md)                 | Hosting & CI/CD             |
+| [Agent Instructions](docs/AGENT_INSTRUCTIONS.md) | AI agent task guide         |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
+```
+where-big-fish/
+├── docs/              # Specification documents
+├── scraper/           # Python data scraping tools
+├── src/
+│   ├── app/           # Next.js App Router pages
+│   ├── components/    # React components
+│   ├── styles/        # CSS files
+│   ├── lib/           # Utilities
+│   └── data/          # JSON data files
+├── public/            # Static assets
+└── README.md
+```
 
-To learn more about Next.js, take a look at the following resources:
+## License
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Content sourced from third-party websites is attributed with links to original sources. All original code is MIT licensed.

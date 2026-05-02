@@ -1,0 +1,39 @@
+{
+  "id": "sailfish-781",
+  "slug": "sailfish-781",
+  "species": {
+    "commonName": "Sailfish",
+    "scientificName": "Istiophorus platypterus",
+    "maxWeightKg": 100,
+    "waterType": "saltwater",
+    "description": "The legendary Sailfish hunt in Mongolia.",
+    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Hidden Sailfish River 781",
+    "country": "Mongolia",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  "content": {
+    "title": "The Secret of Sailfish in Mongolia",
+    "description": "Long form story about the catch.",
+    "bestTime": "All year"
+  },
+  "fishing": {
+    "regulations": "Strict C&R.",
+    "isAllowed": true
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Source",
+      "url": "https://example.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": false
+}

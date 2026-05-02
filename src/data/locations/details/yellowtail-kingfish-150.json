@@ -1,0 +1,56 @@
+{
+  "id": "yellowtail-kingfish-150",
+  "slug": "yellowtail-kingfish-150",
+  "species": {
+    "commonName": "Yellowtail Kingfish",
+    "scientificName": "Seriola lalandi",
+    "maxWeightKg": 70,
+    "waterType": "saltwater",
+    "description": "The Yellowtail Kingfish is a true icon of saltwater fishing.",
+    "image": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "location": {
+    "name": "Legendary Yellowtail Kingfish Ground 150",
+    "country": "New Zealand",
+    "continent": "Various",
+    "lat": 0,
+    "lng": 0
+  },
+  "content": {
+    "title": "Trophy Hunting: Yellowtail Kingfish at Legendary Yellowtail Kingfish Ground 150",
+    "description": "The pursuit of a monster Yellowtail Kingfish is the ultimate test for any serious angler. In the pristine waters of New Zealand, these giants have reached legendary proportions, whispered about in local tackle shops but rarely tamed.",
+    "bestTime": "Varies"
+  },
+  "fishing": {
+    "regulations": "Strict catch and release policies are in effect. Barbless hooks only.",
+    "isAllowed": true
+  },
+  "editorial": {
+    "introduction": "The pursuit of a monster Yellowtail Kingfish is the ultimate test for any serious angler. In the pristine waters of New Zealand, these giants have reached legendary proportions, whispered about in local tackle shops but rarely tamed.",
+    "quote": {
+      "text": "If you want the biggest Yellowtail Kingfish of your life, you don't just fish Legendary Yellowtail Kingfish Ground 150; you survive it.",
+      "author": "Capt. Fisherman 150"
+    },
+    "sections": [
+      {
+        "heading": "The Tactical Challenge",
+        "body": "<p>To catch a Yellowtail Kingfish here, you must master the art of patience. We recommend a heavy-tackle approach, utilizing large swimbaits or live bait to trigger the predatory instincts of these massive specimens.</p><p>Local experts emphasize that the key to success is staying mobile and checking your drag settings constantly.</p>"
+      },
+      {
+        "heading": "Peak Migration Windows",
+        "body": "<p>The best time to target these giants is during the moon phase changes in mid-season. The barometric pressure drops often signal a feeding frenzy that can last for hours.</p><p>Local experts emphasize that the key to success is staying mobile and checking your drag settings constantly.</p>"
+      }
+    ]
+  },
+  "media": {
+    "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000"
+  },
+  "sources": [
+    {
+      "name": "Editorial Board",
+      "url": "https://wherebigfish.com"
+    }
+  ],
+  "contentType": "story",
+  "featured": true
+}
