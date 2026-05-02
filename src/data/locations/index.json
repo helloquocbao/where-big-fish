@@ -18,7 +18,7 @@
       "saltwater",
       "mexico"
     ],
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "blue-marlin-kona-hawaii",
@@ -81,7 +81,7 @@
       "saltwater",
       "australia"
     ],
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "black-marlin-panama",
@@ -144,7 +144,7 @@
       "ocean",
       "italy"
     ],
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "swordfish-miami",
@@ -206,7 +206,7 @@
       "freshwater",
       "cambodia"
     ],
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "siamese-carp-thailand",
@@ -269,7 +269,7 @@
       "freshwater",
       "brazil"
     ],
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-peru",
@@ -332,7 +332,7 @@
       "ocean",
       "mexico"
     ],
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-trinity-river",
@@ -395,7 +395,7 @@
       "europe",
       "italy"
     ],
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tarpon-costa-rica",
@@ -458,7 +458,7 @@
       "speed",
       "guatemala"
     ],
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-seychelles",
@@ -521,7 +521,7 @@
       "estuary",
       "south africa"
     ],
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "great-barracuda-florida-keys",
@@ -584,7 +584,7 @@
       "africa",
       "zambia"
     ],
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-rio-negro",
@@ -629,7 +629,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-101",
@@ -665,7 +665,7 @@
     "maxWeightKg": 15,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-104",
@@ -701,7 +701,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-107",
@@ -737,7 +737,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-110",
@@ -773,7 +773,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-113",
@@ -809,7 +809,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-116",
@@ -845,7 +845,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-119",
@@ -881,7 +881,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-122",
@@ -917,7 +917,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-125",
@@ -953,7 +953,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-128",
@@ -989,7 +989,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-131",
@@ -1025,7 +1025,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-134",
@@ -1061,7 +1061,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-137",
@@ -1097,7 +1097,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-140",
@@ -1133,7 +1133,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-143",
@@ -1169,7 +1169,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-146",
@@ -1205,7 +1205,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-149",
@@ -1241,7 +1241,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-152",
@@ -1277,7 +1277,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-155",
@@ -1313,7 +1313,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-158",
@@ -1349,7 +1349,7 @@
     "maxWeightKg": 15,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-161",
@@ -1385,7 +1385,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-164",
@@ -1421,7 +1421,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-167",
@@ -1457,7 +1457,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-170",
@@ -1493,7 +1493,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-173",
@@ -1529,7 +1529,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-176",
@@ -1565,7 +1565,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-179",
@@ -1601,7 +1601,7 @@
     "maxWeightKg": 15,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-182",
@@ -1637,7 +1637,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-185",
@@ -1673,7 +1673,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-188",
@@ -1709,7 +1709,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-191",
@@ -1745,7 +1745,7 @@
     "maxWeightKg": 15,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-194",
@@ -1781,7 +1781,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-197",
@@ -1817,7 +1817,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-200",
@@ -1853,7 +1853,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-203",
@@ -1889,7 +1889,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-206",
@@ -1925,7 +1925,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-209",
@@ -1961,7 +1961,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-212",
@@ -1997,7 +1997,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-215",
@@ -2033,7 +2033,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-218",
@@ -2069,7 +2069,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-221",
@@ -2105,7 +2105,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-224",
@@ -2141,7 +2141,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-227",
@@ -2177,7 +2177,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-230",
@@ -2213,7 +2213,7 @@
     "maxWeightKg": 15,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-233",
@@ -2249,7 +2249,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-236",
@@ -2285,7 +2285,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-239",
@@ -2321,7 +2321,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-242",
@@ -2357,7 +2357,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-245",
@@ -2393,7 +2393,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-248",
@@ -2429,7 +2429,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-251",
@@ -2465,7 +2465,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-254",
@@ -2501,7 +2501,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-257",
@@ -2537,7 +2537,7 @@
     "maxWeightKg": 15,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-260",
@@ -2573,7 +2573,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-263",
@@ -2609,7 +2609,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-266",
@@ -2645,7 +2645,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-269",
@@ -2681,7 +2681,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-272",
@@ -2717,7 +2717,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-275",
@@ -2753,7 +2753,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-278",
@@ -2789,7 +2789,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-281",
@@ -2825,7 +2825,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-284",
@@ -2861,7 +2861,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-287",
@@ -2897,7 +2897,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-290",
@@ -2933,7 +2933,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-293",
@@ -2969,7 +2969,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-296",
@@ -3005,7 +3005,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-299",
@@ -3041,7 +3041,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-302",
@@ -3077,7 +3077,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-305",
@@ -3113,7 +3113,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-308",
@@ -3149,7 +3149,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-311",
@@ -3185,7 +3185,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-314",
@@ -3221,7 +3221,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-317",
@@ -3257,7 +3257,7 @@
     "maxWeightKg": 15,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-320",
@@ -3293,7 +3293,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-323",
@@ -3329,7 +3329,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-326",
@@ -3365,7 +3365,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-329",
@@ -3401,7 +3401,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-332",
@@ -3437,7 +3437,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-335",
@@ -3473,7 +3473,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-338",
@@ -3509,7 +3509,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-341",
@@ -3545,7 +3545,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-344",
@@ -3581,7 +3581,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-347",
@@ -3617,7 +3617,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-350",
@@ -3653,7 +3653,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-353",
@@ -3689,7 +3689,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-356",
@@ -3725,7 +3725,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-359",
@@ -3761,7 +3761,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-362",
@@ -3797,7 +3797,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-365",
@@ -3833,7 +3833,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-368",
@@ -3869,7 +3869,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-371",
@@ -3905,7 +3905,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-374",
@@ -3941,7 +3941,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-377",
@@ -3977,7 +3977,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-380",
@@ -4013,7 +4013,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-383",
@@ -4049,7 +4049,7 @@
     "maxWeightKg": 15,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-386",
@@ -4085,7 +4085,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-389",
@@ -4121,7 +4121,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-392",
@@ -4157,7 +4157,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-395",
@@ -4193,7 +4193,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-398",
@@ -4229,7 +4229,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-401",
@@ -4265,7 +4265,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-404",
@@ -4301,7 +4301,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-407",
@@ -4337,7 +4337,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-410",
@@ -4373,7 +4373,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-413",
@@ -4409,7 +4409,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-416",
@@ -4445,7 +4445,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-419",
@@ -4481,7 +4481,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-422",
@@ -4517,7 +4517,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-425",
@@ -4553,7 +4553,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-428",
@@ -4589,7 +4589,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-431",
@@ -4625,7 +4625,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-434",
@@ -4661,7 +4661,7 @@
     "maxWeightKg": 15,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-437",
@@ -4697,7 +4697,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-440",
@@ -4733,7 +4733,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-443",
@@ -4769,7 +4769,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-446",
@@ -4805,7 +4805,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-449",
@@ -4841,7 +4841,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-452",
@@ -4877,7 +4877,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-455",
@@ -4913,7 +4913,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-458",
@@ -4949,7 +4949,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-461",
@@ -4985,7 +4985,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-464",
@@ -5021,7 +5021,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-467",
@@ -5057,7 +5057,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-470",
@@ -5093,7 +5093,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-473",
@@ -5129,7 +5129,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-476",
@@ -5165,7 +5165,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-479",
@@ -5201,7 +5201,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-482",
@@ -5237,7 +5237,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-485",
@@ -5273,7 +5273,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-488",
@@ -5309,7 +5309,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-491",
@@ -5345,7 +5345,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-494",
@@ -5381,7 +5381,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-497",
@@ -5417,7 +5417,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-500",
@@ -5453,7 +5453,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-503",
@@ -5489,7 +5489,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-506",
@@ -5525,7 +5525,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-509",
@@ -5561,7 +5561,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-512",
@@ -5597,7 +5597,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-515",
@@ -5633,7 +5633,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-518",
@@ -5669,7 +5669,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-521",
@@ -5705,7 +5705,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-524",
@@ -5741,7 +5741,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-527",
@@ -5777,7 +5777,7 @@
     "maxWeightKg": 15,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-530",
@@ -5813,7 +5813,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-533",
@@ -5849,7 +5849,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-536",
@@ -5885,7 +5885,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-539",
@@ -5921,7 +5921,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-542",
@@ -5957,7 +5957,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-545",
@@ -5993,7 +5993,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-548",
@@ -6029,7 +6029,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-551",
@@ -6065,7 +6065,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-554",
@@ -6101,7 +6101,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-557",
@@ -6137,7 +6137,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-560",
@@ -6173,7 +6173,7 @@
     "maxWeightKg": 15,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-563",
@@ -6209,7 +6209,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-566",
@@ -6245,7 +6245,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-569",
@@ -6281,7 +6281,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-572",
@@ -6317,7 +6317,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-575",
@@ -6353,7 +6353,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-578",
@@ -6389,7 +6389,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-581",
@@ -6425,7 +6425,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-584",
@@ -6461,7 +6461,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-587",
@@ -6497,7 +6497,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-590",
@@ -6533,7 +6533,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-593",
@@ -6569,7 +6569,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-596",
@@ -6605,7 +6605,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-599",
@@ -6641,7 +6641,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-602",
@@ -6677,7 +6677,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-605",
@@ -6713,7 +6713,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-608",
@@ -6749,7 +6749,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-611",
@@ -6785,7 +6785,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-614",
@@ -6821,7 +6821,7 @@
     "maxWeightKg": 15,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-617",
@@ -6857,7 +6857,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-620",
@@ -6893,7 +6893,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-623",
@@ -6929,7 +6929,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-626",
@@ -6965,7 +6965,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-629",
@@ -7001,7 +7001,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-632",
@@ -7037,7 +7037,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-635",
@@ -7073,7 +7073,7 @@
     "maxWeightKg": 30,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "muskellunge-638",
@@ -7109,7 +7109,7 @@
     "maxWeightKg": 15,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-641",
@@ -7145,7 +7145,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-644",
@@ -7181,7 +7181,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "peacock-bass-647",
@@ -7217,7 +7217,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-650",
@@ -7253,7 +7253,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "alligator-gar-653",
@@ -7289,7 +7289,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "tigerfish-656",
@@ -7325,7 +7325,7 @@
     "maxWeightKg": 80,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-659",
@@ -7361,7 +7361,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-662",
@@ -7397,7 +7397,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-665",
@@ -7433,7 +7433,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-668",
@@ -7469,7 +7469,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": true,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "sailfish-671",
@@ -7505,7 +7505,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-674",
@@ -7541,7 +7541,7 @@
     "maxWeightKg": 70,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "arapaima-677",
@@ -7577,7 +7577,7 @@
     "maxWeightKg": 44,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-680",
@@ -7613,7 +7613,7 @@
     "maxWeightKg": 100,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "king-salmon-683",
@@ -7649,7 +7649,7 @@
     "maxWeightKg": 150,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "yellowtail-kingfish-686",
@@ -7685,7 +7685,7 @@
     "maxWeightKg": 12,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-689",
@@ -7721,7 +7721,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "giant-trevally-692",
@@ -7757,7 +7757,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-695",
@@ -7793,7 +7793,7 @@
     "maxWeightKg": 200,
     "heroImage": "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=1000",
     "featured": false,
-    "contentType": "story"
+    "contentType": "report"
   },
   {
     "slug": "nile-perch-698",

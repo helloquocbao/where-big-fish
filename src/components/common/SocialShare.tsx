@@ -32,21 +32,23 @@ export default function SocialShare({ url, title }: SocialShareProps) {
   ];
 
   return (
-    <div className="flex gap-4 my-6 items-center">
-      <span className="text-sm font-semibold text-gray-400">Share:</span>
-      {shares.map((social) => (
-        <a
-          key={social.name}
-          href={social.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 px-3 py-1 rounded-full text-white text-sm transition-opacity hover:opacity-80"
-          style={{ backgroundColor: social.color }}
-        >
-          <span>{social.icon}</span>
-          <span>{social.name}</span>
-        </a>
-      ))}
+    <div className="social-share-container">
+      <span className="social-share-label">SHARE</span>
+      <div className="social-share-buttons">
+        {shares.map((social) => (
+          <a
+            key={social.name}
+            href={social.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="social-share-btn"
+            style={{ backgroundColor: social.color }}
+          >
+            <span className="social-icon">{social.icon}</span>
+            <span className="social-name">{social.name}</span>
+          </a>
+        ))}
+      </div>
     </div>
   );
 }

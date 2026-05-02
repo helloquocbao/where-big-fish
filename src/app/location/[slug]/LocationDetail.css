@@ -186,6 +186,56 @@
   font-weight: 600;
 }
 
+/* Social Share Styling */
+.social-share-container {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: 48px 0;
+  padding: 24px 0;
+  border-top: 1px solid var(--outline-variant);
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.social-share-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--outline);
+}
+
+.social-share-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.social-share-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 200px;
+  text-decoration: none;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.social-share-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.social-icon {
+  font-size: 16px;
+}
+
+.social-name {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .sources-links a:hover {
   text-decoration: underline;
 }

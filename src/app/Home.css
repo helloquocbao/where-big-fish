@@ -129,6 +129,59 @@
   border-bottom: 2px solid var(--primary-container);
   padding-bottom: 16px;
 }
+/* Tackle Mini Section */
+.tackle-horizontal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.tackle-mini-card {
+  display: flex;
+  gap: 16px;
+  text-decoration: none;
+  padding: 12px;
+  border: 1px solid var(--outline-variant);
+  transition: all 0.3s ease;
+}
+
+.tackle-mini-card:hover {
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.tackle-mini-img {
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+}
+
+.tackle-mini-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tackle-mini-brand {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.tackle-mini-title {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  color: var(--primary-container);
+  margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+  .tackle-horizontal-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 .section-title-large {
   font-family: var(--font-heading);

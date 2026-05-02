@@ -22,7 +22,8 @@
   --outline: #73777e;
   --outline-variant: #c3c7ce;
 
-  --accent: #ff851b; /* Sunset Orange */
+  --accent: #ff851b;
+  /* Sunset Orange */
 
   /* Typography - European Premium Style */
   --font-heading: 'Playfair Display', serif;
@@ -117,7 +118,6 @@ main {
 .home-container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 48px 32px 80px; /* Top 48px, Sides 32px, Bottom 80px */
 }
 
 .home-main-grid {
