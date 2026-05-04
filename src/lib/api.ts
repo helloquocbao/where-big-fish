@@ -24,12 +24,27 @@ export interface LocationData {
 const GBIF_BASE_URL = 'https://api.gbif.org/v1';
 const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
 
+// Global Fishing Hotspots (Europe & America focus)
+export const REGIONS = {
+  FLORIDA: { lat: 27.6648, lon: -81.5158, name: 'Florida, USA' },
+  NORWAY: { lat: 68.2232, lon: 14.5682, name: 'Lofoten, Norway' },
+  GREAT_LAKES: { lat: 45.0, lon: -85.0, name: 'Great Lakes, NA' },
+  ALASKA: { lat: 64.2, lon: -149.5, name: 'Alaska, USA' },
+  UK_COAST: { lat: 50.7, lon: -1.3, name: 'English Channel, UK' }
+};
+
+const HEADERS = {
+  'User-Agent': 'WhereBigFish/1.0 (https://wherebigfish.com; contact@wherebigfish.com)',
+  'Content-Type': 'application/x-www-form-urlencoded'
+};
+
 /**
  * GBIF: Search for fish species
  */
 export async function searchSpecies(query: string = 'fish', limit: number = 20): Promise<SpeciesData[]> {
   try {
     const response = await fetch(`${GBIF_BASE_URL}/species/search?q=${encodeURIComponent(query)}&limit=${limit}&rank=SPECIES&status=ACCEPTED`);
+    if (!response.ok) throw new Error(`GBIF error: ${response.status}`);
     const data = await response.json();
     
     return data.results.map((item: any) => ({
@@ -37,7 +52,7 @@ export async function searchSpecies(query: string = 'fish', limit: number = 20):
       scientificName: item.scientificName,
       vernacularName: item.vernacularNames?.[0]?.vernacularName || item.canonicalName,
       canonicalName: item.canonicalName,
-      image: `https://api.gbif.org/v1/species/${item.key}/descriptions` // Placeholder for image logic
+      image: `https://api.gbif.org/v1/species/${item.key}/descriptions` 
     }));
   } catch (error) {
     console.error('Error fetching species from GBIF:', error);
@@ -46,14 +61,16 @@ export async function searchSpecies(query: string = 'fish', limit: number = 20):
 }
 
 /**
- * Overpass: Fetch fishing locations in a specific region (default: Vietnam)
+ * Overpass: Fetch fishing locations in a specific region
  */
-export async function getFishingLocations(lat: number = 10.8231, lon: number = 106.6297, radius: number = 50000): Promise<LocationData[]> {
+export async function getFishingLocations(lat: number, lon: number, radius: number = 50000): Promise<LocationData[]> {
   const query = `
-    [out:json][timeout:25];
+    [out:json][timeout:30];
     (
       node["leisure"="fishing"](around:${radius},${lat},${lon});
       way["leisure"="fishing"](around:${radius},${lat},${lon});
+      node["sport"="fishing"](around:${radius},${lat},${lon});
+      node["amenity"="fishing_pond"](around:${radius},${lat},${lon});
       node["fishing"="yes"](around:${radius},${lat},${lon});
     );
     out center;
@@ -62,21 +79,32 @@ export async function getFishingLocations(lat: number = 10.8231, lon: number = 1
   try {
     const response = await fetch(OVERPASS_URL, {
       method: 'POST',
+      headers: HEADERS,
       body: `data=${encodeURIComponent(query)}`,
     });
+
+    if (!response.ok) throw new Error(`Overpass error: ${response.status}`);
+
     const data = await response.json();
     
-    return data.elements.map((el: any) => ({
+    return (data.elements || []).map((el: any) => ({
       id: el.id,
-      name: el.tags?.name || `Điểm câu #${el.id}`,
+      name: el.tags?.name || `Fishing Spot #${el.id}`,
       lat: el.lat || el.center?.lat,
       lon: el.lon || el.center?.lon,
-      type: el.tags?.leisure || 'fishing_spot',
+      type: el.tags?.leisure || el.tags?.sport || 'fishing_spot',
       tags: el.tags || {}
     }));
   } catch (error) {
     console.error('Error fetching locations from Overpass:', error);
-    return [];
+    return [{
+      id: 'fallback-florida',
+      name: 'Key West, Florida (Sample)',
+      lat: 24.5551,
+      lon: -81.7800,
+      type: 'fishing_spot',
+      tags: { description: 'API temporarily busy, showing sample US hotspot.' }
+    }];
   }
 }
 
@@ -89,6 +117,7 @@ export async function getLocationById(id: string | number): Promise<LocationData
     (
       node(${id});
       way(${id});
+      relation(${id});
     );
     out center;
   `;
@@ -96,16 +125,20 @@ export async function getLocationById(id: string | number): Promise<LocationData
   try {
     const response = await fetch(OVERPASS_URL, {
       method: 'POST',
+      headers: HEADERS,
       body: `data=${encodeURIComponent(query)}`,
     });
+
+    if (!response.ok) throw new Error(`Overpass error: ${response.status}`);
+
     const data = await response.json();
-    const el = data.elements[0];
+    const el = data.elements?.[0];
     
     if (!el) return null;
 
     return {
       id: el.id,
-      name: el.tags?.name || `Điểm câu #${el.id}`,
+      name: el.tags?.name || `Fishing Spot #${el.id}`,
       lat: el.lat || el.center?.lat,
       lon: el.lon || el.center?.lon,
       type: el.tags?.leisure || 'fishing_spot',

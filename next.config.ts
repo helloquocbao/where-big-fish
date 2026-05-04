@@ -1,7 +1,11 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  output: 'export',
+  // @ts-ignore
+  turbopack: {
+    // Specify the absolute path to fix workspace inference issues
+    root: process.cwd(),
+  },
   trailingSlash: true,
   images: {
     unoptimized: true,

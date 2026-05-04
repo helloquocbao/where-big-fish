@@ -1,9 +1,9 @@
 .logbook-section {
-  margin-top: 64px;
-  padding: 40px;
-  background: var(--surface-container-lowest);
-  border: 1px solid var(--outline-variant);
-  border-radius: 4px;
+  margin-top: 80px;
+  padding: 60px;
+  background: var(--primary);
+  color: white;
+  border-radius: 0;
   font-family: var(--font-body);
 }
 
@@ -42,31 +42,34 @@
 }
 
 .logbook-card-display {
-  background: white;
-  padding: 32px;
-  border: 1px solid var(--outline-variant);
-  border-radius: 2px;
+  background: rgba(255,255,255,0.05);
+  padding: 40px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 0;
 }
 
 .log-main-info {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 32px;
 }
 
 .label {
   display: block;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--primary);
-  letter-spacing: 0.1em;
-  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  margin-bottom: 12px;
 }
 
 .value {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--on-surface);
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 800;
+  color: white;
 }
 
 .log-metrics {
@@ -116,41 +119,41 @@
 .logbook-form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
 }
 
 .form-instruction {
-  font-size: 14px;
-  color: var(--on-surface-variant);
+  font-size: 16px;
+  color: rgba(255,255,255,0.7);
   margin-bottom: 8px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .form-group label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--on-surface-variant);
-  letter-spacing: 0.05em;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+  text-transform: uppercase;
 }
 
 .form-group input, 
 .form-group textarea {
-  padding: 12px;
-  border: 1px solid var(--outline);
-  border-radius: 4px;
+  padding: 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 0;
   font-family: inherit;
   font-size: 16px;
+  color: white;
   outline: none;
+  transition: all 0.3s ease;
 }
 
 .form-group input:focus, 
 .form-group textarea:focus {
-  border-color: var(--primary);
+  border-color: var(--accent);
+  background: rgba(255,255,255,0.1);
 }
 
 .form-row {
@@ -218,25 +221,26 @@
 }
 
 .btn-primary {
-  background: var(--on-surface);
+  background: var(--accent);
   color: white;
   border: none;
-  padding: 14px 28px;
-  font-weight: 700;
+  padding: 18px 40px;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.15em;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.btn-primary:hover {
+  background: white;
+  color: var(--primary);
 }
 
 .btn-secondary {
   background: none;
   border: none;
-  color: var(--on-surface-variant);
+  color: rgba(255,255,255,0.6);
   text-decoration: underline;
   cursor: pointer;
 }

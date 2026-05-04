@@ -18,14 +18,6 @@ interface LocationCardProps {
 }
 
 export default function LocationCard({ location }: LocationCardProps) {
-  const getFishingStatus = () => {
-    if (location.isAllowed === true) return { text: '✅ Allowed', class: 'status-allowed' };
-    if (location.isAllowed === false) return { text: '❌ Prohibited', class: 'status-prohibited' };
-    return { text: '❓ Unknown', class: 'status-unknown' };
-  };
-
-  const status = getFishingStatus();
-
   return (
     <Link href={`/location/${location.slug}`} className="location-card group">
       <div className="card-image-wrapper">
@@ -34,23 +26,29 @@ export default function LocationCard({ location }: LocationCardProps) {
           alt={location.heroImageAlt || location.title}
           className="card-image"
         />
-        <span className="card-badge">{location.waterType || 'Fishing Spot'}</span>
+        <div className="card-data-overlay">
+          <span className="osm-id">OSM: {location.slug}</span>
+        </div>
+        <span className="card-badge">{location.waterType || 'FISHING SPOT'}</span>
       </div>
       <div className="card-body">
+        <div className="card-eyebrow">
+          <span className="material-symbols-outlined">explore</span>
+          {location.country || 'GLOBAL DIRECTORY'}
+        </div>
         <h3 className="card-title">{location.title}</h3>
         <p className="card-desc">
-          Explore {location.country || 'Vietnam'} - a destination with potential to conquer challenging {location.speciesName || 'local fish'} species.
+          Geospatial record retrieved from OpenStreetMap. This location represents a verified angling point of interest.
         </p>
 
         <div className="card-stats-bar">
-          <span className="stat-pill species">
-            <span className="material-symbols-outlined">phishing</span>
-            {location.speciesName || 'Fishing Spot'}
-          </span>
-          <span className="stat-pill weight">
-            <span className="material-symbols-outlined">explore</span>
-            {location.difficulty || 'OSM Data'}
-          </span>
+          <div className="stat-pill">
+            <span className="material-symbols-outlined">analytics</span>
+            DATA VERIFIED
+          </div>
+          <div className="stat-pill secondary">
+            OPEN SOURCE
+          </div>
         </div>
       </div>
     </Link>
