@@ -27,13 +27,15 @@ export interface LocationData {
     access?: string;
     depth?: string;
   };
-  googleData?: {
-    description?: string;
-    photos?: string[];
-    rating?: number;
-    userRatingsTotal?: number;
-    website?: string;
-  };
+  googleData?: GooglePlaceData;
+}
+
+export interface GooglePlaceData {
+  description?: string;
+  photos?: string[];
+  rating?: number;
+  userRatingsTotal?: number;
+  website?: string;
 }
 
 const GBIF_BASE_URL = 'https://api.gbif.org/v1';
@@ -222,7 +224,7 @@ function categorizeTags(tags: Record<string, string>) {
 /**
  * Google Places: Fetch rich data for a location
  */
-export async function getGooglePlaceData(lat: number, lon: number, name: string) {
+export async function getGooglePlaceData(lat: number, lon: number, name: string): Promise<GooglePlaceData | null> {
   if (!GOOGLE_API_KEY) return null;
 
   try {

@@ -104,7 +104,7 @@ export default async function LocationPage({ params }: PageProps) {
 
             {googleData?.photos && googleData.photos.length > 1 && (
               <div className="google-photo-gallery" style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', margin: '48px 0'}}>
-                {googleData.photos.slice(1).map((photo, i) => (
+                {googleData.photos.slice(1).map((photo: string, i: number) => (
                   <img key={i} src={photo} alt={`${enrichedData.name} view ${i + 1}`} style={{width: '100%', height: '150px', objectFit: 'cover', borderRadius: '4px'}} />
                 ))}
               </div>
