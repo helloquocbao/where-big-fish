@@ -28,6 +28,9 @@ export default function Header() {
             <Link href="/reports" className="nav-link-styled" onClick={() => setIsMenuOpen(false)}>
               Reports
             </Link>
+            <Link href="/species" className="nav-link-styled" onClick={() => setIsMenuOpen(false)}>
+              Species
+            </Link>
             <Link href="/tackle" className="nav-link-styled" onClick={() => setIsMenuOpen(false)}>
               Tackle
             </Link>

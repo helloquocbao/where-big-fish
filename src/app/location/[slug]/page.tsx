@@ -1,173 +1,115 @@
 import { Metadata } from 'next';
-import fs from 'fs';
-import path from 'path';
 import MapEmbed from '@/components/common/MapEmbed';
-import StructuredData from '@/components/common/StructuredData';
-import SocialShare from '@/components/common/SocialShare';
 import Sidebar from '@/components/layout/Sidebar';
 import ImageWithFallback from '@/components/common/ImageWithFallback';
-import Link from 'next/link';
+import LogbookEntry from '@/components/location/LogbookEntry';
+import { getLocationById } from '@/lib/api';
 import './LocationDetail.css';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  const detailsDir = path.join(process.cwd(), 'src/data/locations/details');
-  const files = fs.readdirSync(detailsDir);
-  return files.map((file) => ({
-    slug: file.replace('.json', ''),
-  }));
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const dataPath = path.join(process.cwd(), `src/data/locations/details/${slug}.json`);
-  const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+  const data = await getLocationById(slug);
 
   return {
-    title: `${data.content.title} | Where Big Fish`,
-    description: data.content.metaDescription,
+    title: `${data?.name || 'Fishing Spot'} | Where Big Fish`,
+    description: `Explore fishing spot ${data?.name} at coordinates ${data?.lat}, ${data?.lon}.`,
   };
 }
 
 export default async function LocationPage({ params }: PageProps) {
   const { slug } = await params;
-  const dataPath = path.join(process.cwd(), `src/data/locations/details/${slug}.json`);
-  const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+  const data = await getLocationById(slug);
+
+  if (!data) {
+    return <div className="home-container">Location not found or API error.</div>;
+  }
 
   return (
-    <>
-      <StructuredData data={data} />
-      <div className="home-container">
-        <div className="home-main-grid location-detail-grid">
-          {/* Main Article Content */}
-          <article className="content-canvas main-article">
-            <header className="article-header">
-              <div className="article-meta-tags">
-                <span className="badge-category">{data.location.waterType}</span>
-                <span className="badge-exclusive">EXPEDITION</span>
-              </div>
-              <h1 className="article-title-editorial">{data.content.title}</h1>
+    <div className="home-container">
+      <div className="home-main-grid location-detail-grid">
+        <article className="content-canvas main-article">
+          <header className="article-header">
+            <div className="article-meta-tags">
+              <span className="badge-category">{data.tags.leisure || 'Fishing Spot'}</span>
+              <span className="badge-exclusive">OPEN SOURCE DATA</span>
+            </div>
+            <h1 className="article-title-editorial">{data.name}</h1>
 
-              <div className="author-bar">
-                <div className="author-info">
-                  <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdMvPx3IWrX5CEiEZ7iggQLoZ5EFoQvLwpMFHSzFwrJQbp7bNO8gBPF3USyhPMfb83_deHeUUmXfKJWKIjr-IXueGlMp1ixv5s_dyjB4cs6W-fdm-m1sputVI4SAMh02u7ci89nAn08W9OJT2vLzARE-SpHQYyCW_jkO097ZSG_wi0CcFqI2_qM3XTpgoeAAPsZShCZxlbvKDoIFN1dxSg_5rFYJmVpwqw3XqcXeeBsEWzu-JCgCnbuGxh2ipsxMb_bGFlkRmIWfo"
-                    alt="Author"
-                    className="author-img"
-                  />
-                  <div>
-                    <span className="author-name">By Captain Elias Vance</span>
-                    <p className="publish-date">
-                      Published {data.sources[0]?.accessedDate || 'October 12, 2024'}
-                    </p>
-                  </div>
-                </div>
-                <SocialShare url="" title={data.content.title} />
-              </div>
-            </header>
-
-            <figure className="article-hero-editorial">
-              <img src={data.media.heroImage} alt={data.media.heroImageAlt} />
-              <figcaption className="hero-caption">© {data.media.imageCredits}</figcaption>
-            </figure>
-
-            <div className="editorial-stats-bar">
-              <div className="stat-pill-large">
-                <span className="material-symbols-outlined">scale</span>
-                <div className="stat-text">
-                  <p className="stat-label">MAX WEIGHT</p>
-                  <p className="stat-val">{data.species.maxWeight}</p>
-                </div>
-              </div>
-              <div className="stat-pill-large">
-                <span className="material-symbols-outlined">phishing</span>
-                <div className="stat-text">
-                  <p className="stat-label">SPECIES</p>
-                  <p className="stat-val">{data.species.commonName}</p>
-                </div>
-              </div>
-              <div className="stat-pill-large">
-                <span className="material-symbols-outlined">location_on</span>
-                <div className="stat-text">
-                  <p className="stat-label">LOCATION</p>
-                  <p className="stat-val">{data.location.name}</p>
+            <div className="author-bar">
+              <div className="author-info">
+                <span className="material-symbols-outlined" style={{fontSize: '40px'}}>location_on</span>
+                <div>
+                  <span className="author-name">OpenStreetMap Data</span>
+                  <p className="publish-date">Updated real-time</p>
                 </div>
               </div>
             </div>
+          </header>
 
-            <div className="article-body-editorial">
-              {/* Rich Editorial Content */}
-              {data.editorial ? (
-                <>
-                  <p className="drop-cap-editorial">{data.editorial.introduction}</p>
-                  
-                  {data.editorial.quote && (
-                    <blockquote className="editorial-quote">
-                      "{data.editorial.quote.text}"
-                      <cite>— {data.editorial.quote.author}</cite>
-                    </blockquote>
-                  )}
+          <figure className="article-hero-editorial">
+            <img 
+              src="https://images.unsplash.com/photo-1516939884452-0342e90de507?auto=format&fit=crop&q=80&w=1200" 
+              alt={data.name} 
+            />
+            <figcaption className="hero-caption">© OpenStreetMap Contributors</figcaption>
+          </figure>
 
-                  {data.editorial.sections.map((section: any, idx: number) => (
-                    <section key={idx} className="editorial-section">
-                      <h2 className="editorial-section-h2">{section.heading}</h2>
-                      <div dangerouslySetInnerHTML={{ __html: section.body }} />
-                      {section.image && (
-                        <figure className="inline-article-image">
-                          <ImageWithFallback src={section.image} alt={section.heading} />
-                          {section.caption && <figcaption>{section.caption}</figcaption>}
-                        </figure>
-                      )}
-                    </section>
-                  ))}
-                  
-                  <h2 className="editorial-section-h2" id="regulations">Regulations & Access</h2>
-                  <p>{data.fishing.regulations}</p>
-
-                  <h2 className="editorial-section-h2" id="map">Location Map</h2>
-                  <MapEmbed
-                    lat={data.location.lat}
-                    lng={data.location.lng}
-                    title={data.location.name}
-                  />
-                </>
-              ) : (
-                <>
-                  <p className="drop-cap-editorial">{data.content.description}</p>
-                  <h2 className="editorial-section-h2">Fishing Regulations</h2>
-                  <p>{data.fishing.regulations}</p>
-                  <h2 className="editorial-section-h2">Best Time to Visit</h2>
-                  <p>{data.content.bestTime}</p>
-
-                  <h2 className="editorial-section-h2" id="map">Location Map</h2>
-                  <MapEmbed
-                    lat={data.location.lat}
-                    lng={data.location.lng}
-                    title={data.location.name}
-                  />
-                </>
-              )}
+          <div className="editorial-stats-bar">
+            <div className="stat-pill-large">
+              <span className="material-symbols-outlined">explore</span>
+              <div className="stat-text">
+                <p className="stat-label">LATITUDE</p>
+                <p className="stat-val">{data.lat.toFixed(4)}</p>
+              </div>
             </div>
+            <div className="stat-pill-large">
+              <span className="material-symbols-outlined">map</span>
+              <div className="stat-text">
+                <p className="stat-label">LONGITUDE</p>
+                <p className="stat-val">{data.lon.toFixed(4)}</p>
+              </div>
+            </div>
+            <div className="stat-pill-large">
+              <span className="material-symbols-outlined">pin_drop</span>
+              <div className="stat-text">
+                <p className="stat-label">TYPE</p>
+                <p className="stat-val">{data.tags.amenity || 'Fishing Spot'}</p>
+              </div>
+            </div>
+          </div>
 
-          <section className="sources-section-styled">
-            <h3>CITATIONS & SOURCES</h3>
-            <div className="sources-links">
-              {data.sources.map((source: any, i: number) => (
-                <a key={i} href={source.url} target="_blank" rel="noopener noreferrer">
-                  {source.name} — {source.url}
-                </a>
+          <div className="article-body-editorial">
+            <p className="drop-cap-editorial">
+              This fishing location is recorded in {data.tags['addr:city'] || 'the local area'}. 
+              It is part of the global OpenStreetMap data network.
+            </p>
+            
+            <h2 className="editorial-section-h2">Additional Information</h2>
+            <ul style={{listStyle: 'none', padding: 0}}>
+              {Object.entries(data.tags).map(([key, val]) => (
+                <li key={key} style={{marginBottom: '8px', borderBottom: '1px solid var(--outline-variant)', paddingBottom: '8px'}}>
+                  <strong style={{textTransform: 'uppercase', fontSize: '12px'}}>{key}:</strong> {val}
+                </li>
               ))}
-            </div>
-          </section>
-          </article>
+            </ul>
 
-          {/* Sidebar */}
-          <Sidebar />
-        </div>
+            <h2 className="editorial-section-h2" id="map">Location Map</h2>
+            <MapEmbed
+              lat={data.lat}
+              lng={data.lon}
+              title={data.name}
+            />
+          </div>
+
+          <LogbookEntry locationId={slug} locationName={data.name} />
+        </article>
+
+        <Sidebar />
       </div>
-    </>
+    </div>
   );
 }

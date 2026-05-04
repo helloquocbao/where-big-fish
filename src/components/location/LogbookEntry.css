@@ -1,0 +1,252 @@
+.logbook-section {
+  margin-top: 64px;
+  padding: 40px;
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: 4px;
+  font-family: var(--font-body);
+}
+
+.logbook-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--outline-variant);
+  padding-bottom: 20px;
+}
+
+.logbook-title {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.catch-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  background: var(--surface-container-high);
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+.catch-status.active {
+  color: #2D6A4F;
+  background: #D8F3DC;
+}
+
+.logbook-card-display {
+  background: white;
+  padding: 32px;
+  border: 1px solid var(--outline-variant);
+  border-radius: 2px;
+}
+
+.log-main-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.value {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+.log-metrics {
+  display: flex;
+  gap: 32px;
+}
+
+.log-notes {
+  margin-bottom: 32px;
+  padding: 16px;
+  background: var(--surface-container-lowest);
+  border-left: 3px solid var(--outline);
+}
+
+.log-notes p {
+  margin: 0;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.log-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24px;
+  border-top: 1px dotted var(--outline-variant);
+}
+
+.log-date {
+  font-size: 13px;
+  color: var(--on-surface-variant);
+}
+
+.edit-btn-minimal {
+  background: none;
+  border: 1px solid var(--outline);
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Form Styles */
+.logbook-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-instruction {
+  font-size: 14px;
+  color: var(--on-surface-variant);
+  margin-bottom: 8px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  letter-spacing: 0.05em;
+}
+
+.form-group input, 
+.form-group textarea {
+  padding: 12px;
+  border: 1px solid var(--outline);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 16px;
+  outline: none;
+}
+
+.form-group input:focus, 
+.form-group textarea:focus {
+  border-color: var(--primary);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.species-search-container {
+  position: relative;
+}
+
+.search-loader {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  font-size: 12px;
+  color: var(--primary);
+}
+
+.species-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid var(--outline);
+  border-top: none;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.species-dropdown li {
+  padding: 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.species-dropdown li:hover {
+  background: var(--surface-container);
+}
+
+.species-dropdown li strong {
+  font-size: 14px;
+}
+
+.species-dropdown li span {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--on-surface-variant);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.btn-primary {
+  background: var(--on-surface);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: none;
+  border: none;
+  color: var(--on-surface-variant);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  .log-main-info {
+    flex-direction: column;
+    gap: 24px;
+  }
+}

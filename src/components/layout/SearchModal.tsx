@@ -1,37 +1,15 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Fuse from 'fuse.js';
 import Link from 'next/link';
+import { searchSpecies, SpeciesData } from '@/lib/api';
 import './SearchModal.css';
-
-interface SearchResult {
-  slug: string;
-  title: string;
-  speciesName: string;
-  country: string;
-  waterType: string;
-}
 
 export default function SearchModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [allData, setAllData] = useState<SearchResult[]>([]);
-  const fuseRef = useRef<Fuse<SearchResult> | null>(null);
+  const [results, setResults] = useState<SpeciesData[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    // Load search data
-    fetch('/data/locations/index.json')
-      .then((res) => res.json())
-      .then((data) => {
-        setAllData(data);
-        fuseRef.current = new Fuse(data, {
-          keys: ['title', 'speciesName', 'country', 'tags'],
-          threshold: 0.3,
-        });
-      });
-  }, []);
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -43,16 +21,20 @@ export default function SearchModal({ isOpen, onClose }: { isOpen: boolean; onCl
     }
   }, [isOpen]);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setQuery(val);
-    if (fuseRef.current && val.length > 1) {
-      const searchResults = fuseRef.current.search(val);
-      setResults(searchResults.map((r) => r.item));
-    } else {
-      setResults([]);
-    }
-  };
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (query.length > 2) {
+        setIsSearching(true);
+        const searchResults = await searchSpecies(query, 10);
+        setResults(searchResults);
+        setIsSearching(false);
+      } else {
+        setResults([]);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [query]);
 
   if (!isOpen) return null;
 
@@ -64,9 +46,9 @@ export default function SearchModal({ isOpen, onClose }: { isOpen: boolean; onCl
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search fish species or location..."
+            placeholder="Search species (e.g. Salmon, Shark, Carp...)"
             value={query}
-            onChange={handleSearch}
+            onChange={(e) => setQuery(e.target.value)}
             className="search-input"
           />
           <button className="close-btn" onClick={onClose}>
@@ -75,33 +57,33 @@ export default function SearchModal({ isOpen, onClose }: { isOpen: boolean; onCl
         </div>
 
         <div className="search-results">
+          {isSearching && <p className="loading-text">Searching GBIF database...</p>}
+          
           {results.length > 0 ? (
             results.map((res) => (
-              <Link
-                key={res.slug}
-                href={`/location/${res.slug}`}
+              <div
+                key={res.key}
                 className="search-result-item"
-                onClick={onClose}
               >
                 <div className="res-info">
-                  <span className="res-title">{res.title}</span>
+                  <span className="res-title">{res.vernacularName || res.scientificName}</span>
                   <span className="res-meta">
-                    {res.speciesName} • {res.country}
+                    {res.scientificName}
                   </span>
                 </div>
-                <span className="res-type">{res.waterType}</span>
-              </Link>
+                <span className="res-type">GBIF TAXON</span>
+              </div>
             ))
-          ) : query.length > 1 ? (
-            <p className="no-results">No matches found for "{query}"</p>
+          ) : query.length > 2 && !isSearching ? (
+            <p className="no-results">No fish found matching "{query}"</p>
           ) : (
             <div className="search-suggestions">
               <p>Try searching for:</p>
               <div className="suggestion-chips">
                 <span onClick={() => setQuery('Catfish')}>Catfish</span>
-                <span onClick={() => setQuery('Shark')}>Shark</span>
-                <span onClick={() => setQuery('Amazon')}>Amazon</span>
-                <span onClick={() => setQuery('Mekong')}>Mekong</span>
+                <span onClick={() => setQuery('Marlin')}>Marlin</span>
+                <span onClick={() => setQuery('Tuna')}>Tuna</span>
+                <span onClick={() => setQuery('Bass')}>Bass</span>
               </div>
             </div>
           )}
