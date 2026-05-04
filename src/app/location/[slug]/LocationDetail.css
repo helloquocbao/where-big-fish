@@ -285,3 +285,88 @@
 .editorial-section {
   margin-bottom: 64px;
 }
+
+/* Nearby Species Styling */
+.nearby-species-grid {
+  margin: 32px 0 64px;
+}
+
+.mini-species-card {
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.mini-species-card:hover {
+  border-color: var(--primary-container) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.mini-species-card img {
+  border-radius: 2px;
+  filter: grayscale(0.2);
+  transition: filter 0.3s ease;
+}
+
+.mini-species-card:hover img {
+  filter: grayscale(0);
+}
+
+/* Metadata Tags Styling */
+.tags-grid-premium {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.tag-item-editorial {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  background: #fcf9f8;
+  border-left: 2px solid var(--secondary);
+}
+
+.tag-key {
+  font-size: 10px;
+  font-weight: 900;
+  color: var(--secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.tag-val {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--on-surface);
+  word-break: break-word;
+}
+
+.google-rating-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f1ebd8;
+  border-radius: 200px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--secondary);
+}
+
+.google-rating-pill .material-symbols-outlined {
+  font-size: 18px;
+  color: #f4b400; /* Google Star Color */
+}
+
+@media (max-width: 640px) {
+  .nearby-species-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .tags-grid-premium {
+    grid-template-columns: 1fr 1fr;
+  }
+}

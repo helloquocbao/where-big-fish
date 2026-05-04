@@ -32,7 +32,7 @@ export default async function SpeciesPage() {
               <div key={species.key} className="species-card-premium">
                 <div className="species-image-box">
                   <ImageWithFallback 
-                    src={`https://images.unsplash.com/photo-1524704654690-b56c05c78a00?auto=format&fit=crop&q=80&w=800`} 
+                    src={species.image || `https://images.unsplash.com/photo-1524704654690-b56c05c78a00?auto=format&fit=crop&q=80&w=800`} 
                     alt={species.vernacularName || species.scientificName} 
                   />
                 </div>

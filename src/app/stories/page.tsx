@@ -11,10 +11,10 @@ export default async function StoriesPage() {
   const stories = locations.map(loc => ({
     slug: loc.id.toString(),
     title: loc.name,
-    heroImage: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?auto=format&fit=crop&q=80&w=800",
+    heroImage: `https://images.unsplash.com/photo-1508921340878-ba53e1f016ec?auto=format&fit=crop&q=80&w=800`,
     country: loc.tags['addr:country'] || 'Norway',
     speciesName: loc.tags.leisure || loc.tags.sport || 'Fishing Spot',
-    waterType: 'Adventure'
+    waterType: loc.environment?.waterType || 'Adventure'
   }));
 
   return (
