@@ -1,0 +1,16 @@
+{
+  "name": "bomio",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "build:shared": "npm run build -w shared",
+    "dev:backend": "npm run dev -w backend",
+    "dev:frontend": "npm run dev -w frontend",
+    "typecheck": "npm run build:shared && npx tsc --noEmit -p backend/tsconfig.json && npx tsc --noEmit -p frontend/tsconfig.json",
+    "build": "npm run build:shared && npm run build -w backend && npm run build -w frontend"
+  }
+}
