@@ -188,6 +188,15 @@ export class UI {
             <button type="button" class="collection-close">×</button>
           </div>
           <div class="collection-list"></div>
+          <div class="ad-banner-mini">
+            <div class="ad-banner-label">ADVERTISEMENT</div>
+            <div class="ad-banner-content" id="collection-ad-banner">
+              <div class="ad-placeholder">
+                <span class="ad-placeholder-icon">📢</span>
+                <span class="ad-placeholder-text">Support the game by whitelisting ads!</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="catch-modal hidden">
