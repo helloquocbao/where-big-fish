@@ -74,16 +74,27 @@ export class UI {
     this.connectScreen = document.createElement("div");
     this.connectScreen.className = "connect-screen";
     this.connectScreen.innerHTML = `
-      <div class="connect-card">
-        <h1>Where I Go Fish</h1>
-        <p class="tagline">Multiple lakes, many fishers — cast your line and see what you catch.</p>
-        <div class="skin-picker">
-          <canvas class="skin-preview" width="90" height="110"></canvas>
-          <div class="skin-swatches"></div>
+      <div class="connect-card-wrapper">
+        <div class="connect-card">
+          <h1>Where I Go Fish</h1>
+          <p class="tagline">Multiple lakes, many fishers — cast your line and see what you catch.</p>
+          <div class="skin-picker">
+            <canvas class="skin-preview" width="90" height="110"></canvas>
+            <div class="skin-swatches"></div>
+          </div>
+          <input type="text" maxlength="16" placeholder="Your name" class="name-input" />
+          <button class="play-button" type="button">Play</button>
+          <p class="error-text"></p>
         </div>
-        <input type="text" maxlength="16" placeholder="Your name" class="name-input" />
-        <button class="play-button" type="button">Play</button>
-        <p class="error-text"></p>
+        <div class="ad-banner panel-cut">
+          <div class="ad-banner-label">ADVERTISEMENT</div>
+          <div class="ad-banner-content" id="connect-ad-banner">
+            <div class="ad-placeholder">
+              <span class="ad-placeholder-icon">📢</span>
+              <span class="ad-placeholder-text">Support the game by whitelisting ads!</span>
+            </div>
+          </div>
+        </div>
       </div>
     `;
     this.root.appendChild(this.connectScreen);
@@ -121,6 +132,15 @@ export class UI {
     this.hud = document.createElement("div");
     this.hud.className = "hud hidden";
     this.hud.innerHTML = `
+      <div class="hud-banner panel-cut">
+        <div class="ad-banner-label">ADVERTISEMENT</div>
+        <div class="ad-banner-content" id="hud-ad-banner">
+          <div class="ad-placeholder">
+            <span class="ad-placeholder-icon">📢</span>
+            <span class="ad-placeholder-text">Ad banner placeholder (300x50)</span>
+          </div>
+        </div>
+      </div>
       <div class="leaderboard panel-cut">
         <h2>🏆 Leaderboard</h2>
         <ol class="leaderboard-list"></ol>
