@@ -1,5 +1,11 @@
 # Progress Log
 
+## 2026-07-14 - Thiết kế lại ảnh đại diện chia sẻ mạng xã hội (og-image.png)
+
+Thay thế ảnh `og-image.png` mặc định bằng ảnh minh họa hài hước theo chủ đề game câu cá: một chú cá béo ngố đeo vương miện đang cầm cần câu kéo ngược lại nhân vật Kirby hồng bay trên không trung.
+
+- `frontend/public/og-image.png`: Tạo mới bằng AI (tỷ lệ 16:9) và dùng công cụ chuyển đổi sang định dạng PNG để thay thế ảnh cũ.
+
 ## 2026-07-14 - Điều chỉnh kích thước khung quảng cáo AdSense thành 320x50
 
 Cập nhật lại CSS và nội dung placeholder để đặt kích thước khung hiển thị quảng cáo AdSense cố định là 320x50 chuẩn theo yêu cầu mới.

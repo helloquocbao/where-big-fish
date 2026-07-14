@@ -1,0 +1,25 @@
+# Where Big Fish
+
+> Where Big Fish is a free, real-time multiplayer fishing game that runs in any modern web browser — no download or install. Cast your line, win a reel minigame, collect fish of every rarity, and climb a live leaderboard with other players fishing the same lake.
+
+## Key facts
+
+- Type: free-to-play, browser-based, real-time multiplayer fishing game.
+- Platform: desktop web browser. No download, install, or account required.
+- Website: https://wherebigfish.com/
+- Core loop: cast your line → win the reel minigame → land the fish → score points → climb the live leaderboard.
+- Fish: 16 species across common, uncommon, rare, and legendary tiers, from the common Minnow, Silver Carp, and Catfish to the legendary Golden Arowana and Baby Shark, plus a few quirky finds (Old Boot, Soggy Bread, Vicent's Wallet).
+- Ocean species (Butterfish, Mackerel, Bluefin Tuna, Baby Shark) appear only in the East Sea; other species live in lakes and the river.
+
+## How to play
+
+1. Enter a name, pick a character, and press Play to join a lake.
+2. Walk to a lake, river, or sea shore with WASD or the arrow keys.
+3. Hold the mouse to charge power, then release to cast toward the cursor.
+4. When a fish bites, the reel minigame opens: hold the mouse to lift the green catch zone and keep the moving fish inside it.
+5. Keep the fish in the zone to fill the progress bar and land it. Rarer and heavier fish score more points and climb the leaderboard faster.
+
+## Links
+
+- Play the game: https://wherebigfish.com/
+- Sitemap: https://wherebigfish.com/sitemap.xml

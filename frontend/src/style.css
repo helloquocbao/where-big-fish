@@ -48,6 +48,22 @@ body {
   height: 100vh;
 }
 
+/* Nội dung crawlable cho SEO/GEO (xem index.html <main class="seo-content">). KHÔNG dùng display:none
+   (bot có thể bỏ qua) — đặt ngay DƯỚI màn game full-viewport; body overflow:hidden nên người chơi
+   không bao giờ cuộn tới, còn crawler/LLM vẫn đọc được text thật. */
+.seo-content {
+  position: absolute;
+  top: 100vh;
+  left: 0;
+  width: 100%;
+  max-width: 900px;
+  padding: 40px;
+  box-sizing: border-box;
+  color: var(--c-ink);
+  font-family: system-ui, sans-serif;
+  z-index: -1;
+}
+
 .game-canvas {
   position: absolute;
   inset: 0;

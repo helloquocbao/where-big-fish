@@ -7,70 +7,211 @@
     <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#e79b2e" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="application-name" content="Where Big Fish" />
 
-    <title>Where Big Fish — Multiplayer Fishing Game</title>
+    <!-- Critical CSS (inline, áp ngay frame đầu TRƯỚC khi style.css bundle trong JS tải xong) — chống
+         "nháy text": giữ khối nội dung SEO khuất dưới màn game + khoá cuộn ngay từ đầu. -->
+    <style>
+      html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #bfe685; }
+      .seo-content {
+        position: absolute;
+        top: 100vh;
+        left: 0;
+        width: 100%;
+        max-width: 900px;
+        padding: 40px;
+        z-index: -1;
+      }
+    </style>
+
+    <title>Where Big Fish — Free Multiplayer Fishing Game (Play in Browser)</title>
     <meta
       name="description"
-      content="Where Big Fish: a free real-time multiplayer fishing game. Cast your line, reel in fish of every rarity, fill your collection, and climb the leaderboard alongside other players in the same lake — right in your browser."
+      content="Where Big Fish is a free real-time multiplayer fishing game you play in your browser — no download. Cast your line, win the reel minigame, catch 16 fish from common Minnow to legendary Golden Arowana and Baby Shark, fill your collection, and climb the live leaderboard with other players in the same lake."
     />
     <link rel="canonical" href="https://wherebigfish.com/" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Where Big Fish" />
-    <meta property="og:title" content="Where Big Fish — Multiplayer Fishing Game" />
+    <meta property="og:title" content="Where Big Fish — Free Multiplayer Fishing Game" />
     <meta
       property="og:description"
-      content="Cast your line, reel in fish of every rarity, fill your collection, and climb the leaderboard alongside other players in real time."
+      content="Cast your line, win the reel minigame, collect 16 fish of every rarity, and climb the live leaderboard alongside other players in real time. Free, no download."
     />
     <meta property="og:url" content="https://wherebigfish.com/" />
+    <meta property="og:image" content="https://wherebigfish.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Where Big Fish — free real-time multiplayer fishing game" />
+    <meta property="og:locale" content="en_US" />
 
     <!-- Twitter -->
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Where Big Fish — Multiplayer Fishing Game" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Where Big Fish — Free Multiplayer Fishing Game" />
     <meta
       name="twitter:description"
-      content="Cast your line, reel in fish of every rarity, and climb the leaderboard in this real-time multiplayer fishing game."
+      content="Cast your line, win the reel minigame, collect fish of every rarity, and climb the live leaderboard in this real-time multiplayer fishing game. Free, no download."
     />
+    <meta name="twitter:image" content="https://wherebigfish.com/og-image.png" />
+    <meta name="twitter:image:alt" content="Where Big Fish — free real-time multiplayer fishing game" />
 
-    <meta name="keywords" content="where big fish, multiplayer fishing game, html5 game, online fishing game, browser game, free to play, real-time multiplayer, fish index, leaderboard" />
+    <meta name="keywords" content="where big fish, multiplayer fishing game, html5 fishing game, online fishing game, browser game, free to play, real-time multiplayer, fishing minigame, fish collection, leaderboard" />
 
-    <!-- JSON-LD Structured Data for Search Engines & AI Assistants (Gemini, Perplexity, ChatGPT) -->
+    <!-- Structured data (schema.org) for search engines & AI answer engines (Google AI Overviews,
+         Gemini, Perplexity, ChatGPT, Copilot). VideoGame + HowTo + FAQPage. -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": ["WebApplication", "VideoGame"],
-        "name": "Where Big Fish",
-        "url": "https://wherebigfish.com/",
-        "image": "https://wherebigfish.com/favicon.svg",
-        "description": "Where Big Fish: a free real-time multiplayer fishing game. Cast your line, reel in fish of every rarity, fill your collection, and climb the leaderboard alongside other players in the same lake — right in your browser.",
-        "applicationCategory": "Game",
-        "operatingSystem": "Web Browser",
-        "genre": "Multiplayer Fishing Game",
-        "gamePlatform": "Web Browser",
-        "playMode": "MultiPlayer",
-        "offers": {
-          "@type": "Offer",
-          "price": "0.00",
-          "priceCurrency": "USD"
-        },
-        "author": {
-          "@type": "Organization",
-          "name": "Where Big Fish Team"
-        }
+        "@graph": [
+          {
+            "@type": ["VideoGame", "WebApplication"],
+            "@id": "https://wherebigfish.com/#game",
+            "name": "Where Big Fish",
+            "alternateName": "Where Big Fish — Multiplayer Fishing Game",
+            "url": "https://wherebigfish.com/",
+            "image": "https://wherebigfish.com/og-image.png",
+            "screenshot": "https://wherebigfish.com/og-image.png",
+            "description": "Where Big Fish is a free real-time multiplayer fishing game that runs in the browser with no download. Cast your line, win the reel minigame, catch 16 fish of every rarity, fill your collection, and climb the live leaderboard with other players in the same lake.",
+            "applicationCategory": "GameApplication",
+            "operatingSystem": "Any (web browser)",
+            "browserRequirements": "Requires a modern web browser with JavaScript enabled.",
+            "genre": ["Fishing game", "Multiplayer", "Casual"],
+            "gamePlatform": "Web Browser",
+            "playMode": "MultiPlayer",
+            "inLanguage": "en",
+            "isAccessibleForFree": true,
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD",
+              "availability": "https://schema.org/InStock"
+            },
+            "author": { "@type": "Organization", "name": "Where Big Fish Team" },
+            "publisher": { "@type": "Organization", "name": "Where Big Fish" }
+          },
+          {
+            "@type": "HowTo",
+            "@id": "https://wherebigfish.com/#howtoplay",
+            "name": "How to play Where Big Fish",
+            "description": "Cast your line into a lake or the sea, win the reel minigame, and land fish to climb the leaderboard.",
+            "step": [
+              { "@type": "HowToStep", "position": 1, "name": "Start", "text": "Enter a name, pick a character, and press Play to join a lake." },
+              { "@type": "HowToStep", "position": 2, "name": "Find water", "text": "Walk to a lake, river, or the sea shore using WASD or the arrow keys." },
+              { "@type": "HowToStep", "position": 3, "name": "Cast", "text": "Hold the mouse button to charge power, then release to cast your line toward the cursor." },
+              { "@type": "HowToStep", "position": 4, "name": "Reel", "text": "When a fish bites, the reel minigame opens. Hold the mouse to lift the green catch zone and keep the moving fish inside it." },
+              { "@type": "HowToStep", "position": 5, "name": "Land it", "text": "Keep the fish in the zone to fill the progress bar. Rarer and heavier fish are worth more points and push you up the live leaderboard." }
+            ]
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://wherebigfish.com/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is Where Big Fish?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Where Big Fish is a free real-time multiplayer fishing game you play in your web browser. You cast a line, win a reel minigame, collect fish of every rarity, and compete on a live leaderboard with other players fishing the same lake." }
+              },
+              {
+                "@type": "Question",
+                "name": "Is Where Big Fish free to play?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Yes. Where Big Fish is completely free to play, with no purchase required and no download or installation." }
+              },
+              {
+                "@type": "Question",
+                "name": "Do I need to install anything?",
+                "acceptedAnswer": { "@type": "Answer", "text": "No. The game runs entirely in a modern web browser on desktop. Just open wherebigfish.com and press Play." }
+              },
+              {
+                "@type": "Question",
+                "name": "How do you catch a fish?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Hold the mouse to charge your cast and release to throw the line into the water. When a fish bites you enter the reel minigame: hold the mouse to raise the green catch zone and keep the fish inside it until the progress bar fills." }
+              },
+              {
+                "@type": "Question",
+                "name": "Is it multiplayer?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Yes. Many players fish the same lake in real time, and everyone's total catch value is ranked on a live leaderboard." }
+              },
+              {
+                "@type": "Question",
+                "name": "What fish can you catch?",
+                "acceptedAnswer": { "@type": "Answer", "text": "There are 16 species across common, uncommon, rare, and legendary tiers — from the common Minnow, Silver Carp, and Catfish to the legendary Golden Arowana and Baby Shark — plus a few quirky finds. Ocean species such as Mackerel, Bluefin Tuna, and Baby Shark only appear in the East Sea." }
+              }
+            ]
+          }
+        ]
       }
     </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet" />
-    
+
     <!-- Google AdSense Verification & Loader -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=%VITE_ADSENSE_CLIENT_ID%" crossorigin="anonymous"></script>
   </head>
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+
+    <!-- Crawlable content for search engines & AI answer engines. The game is a full-screen canvas
+         app rendered into #app above; this describes the same game in real, indexable text. It sits
+         below the full-viewport game (body overflow is hidden) so players never see it, but crawlers
+         and LLMs do. Keep this in sync with the JSON-LD FAQ/HowTo above. -->
+    <main class="seo-content">
+      <h1>Where Big Fish — free real-time multiplayer fishing game</h1>
+      <p>
+        <strong>Where Big Fish</strong> is a free, real-time multiplayer fishing game you play right
+        in your browser — no download or install. Cast your line into a lake, river, or the sea, win
+        a Stardew-style reel minigame, and reel in fish of every rarity. Fill your fish collection and
+        climb a live leaderboard alongside other players fishing the same waters.
+      </p>
+
+      <h2>How to play</h2>
+      <ol>
+        <li>Enter a name, pick a character, and press <strong>Play</strong> to join a lake.</li>
+        <li>Walk to a lake, river, or sea shore with <strong>WASD</strong> or the arrow keys.</li>
+        <li>Hold the mouse to charge power, then release to <strong>cast</strong> toward the cursor.</li>
+        <li>When a fish bites, the <strong>reel minigame</strong> opens — hold the mouse to lift the
+          green catch zone and keep the moving fish inside it.</li>
+        <li>Keep the fish in the zone to fill the progress bar and <strong>land it</strong>. Rarer and
+          heavier fish score more points and push you up the leaderboard.</li>
+      </ol>
+
+      <h2>Fish you can catch</h2>
+      <p>There are 16 species across four rarity tiers. Points shown are the base catch value; heavier
+        fish earn bonus points.</p>
+      <ul>
+        <li><strong>Common:</strong> Minnow (40), Silver Carp (50), Catfish (70), Butterfish (100).</li>
+        <li><strong>Uncommon:</strong> Tilapia (140), Snakehead (180), Mackerel (250).</li>
+        <li><strong>Rare:</strong> Koi (400), Sad Blobfish (450), Giant Barb (550), Bluefin Tuna (800).</li>
+        <li><strong>Legendary:</strong> Golden Arowana (1,500), Baby Shark (2,600).</li>
+        <li><strong>Quirky finds:</strong> an Old Boot, some Soggy Bread, and the legendary Vicent's Wallet.</li>
+      </ul>
+
+      <h2>Where to fish</h2>
+      <p>The world has several fishing spots, each with its own fish: Village Pond, Mirror Lake, Serpent
+        Lake, Lotus Marsh, Ice Bay, Dragon Lake, the Han River, and the East Sea. Ocean species —
+        Butterfish, Mackerel, Bluefin Tuna, and Baby Shark — are found only in the East Sea, so explore
+        different waters to complete your collection.</p>
+
+      <h2>Frequently asked questions</h2>
+      <h3>What is Where Big Fish?</h3>
+      <p>A free real-time multiplayer fishing game you play in your web browser — cast, win the reel
+        minigame, collect fish of every rarity, and compete on a live leaderboard.</p>
+      <h3>Is Where Big Fish free to play?</h3>
+      <p>Yes — completely free, with no purchase, download, or installation required.</p>
+      <h3>Do I need to install anything?</h3>
+      <p>No. It runs entirely in a modern web browser on desktop. Just open wherebigfish.com and press Play.</p>
+      <h3>How do you catch a fish?</h3>
+      <p>Hold the mouse to charge your cast and release to throw the line. When a fish bites, hold the
+        mouse to raise the green catch zone and keep the fish inside it until the progress bar fills.</p>
+      <h3>Is it multiplayer?</h3>
+      <p>Yes — many players fish the same lake in real time, and total catch value is ranked on a live leaderboard.</p>
+      <h3>What fish can you catch?</h3>
+      <p>16 species from common (Minnow, Silver Carp, Catfish) to legendary (Golden Arowana, Baby Shark),
+        plus a few quirky finds. Ocean species appear only in the East Sea.</p>
+    </main>
   </body>
 </html>
