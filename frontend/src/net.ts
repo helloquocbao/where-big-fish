@@ -57,10 +57,10 @@ export class Net {
       this.setStatus("connected");
 
       room.onLeave(() => {
-        this.setStatus("disconnected", "Mất kết nối tới server.");
+        this.setStatus("disconnected", "Disconnected from server.");
       });
       room.onError((_code, message) => {
-        this.setStatus("error", message ?? "Lỗi kết nối không rõ nguyên nhân.");
+        this.setStatus("error", message ?? "Connection error occurred.");
       });
       // Wildcard listener: the backend broadcasts message type === payload.type (see
       // GameRoom.broadcastEvent), so the payload itself is already a well-formed ServerEvent.
@@ -69,7 +69,7 @@ export class Net {
       });
     } catch (err) {
       const detail =
-        err instanceof Error ? err.message : "Không thể kết nối tới server (server có thể chưa chạy).";
+        err instanceof Error ? err.message : "Could not connect to server (it might be offline).";
       this.setStatus("error", detail);
       throw err;
     }
