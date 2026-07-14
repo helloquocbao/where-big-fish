@@ -39,18 +39,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet" />
     
     <!-- Google AdSense Verification & Loader -->
-    <script>
-      (function() {
-        var client = "%VITE_ADSENSE_CLIENT_ID%";
-        if (client && client.indexOf("VITE_ADSENSE_CLIENT_ID") === -1) {
-          var script = document.createElement('script');
-          script.async = true;
-          script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + client;
-          script.crossOrigin = 'anonymous';
-          document.head.appendChild(script);
-        }
-      })();
-    </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=%VITE_ADSENSE_CLIENT_ID%" crossorigin="anonymous"></script>
   </head>
   <body>
     <div id="app"></div>
