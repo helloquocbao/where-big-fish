@@ -12,7 +12,7 @@ import {
 import type { ClientMessage, ServerEvent } from "@bomio/shared";
 import { RoomState, PlayerSchema } from "../schema/State.js";
 import { stepPlayerMovement } from "../systems/movement.js";
-import { tryCast, updateBiteScheduling, updateReeling } from "../systems/fishing.js";
+import { tryCast, updateBiteScheduling, updateReeling, resolveReel } from "../systems/fishing.js";
 import { recomputeLeaderboard } from "../systems/leaderboard.js";
 import { randomSpawnPoint } from "../systems/utils.js";
 import { rebalanceNpcFishers, updateNpcFishers } from "../systems/npcFishers.js";
@@ -62,13 +62,13 @@ export class GameRoom extends Room<RoomState> {
       }
     });
 
-    this.onMessage("reel", (client, message: ClientMessage & { type: "reel" }) => {
+    // Client tự chạy minigame kéo cá rồi báo kết quả về (client-authoritative, giảm tải server —
+    // Vicent 2026-07-14). Server clamp + roll + cộng điểm trong resolveReel; gửi riêng cho client này.
+    this.onMessage("reel_result", (client, message: ClientMessage & { type: "reel_result" }) => {
       const player = this.state.players.get(client.sessionId);
       if (!player) return;
-      if (typeof message?.pulling !== "boolean") return;
-      // No message-rate throttle here (unlike move/cast) — this is a held-key toggle that fires
-      // at most twice per press (down/up), never spammable the way a repeated tap is.
-      player.reelPulling = message.pulling;
+      if (typeof message?.timeInZoneMs !== "number") return;
+      resolveReel(player, message.timeInZoneMs, (playerId, event) => this.notifyPlayer(playerId, event));
     });
 
     this.setSimulationInterval(() => this.update(), TICK_INTERVAL_MS);
@@ -114,9 +114,9 @@ export class GameRoom extends Room<RoomState> {
       stepPlayerMovement(player, deltaSeconds);
     }
 
-    const broadcast = (event: ServerEvent) => this.broadcastEvent(event);
-    updateBiteScheduling({ players: this.state.players, now, deltaSeconds, broadcast });
-    updateReeling({ players: this.state.players, now, deltaSeconds, broadcast });
+    const notify = (playerId: string, event: ServerEvent) => this.notifyPlayer(playerId, event);
+    updateBiteScheduling({ players: this.state.players, now, deltaSeconds, notify });
+    updateReeling({ players: this.state.players, now, deltaSeconds, notify });
 
     if (now - this.lastLeaderboardUpdate >= LEADERBOARD_INTERVAL_MS) {
       this.lastLeaderboardUpdate = now;
@@ -129,7 +129,14 @@ export class GameRoom extends Room<RoomState> {
     }
   }
 
-  private broadcastEvent(event: ServerEvent): void {
-    this.broadcast(event.type, event);
+  /** Gửi 1 event tới ĐÚNG client của người chơi liên quan (không broadcast cả room). fish_bite và
+   * catch_result chỉ có ý nghĩa với chính người chơi đó — client bỏ qua event của người khác (xem
+   * frontend/src/main.ts) — nên broadcast toàn room là lãng phí băng thông O(số client) mỗi event.
+   * NPC (playerId dạng "npc_...") không có client tương ứng → tự động là no-op. clients array nhỏ
+   * (<= ROOM_MAX_PLAYERS) nên find tuyến tính ở đây không đáng kể (chỉ chạy khi có bite/catch, không
+   * phải mỗi tick/mỗi người). */
+  private notifyPlayer(playerId: string, event: ServerEvent): void {
+    const client = this.clients.find((c) => c.sessionId === playerId);
+    client?.send(event.type, event);
   }
 }

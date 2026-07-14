@@ -67,8 +67,10 @@ export const SKIN_CATALOG: SkinDefinition[] = [
 
 export const DEFAULT_SKIN_ID = SKIN_CATALOG[0].id;
 
+const SKIN_BY_ID = new Map(SKIN_CATALOG.map((s) => [s.id, s]));
+
 export function getSkinDefinition(skinId: string | null | undefined): SkinDefinition {
-  return SKIN_CATALOG.find((s) => s.id === skinId) ?? SKIN_CATALOG[0];
+  return (skinId != null ? SKIN_BY_ID.get(skinId) : undefined) ?? SKIN_CATALOG[0];
 }
 
 // ---- World / Hồ ----
@@ -110,23 +112,62 @@ export interface FishSpecies {
   biteWaitMaxMs: number;
   /** 0..1 — càng cao thì minigame kéo cá càng khó (cá vùng vẫy nhanh/thất thường hơn, vùng bắt hẹp hơn). */
   reelDifficulty: number;
+  /** Cân nặng tối thiểu của loài (kg) */
+  minWeight: number;
+  /** Cân nặng tối đa của loài (kg) */
+  maxWeight: number;
+  /** Mô tả bựa/hài hước của loài cá */
+  description: string;
 }
 
 export const FISH_CATALOG: FishSpecies[] = [
-  { id: "silver_carp", name: "Silver Carp", rarity: "common", color: "#b8c4cc", weight: 30, value: 5, biteWaitMinMs: 1500, biteWaitMaxMs: 4000, reelDifficulty: 0.1 },
-  { id: "minnow", name: "Minnow", rarity: "common", color: "#9fd6e0", weight: 26, value: 4, biteWaitMinMs: 1200, biteWaitMaxMs: 3500, reelDifficulty: 0.08 },
-  { id: "catfish", name: "Catfish", rarity: "common", color: "#6b5843", weight: 20, value: 7, biteWaitMinMs: 2000, biteWaitMaxMs: 5000, reelDifficulty: 0.2 },
-  { id: "tilapia", name: "Tilapia", rarity: "uncommon", color: "#7fa8d9", weight: 12, value: 14, biteWaitMinMs: 3000, biteWaitMaxMs: 7000, reelDifficulty: 0.35 },
-  { id: "snakehead", name: "Snakehead", rarity: "uncommon", color: "#5a7a3f", weight: 9, value: 18, biteWaitMinMs: 3500, biteWaitMaxMs: 8000, reelDifficulty: 0.45 },
-  { id: "koi", name: "Koi", rarity: "rare", color: "#ff8c5a", weight: 4, value: 40, biteWaitMinMs: 5000, biteWaitMaxMs: 12000, reelDifficulty: 0.6 },
-  { id: "giant_barb", name: "Giant Barb", rarity: "rare", color: "#d9a441", weight: 3, value: 55, biteWaitMinMs: 6000, biteWaitMaxMs: 14000, reelDifficulty: 0.7 },
-  { id: "golden_dragonfish", name: "Golden Arowana", rarity: "legendary", color: "#ffd700", weight: 1, value: 150, biteWaitMinMs: 9000, biteWaitMaxMs: 20000, reelDifficulty: 0.9 },
+  { id: "silver_carp", name: "Silver Carp", rarity: "common", color: "#b8c4cc", weight: 30, value: 50, biteWaitMinMs: 1500, biteWaitMaxMs: 4000, reelDifficulty: 0.1, minWeight: 0.5, maxWeight: 3.0, description: "Loài cá quốc dân. Rất nhiều xương dăm, chỉ thích hợp để đi trêu người khác." },
+  { id: "minnow", name: "Minnow", rarity: "common", color: "#9fd6e0", weight: 26, value: 40, biteWaitMinMs: 1200, biteWaitMaxMs: 3500, reelDifficulty: 0.08, minWeight: 0.05, maxWeight: 0.2, description: "Bé đến mức có khi bạn còn tưởng đây là cọng rong rêu bám vào lưỡi câu." },
+  { id: "catfish", name: "Catfish", rarity: "common", color: "#6b5843", weight: 20, value: 70, biteWaitMinMs: 2000, biteWaitMaxMs: 5000, reelDifficulty: 0.2, minWeight: 1.5, maxWeight: 10.0, description: "Nuôi râu siêu dài để tỏ vẻ nguy hiểm nhưng thực chất chỉ thích đi ăn bùn." },
+  { id: "tilapia", name: "Tilapia", rarity: "uncommon", color: "#7fa8d9", weight: 12, value: 140, biteWaitMinMs: 3000, biteWaitMaxMs: 7000, reelDifficulty: 0.35, minWeight: 0.3, maxWeight: 2.5, description: "Lớp vảy lấp lánh như đang mời gọi bạn chiên xù nó lên." },
+  { id: "snakehead", name: "Snakehead", rarity: "uncommon", color: "#5a7a3f", weight: 9, value: 180, biteWaitMinMs: 3500, biteWaitMaxMs: 8000, reelDifficulty: 0.45, minWeight: 1.0, maxWeight: 6.0, description: "Đầu giống rắn nhưng thân là cá. Chuyên gia trốn tìm dưới đám sen súng." },
+  { id: "koi", name: "Koi", rarity: "rare", color: "#ff8c5a", weight: 4, value: 400, biteWaitMinMs: 5000, biteWaitMaxMs: 12000, reelDifficulty: 0.6, minWeight: 1.0, maxWeight: 8.0, description: "Chú cá phong thủy nhà giàu. Bắt được nó mang lại nhiều may mắn (và điểm số)." },
+  { id: "giant_barb", name: "Giant Barb", rarity: "rare", color: "#d9a441", weight: 3, value: 550, biteWaitMinMs: 6000, biteWaitMaxMs: 14000, reelDifficulty: 0.7, minWeight: 10.0, maxWeight: 150.0, description: "Được mệnh danh là 'vua cá chép'. To xác béo ú, kéo lên muốn gãy cả tay thủ." },
+  { id: "golden_dragonfish", name: "Golden Arowana", rarity: "legendary", color: "#ffd700", weight: 1, value: 1500, biteWaitMinMs: 9000, biteWaitMaxMs: 20000, reelDifficulty: 0.9, minWeight: 5.0, maxWeight: 30.0, description: "Cá Rồng Vàng huyền thoại. Vảy mạ vàng 24k sáng chói cả góc hồ." },
   // Ocean species
-  { id: "butterfish", name: "Butterfish", rarity: "common", color: "#8fae34", weight: 22, value: 10, biteWaitMinMs: 1600, biteWaitMaxMs: 4500, reelDifficulty: 0.18 },
-  { id: "mackerel", name: "Mackerel", rarity: "uncommon", color: "#508a8a", weight: 14, value: 25, biteWaitMinMs: 3200, biteWaitMaxMs: 7500, reelDifficulty: 0.4 },
-  { id: "tuna", name: "Bluefin Tuna", rarity: "rare", color: "#163f66", weight: 6, value: 80, biteWaitMinMs: 5500, biteWaitMaxMs: 13000, reelDifficulty: 0.65 },
-  { id: "baby_shark", name: "Baby Shark", rarity: "legendary", color: "#4f6575", weight: 1, value: 260, biteWaitMinMs: 10000, biteWaitMaxMs: 22000, reelDifficulty: 0.95 },
+  { id: "butterfish", name: "Butterfish", rarity: "common", color: "#8fae34", weight: 22, value: 100, biteWaitMinMs: 1600, biteWaitMaxMs: 4500, reelDifficulty: 0.18, minWeight: 0.2, maxWeight: 1.5, description: "Trơn như bơ, kéo lên rất dễ bị tuột tay trôi ngược về đại dương." },
+  { id: "mackerel", name: "Mackerel", rarity: "uncommon", color: "#508a8a", weight: 14, value: 250, biteWaitMinMs: 3200, biteWaitMaxMs: 7500, reelDifficulty: 0.4, minWeight: 0.5, maxWeight: 4.0, description: "Bơi cực nhanh, hay di chuyển theo đàn để đánh lừa các cần thủ." },
+  { id: "tuna", name: "Bluefin Tuna", rarity: "rare", color: "#163f66", weight: 6, value: 800, biteWaitMinMs: 5500, biteWaitMaxMs: 13000, reelDifficulty: 0.65, minWeight: 15.0, maxWeight: 250.0, description: "Đại lực sĩ biển cả. Nặng hàng trăm ký, thích ăn sashimi hơn là bị làm sashimi." },
+  { id: "baby_shark", name: "Baby Shark", rarity: "legendary", color: "#4f6575", weight: 1, value: 2600, biteWaitMinMs: 10000, biteWaitMaxMs: 22000, reelDifficulty: 0.95, minWeight: 5.0, maxWeight: 40.0, description: "Dooo dooo dooo... Đang định hát tiếp thì nó định đớp luôn ngón tay bạn!" },
+  // Meme / Silly items
+  { id: "old_boot", name: "Old Boot", rarity: "common", color: "#5c4033", weight: 15, value: 10, biteWaitMinMs: 1000, biteWaitMaxMs: 3000, reelDifficulty: 0.05, minWeight: 0.8, maxWeight: 2.0, description: "Chiếc ủng da cũ nát bị ai đó vứt xó. Kéo lên đầy bùn đất và hoàn toàn vô giá trị." },
+  { id: "soggy_bread", name: "Soggy Bread", rarity: "common", color: "#e1c699", weight: 18, value: 20, biteWaitMinMs: 1000, biteWaitMaxMs: 2800, reelDifficulty: 0.04, minWeight: 0.2, maxWeight: 0.6, description: "Mẩu bánh mì sũng nước ngâm hồ lâu ngày. Đừng bóp mạnh kẻo nó rã ra thành cháo!" },
+  { id: "sad_blobfish", name: "Sad Blobfish", rarity: "rare", color: "#ffb6c1", weight: 5, value: 450, biteWaitMinMs: 4000, biteWaitMaxMs: 10000, reelDifficulty: 0.55, minWeight: 1.0, maxWeight: 9.0, description: "Chú cá giọt nước mang khuôn mặt sầu đời. Trông như đống thạch màu hồng đang khóc nhè." },
+  { id: "vicent_wallet", name: "Vicent's Wallet", rarity: "legendary", color: "#8b0000", weight: 1, value: 3000, biteWaitMinMs: 8000, biteWaitMaxMs: 18000, reelDifficulty: 0.85, minWeight: 0.1, maxWeight: 0.5, description: "Ví tiền mất tích của nhà phát triển game Vicent! Chứa đầy thẻ tín dụng và tiền vàng." },
 ];
+
+export function computeActualDifficulty(baseDifficulty: number, weight: number, minWeight: number, maxWeight: number): number {
+  const weightRange = maxWeight - minWeight;
+  const weightRatio = weightRange > 0 ? (weight - minWeight) / weightRange : 0.5;
+  const rawDifficulty = baseDifficulty + (weightRatio - 0.5) * 0.2;
+  return Math.max(0.05, Math.min(0.99, rawDifficulty));
+}
+
+/** Tỉ lệ cân nặng của 1 con cá trong khoảng [minWeight, maxWeight] của loài — 0 = nhẹ nhất, 1 =
+ * nặng nhất. Dùng chung cho công thức điểm thưởng và thời lượng minigame. */
+function weightRatioOf(weight: number, minWeight: number, maxWeight: number): number {
+  const range = maxWeight - minWeight;
+  return range > 0 ? Math.max(0, Math.min(1, (weight - minWeight) / range)) : 0.5;
+}
+
+/** Điểm khi bắt được cá = value cơ bản + thưởng theo cân nặng: cá càng to (so với max của loài)
+ * càng nhiều điểm, từ 1× value (nhẹ nhất) tới 2× value (nặng nhất). Yêu cầu trực tiếp của Vicent
+ * (2026-07-14): "cân nặng cũng cộng thêm điểm". */
+export function computeCatchScore(value: number, weight: number, minWeight: number, maxWeight: number): number {
+  return Math.round(value * (1 + weightRatioOf(weight, minWeight, maxWeight)));
+}
+
+/** Thời lượng phiên kéo cá (ms) theo cân nặng: cá nhẹ kéo nhanh, cá nặng kéo lâu hơn — từ 0.7× tới
+ * 1.6× REEL_DURATION_MS. Yêu cầu của Vicent (2026-07-14): "cân nặng càng to thì chơi minigame lâu
+ * hơn". */
+export function computeReelDurationMs(weight: number, minWeight: number, maxWeight: number): number {
+  return Math.round(REEL_DURATION_MS * (0.7 + weightRatioOf(weight, minWeight, maxWeight) * 0.9));
+}
 
 export const RARITY_LABEL: Record<FishRarity, string> = {
   common: "Common",
@@ -142,8 +183,12 @@ export const RARITY_COLOR: Record<FishRarity, string> = {
   legendary: "#ffd700",
 };
 
+const FISH_BY_ID = new Map(FISH_CATALOG.map((f) => [f.id, f]));
+
+/** O(1) tra cứu loài cá theo id — gọi rất nhiều lần trên hot path (mỗi tick server, mỗi reeling
+ * player) nên dùng Map thay vì FISH_CATALOG.find() tuyến tính. */
 export function getFishSpecies(id: string | null | undefined): FishSpecies | undefined {
-  return FISH_CATALOG.find((f) => f.id === id);
+  return id != null ? FISH_BY_ID.get(id) : undefined;
 }
 
 // ---- Minigame kéo cá (Reel) ----
@@ -164,6 +209,11 @@ export function getFishSpecies(id: string | null | undefined): FishSpecies | und
  * tốt hay tệ tới đâu. Không đổi theo độ khó loài cá — độ khó nằm ở bề rộng vùng bắt + tốc độ cá bơi,
  * không phải ở thời lượng thử thách. */
 export const REEL_DURATION_MS = 8000;
+
+/** Xác suất 1 NPC "bắt được cá" mỗi khi kết thúc 1 phiên câu giả — dùng để NPC tích điểm dần theo
+ * thời gian và lên leaderboard chung với người thật (Vicent 2026-07-14), cho hồ trông sống động chứ
+ * không toàn số 0. NPC không chơi minigame thật nên chỉ roll xác suất đơn giản này. */
+export const NPC_CATCH_CHANCE = 0.55;
 
 /** Bề rộng vùng bắt (thang 0..100, cùng đơn vị với reelFishY/reelZoneY) cho loài DỄ NHẤT
  * (reelDifficulty = 0) — rộng rãi, gần như chỉ cần đứng yên giữa thanh là trúng, đúng ảnh 1. */

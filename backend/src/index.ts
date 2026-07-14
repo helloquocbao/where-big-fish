@@ -2,6 +2,8 @@ import colyseusPkg from "colyseus";
 const { Server, matchMaker } = colyseusPkg;
 import wsTransportPkg from "@colyseus/ws-transport";
 const { WebSocketTransport } = wsTransportPkg;
+import { RedisPresence } from "@colyseus/redis-presence";
+import { RedisDriver } from "@colyseus/redis-driver";
 import { createServer } from "http";
 import express from "express";
 import cors from "cors";
@@ -34,13 +36,36 @@ if (corsOrigin) {
 
 const httpServer = createServer(app);
 
+// --- Scale-out ngang (opt-in qua env, xem docs/scaling.md) ---
+// Khi REDIS_URL được set: dùng Redis presence (IPC pub/sub giữa các process) + Redis driver (danh
+// sách room dùng chung) để NHIỀU process/máy cùng matchmake và phân phối room. KHÔNG set: chạy
+// single-process in-memory y hệt trước đây — dev local không cần Redis, không đổi hành vi.
+const redisUrl = process.env.REDIS_URL;
+
 const gameServer = new Server({
   transport: new WebSocketTransport({ server: httpServer }),
+  ...(redisUrl ? { presence: new RedisPresence(redisUrl), driver: new RedisDriver(redisUrl) } : {}),
+  // Mỗi process cần 1 địa chỉ public riêng để client (sau khi reserve seat qua LB) kết nối THẲNG
+  // tới đúng process đang giữ room. Chỉ cần khi chạy nhiều process sau load balancer (xem
+  // docs/scaling.md); single-process bỏ trống là được.
+  ...(process.env.PUBLIC_ADDRESS ? { publicAddress: process.env.PUBLIC_ADDRESS } : {}),
 });
 
 gameServer.define("game", GameRoom);
 
-const port = Number(process.env.PORT ?? 2567);
+// Log khi bắt đầu drain room (Colyseus tự bắt SIGTERM/SIGINT và gracefully shutdown mặc định —
+// rolling deploy/restart sẽ để room đóng gọn thay vì cắt kết nối đột ngột).
+gameServer.onShutdown(() => {
+  console.log("[shutdown] draining rooms gracefully...");
+});
+
+// PM2 chạy N process cùng entrypoint, mỗi process nhận NODE_APP_INSTANCE = 0,1,2... → cộng vào PORT
+// để mỗi instance nghe 1 cổng riêng (2567, 2568, ...). Single-process thì offset = 0 (giữ 2567).
+const basePort = Number(process.env.PORT ?? 2567);
+const instanceOffset = Number(process.env.NODE_APP_INSTANCE ?? 0);
+const port = basePort + instanceOffset;
+
 httpServer.listen(port, "0.0.0.0", () => {
-  console.log(`Where Big Fish backend listening on :${port} (lake capacity: ${ROOM_MAX_PLAYERS})`);
+  const mode = redisUrl ? "redis scale-out" : "single-process";
+  console.log(`Where Big Fish backend listening on :${port} (lake capacity: ${ROOM_MAX_PLAYERS}) [${mode}]`);
 });

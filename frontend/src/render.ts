@@ -6,19 +6,30 @@
 import type { PlayerState, RoomSnapshot, SkinDefinition, SkinTopper, LakeDefinition } from "@bomio/shared";
 import {
   getSkinDefinition,
+  hashString,
   LAKE_DEFINITIONS,
   isInsideAnyLake,
   distanceToLakeBoundary,
+  aabbDistanceToLake,
   isInsideMountains,
 } from "@bomio/shared";
 import { BALL_RADIUS_RATIO, BALL_FOOT_RADIUS_RATIO, PLAYER_VISUAL_SIZE, WORLD_WIDTH, WORLD_HEIGHT } from "./config.ts";
 import type { PlayerAnimation } from "./animation.ts";
+// Icon cá tách sang module riêng (mỗi loài 1 hình). Re-export để ui.ts vẫn import từ render.ts như cũ.
+import { drawFishIcon } from "./fishArt.ts";
+export { drawFishIcon };
 
 export interface Camera {
   x: number;
   y: number;
+  /** Bề rộng/cao vùng WORLD camera nhìn thấy (đơn vị world = "virtual pixel"). Khi zoom xa, giá trị
+   * này > số pixel thật của canvas để lộ nhiều map hơn. */
   width: number;
   height: number;
+  /** Hệ số scale virtual→real (= canvasPxWidth / camera.width). <1 = zoom xa. render() áp 1 lần cho
+   * cả cảnh nên mọi vị trí + kích thước đều thu nhỏ đồng đều (Vicent 2026-07-14: "zoom map nhỏ lại").
+   * Mặc định 1 nếu không set. */
+  scale?: number;
 }
 
 function worldToScreen(camera: Camera, x: number, y: number): [number, number] {
@@ -34,12 +45,6 @@ function hashCell(cx: number, cy: number, salt: number): number {
   return h - Math.floor(h);
 }
 
-function hashString(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-  return h;
-}
-
 // ---- Lake geometry (world-space) — nhiều hồ rải khắp map, hình dạng/kích thước THẬT (gate thả
 // cần ở backend, xem shared/src/lakes.ts#LAKE_DEFINITIONS), không còn thuần cosmetic như bản 1 hồ
 // ellipse cố định trước đây.
@@ -48,11 +53,54 @@ const NEAR_EDGE_THRESHOLD = 60;
 /** Gần mép BẤT KỲ hồ nào không (trong khoảng NEAR_EDGE_THRESHOLD tính từ biên, kể cả từ trong hay
  * ngoài hồ) — dùng để rải lau sậy đúng ngay mép nước. */
 function isNearAnyLakeEdge(worldX: number, worldY: number): boolean {
-  return LAKE_DEFINITIONS.some((lake) => distanceToLakeBoundary(lake, worldX, worldY) < NEAR_EDGE_THRESHOLD);
+  return LAKE_DEFINITIONS.some(
+    (lake) =>
+      // AABB reject trước: nếu điểm cách AABB của hồ đã xa hơn ngưỡng thì chắc chắn cách biên thật
+      // còn xa hơn nữa — bỏ qua distanceToLakeBoundary (quét từng cạnh, sông có ~132 cạnh) cho hồ đó.
+      aabbDistanceToLake(lake, worldX, worldY) < NEAR_EDGE_THRESHOLD &&
+      distanceToLakeBoundary(lake, worldX, worldY) < NEAR_EDGE_THRESHOLD,
+  );
 }
 
 const MEADOW_PATCH_CELL_SIZE = 480;
 const MEADOW_PATCH_COLORS = ["rgba(150,205,90,0.45)", "rgba(200,235,140,0.5)", "rgba(120,190,80,0.4)"];
+
+/** Các lớp trang trí tĩnh (đồng cỏ, cây, lau sậy...) được rải theo 1 hàm XÁC ĐỊNH của toạ độ ô lưới
+ * world — kết quả không bao giờ đổi cho 1 ô. Trước đây mỗi frame lại tính lại placement + các phép
+ * kiểm tra hồ/núi đắt tiền (point-in-polygon, sông ~132 đỉnh) cho từng ô đang thấy. Giờ cache quyết
+ * định TĨNH của mỗi ô (tính đúng 1 lần cho suốt vòng đời trang), mỗi frame chỉ tra cứu O(1) rồi vẽ.
+ * Cache bị chặn trên tự nhiên bởi số ô trong world (~vài nghìn ô/lớp) nên không phình vô hạn.
+ * Lưu ý: các yếu tố ĐỘNG (vd né vị trí người chơi cho shore decor) vẫn xử lý lúc vẽ, không cache. */
+function cachedCell<T>(cache: Map<string, T | null>, cx: number, cy: number, compute: (cx: number, cy: number) => T | null): T | null {
+  const key = `${cx},${cy}`;
+  let v = cache.get(key);
+  if (v === undefined) {
+    v = compute(cx, cy);
+    cache.set(key, v);
+  }
+  return v;
+}
+
+interface ShorePatchCell {
+  worldX: number;
+  worldY: number;
+  color: string;
+  radius: number;
+}
+const shorePatchCache = new Map<string, ShorePatchCell | null>();
+
+function computeShorePatchCell(cx: number, cy: number): ShorePatchCell | null {
+  const colorRoll = hashCell(cx, cy, 1);
+  if (colorRoll < 0.4) return null;
+  const color = MEADOW_PATCH_COLORS[Math.floor(hashCell(cx, cy, 2) * MEADOW_PATCH_COLORS.length)];
+  const jitterX = (hashCell(cx, cy, 3) - 0.5) * MEADOW_PATCH_CELL_SIZE * 0.5;
+  const jitterY = (hashCell(cx, cy, 4) - 0.5) * MEADOW_PATCH_CELL_SIZE * 0.5;
+  const worldX = (cx + 0.5) * MEADOW_PATCH_CELL_SIZE + jitterX;
+  const worldY = (cy + 0.5) * MEADOW_PATCH_CELL_SIZE + jitterY;
+  if (isInsideAnyLake(worldX, worldY)) return null; // don't tint the water surface itself
+  const radius = MEADOW_PATCH_CELL_SIZE * (0.55 + hashCell(cx, cy, 5) * 0.3);
+  return { worldX, worldY, color, radius };
+}
 
 function drawShorePatches(ctx: CanvasRenderingContext2D, camera: Camera) {
   const startCx = Math.floor((camera.x - camera.width / 2) / MEADOW_PATCH_CELL_SIZE) - 1;
@@ -62,23 +110,15 @@ function drawShorePatches(ctx: CanvasRenderingContext2D, camera: Camera) {
 
   for (let cx = startCx; cx <= endCx; cx++) {
     for (let cy = startCy; cy <= endCy; cy++) {
-      const colorRoll = hashCell(cx, cy, 1);
-      if (colorRoll < 0.4) continue;
-      const color = MEADOW_PATCH_COLORS[Math.floor(hashCell(cx, cy, 2) * MEADOW_PATCH_COLORS.length)];
-      const jitterX = (hashCell(cx, cy, 3) - 0.5) * MEADOW_PATCH_CELL_SIZE * 0.5;
-      const jitterY = (hashCell(cx, cy, 4) - 0.5) * MEADOW_PATCH_CELL_SIZE * 0.5;
-      const worldX = (cx + 0.5) * MEADOW_PATCH_CELL_SIZE + jitterX;
-      const worldY = (cy + 0.5) * MEADOW_PATCH_CELL_SIZE + jitterY;
-      if (isInsideAnyLake(worldX, worldY)) continue; // don't tint the water surface itself
-      const [sx, sy] = worldToScreen(camera, worldX, worldY);
-      const radius = MEADOW_PATCH_CELL_SIZE * (0.55 + hashCell(cx, cy, 5) * 0.3);
-
-      const gradient = ctx.createRadialGradient(sx, sy, 0, sx, sy, radius);
-      gradient.addColorStop(0, color);
+      const cell = cachedCell(shorePatchCache, cx, cy, computeShorePatchCell);
+      if (!cell) continue;
+      const [sx, sy] = worldToScreen(camera, cell.worldX, cell.worldY);
+      const gradient = ctx.createRadialGradient(sx, sy, 0, sx, sy, cell.radius);
+      gradient.addColorStop(0, cell.color);
       gradient.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = gradient;
       ctx.beginPath();
-      ctx.arc(sx, sy, radius, 0, Math.PI * 2);
+      ctx.arc(sx, sy, cell.radius, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -163,6 +203,36 @@ function drawShoreDecor(ctx: CanvasRenderingContext2D, sx: number, sy: number, r
 const SHORE_DECOR_CELL_SIZE = 130;
 const SHORE_DECOR_PLAYER_CLEARANCE_FACTOR = 1.4 * PLAYER_VISUAL_SIZE;
 
+interface ShoreDecorCell {
+  worldX: number;
+  worldY: number;
+  rotation: number;
+  scale: number;
+  kind: ShoreDecorKind;
+}
+const shoreDecorCache = new Map<string, ShoreDecorCell | null>();
+
+/** Static placement decision for a shore-decor cell (kind + jitter + lake/waterline checks) — all
+ * a pure function of the cell coordinate, so computed once and cached. The per-frame player-
+ * proximity skip is NOT part of this (players move) and is applied at draw time instead. */
+function computeShoreDecorCell(cx: number, cy: number): ShoreDecorCell | null {
+  const kind = pickShoreDecorKind(hashCell(cx, cy, 11));
+  if (!kind) return null;
+
+  const jitterX = (hashCell(cx, cy, 12) - 0.5) * SHORE_DECOR_CELL_SIZE * 0.7;
+  const jitterY = (hashCell(cx, cy, 13) - 0.5) * SHORE_DECOR_CELL_SIZE * 0.7;
+  const worldX = (cx + 0.5) * SHORE_DECOR_CELL_SIZE + jitterX;
+  const worldY = (cy + 0.5) * SHORE_DECOR_CELL_SIZE + jitterY;
+
+  // Reeds intentionally allowed right at/near the waterline; everything else skips the water.
+  if (kind !== "reed" && isInsideAnyLake(worldX, worldY)) return null;
+  if (kind === "reed" && !isNearAnyLakeEdge(worldX, worldY)) return null;
+
+  const rotation = hashCell(cx, cy, 14) * Math.PI * 2;
+  const scale = 0.75 + hashCell(cx, cy, 15) * 0.7;
+  return { worldX, worldY, rotation, scale, kind };
+}
+
 /** Static, non-gameplay shore clutter (grass tufts, clover, flowers, pebbles, reeds near the
  * waterline) — purely a function of world position, gives the eye something to notice while
  * walking instead of an empty field. Skips the lake's water surface and any spot currently
@@ -175,29 +245,18 @@ function drawShoreDecorations(ctx: CanvasRenderingContext2D, camera: Camera, pla
 
   for (let cx = startCx; cx <= endCx; cx++) {
     for (let cy = startCy; cy <= endCy; cy++) {
-      const kind = pickShoreDecorKind(hashCell(cx, cy, 11));
-      if (!kind) continue;
-
-      const jitterX = (hashCell(cx, cy, 12) - 0.5) * SHORE_DECOR_CELL_SIZE * 0.7;
-      const jitterY = (hashCell(cx, cy, 13) - 0.5) * SHORE_DECOR_CELL_SIZE * 0.7;
-      const worldX = (cx + 0.5) * SHORE_DECOR_CELL_SIZE + jitterX;
-      const worldY = (cy + 0.5) * SHORE_DECOR_CELL_SIZE + jitterY;
-
-      // Reeds intentionally allowed right at/near the waterline; everything else skips the water.
-      if (kind !== "reed" && isInsideAnyLake(worldX, worldY)) continue;
-      if (kind === "reed" && !isNearAnyLakeEdge(worldX, worldY)) continue;
+      const cell = cachedCell(shoreDecorCache, cx, cy, computeShoreDecorCell);
+      if (!cell) continue;
 
       const tooCloseToPlayer = players.some(
-        (p) => Math.hypot(p.x - worldX, p.y - worldY) < SHORE_DECOR_PLAYER_CLEARANCE_FACTOR,
+        (p) => Math.hypot(p.x - cell.worldX, p.y - cell.worldY) < SHORE_DECOR_PLAYER_CLEARANCE_FACTOR,
       );
       if (tooCloseToPlayer) continue;
 
-      const [sx, sy] = worldToScreen(camera, worldX, worldY);
+      const [sx, sy] = worldToScreen(camera, cell.worldX, cell.worldY);
       if (sx < -20 || sy < -20 || sx > camera.width + 20 || sy > camera.height + 20) continue;
 
-      const rotation = hashCell(cx, cy, 14) * Math.PI * 2;
-      const scale = 0.75 + hashCell(cx, cy, 15) * 0.7;
-      drawShoreDecor(ctx, sx, sy, rotation, scale, kind);
+      drawShoreDecor(ctx, sx, sy, cell.rotation, cell.scale, cell.kind);
     }
   }
 }
@@ -644,6 +703,34 @@ function drawTree(ctx: CanvasRenderingContext2D, sx: number, sy: number) {
 }
 
 const TREE_CELL_SIZE = 150;
+interface TreeCell {
+  worldX: number;
+  worldY: number;
+}
+const treeCache = new Map<string, TreeCell | null>();
+
+/** Static tree placement decision for a cell (28% roll + jitter + mountain/lake/start-zone/bounds
+ * checks) — all a pure function of the cell coordinate, computed once and cached. */
+function computeTreeCell(cx: number, cy: number): TreeCell | null {
+  // 28% chance of tree per grid cell
+  const roll = hashCell(cx, cy, 33);
+  if (roll > 0.28) return null;
+
+  const jitterX = (hashCell(cx, cy, 34) - 0.5) * TREE_CELL_SIZE * 0.6;
+  const jitterY = (hashCell(cx, cy, 35) - 0.5) * TREE_CELL_SIZE * 0.6;
+  const worldX = (cx + 0.5) * TREE_CELL_SIZE + jitterX;
+  const worldY = (cy + 0.5) * TREE_CELL_SIZE + jitterY;
+
+  // Skip if inside mountains, or inside/near any lake edge
+  if (isInsideMountains(worldX, worldY) || isInsideAnyLake(worldX, worldY) || isNearAnyLakeEdge(worldX, worldY)) return null;
+  // Skip starting zone
+  if (Math.hypot(worldX, worldY) < 160) return null;
+  // Clamp to grass landmass (excluding beach margins)
+  if (Math.abs(worldX) > WORLD_WIDTH / 2 - 50 || Math.abs(worldY) > WORLD_HEIGHT / 2 - 50) return null;
+
+  return { worldX, worldY };
+}
+
 function drawProceduralTrees(ctx: CanvasRenderingContext2D, camera: Camera) {
   const startCx = Math.floor((camera.x - camera.width / 2) / TREE_CELL_SIZE) - 1;
   const endCx = Math.floor((camera.x + camera.width / 2) / TREE_CELL_SIZE) + 1;
@@ -652,25 +739,10 @@ function drawProceduralTrees(ctx: CanvasRenderingContext2D, camera: Camera) {
 
   for (let cx = startCx; cx <= endCx; cx++) {
     for (let cy = startCy; cy <= endCy; cy++) {
-      // 28% chance of tree per grid cell
-      const roll = hashCell(cx, cy, 33);
-      if (roll > 0.28) continue;
+      const cell = cachedCell(treeCache, cx, cy, computeTreeCell);
+      if (!cell) continue;
 
-      const jitterX = (hashCell(cx, cy, 34) - 0.5) * TREE_CELL_SIZE * 0.6;
-      const jitterY = (hashCell(cx, cy, 35) - 0.5) * TREE_CELL_SIZE * 0.6;
-      const worldX = (cx + 0.5) * TREE_CELL_SIZE + jitterX;
-      const worldY = (cy + 0.5) * TREE_CELL_SIZE + jitterY;
-
-      // Skip if inside mountains, or inside/near any lake edge
-      if (isInsideMountains(worldX, worldY) || isInsideAnyLake(worldX, worldY) || isNearAnyLakeEdge(worldX, worldY)) continue;
-
-      // Skip starting zone
-      if (Math.hypot(worldX, worldY) < 160) continue;
-
-      // Clamp to grass landmass (excluding beach margins)
-      if (Math.abs(worldX) > WORLD_WIDTH / 2 - 50 || Math.abs(worldY) > WORLD_HEIGHT / 2 - 50) continue;
-
-      const [sx, sy] = worldToScreen(camera, worldX, worldY);
+      const [sx, sy] = worldToScreen(camera, cell.worldX, cell.worldY);
       if (sx < -40 || sy < -60 || sx > camera.width + 40 || sy > camera.height + 40) continue;
 
       drawTree(ctx, sx, sy);
@@ -913,134 +985,193 @@ function drawNameTag(ctx: CanvasRenderingContext2D, sx: number, sy: number, size
   ctx.fillText(label, sx, y);
 }
 
-/** Icon cá đơn giản vẽ bằng canvas (thân + đuôi + vây + mắt), tô theo màu riêng của loài trong
- * FISH_CATALOG — dùng cả lúc kéo cá (thân đang vùng vẫy tại vị trí phao) lẫn trong modal kết quả
- * câu được cá (`ui.ts`). `tailWiggle` là góc lệch (radian) của đuôi, cho hiệu ứng vẫy — truyền 0
- * để vẽ tĩnh (modal). Quay đầu cá theo `facing` (1 = quay phải, -1 = quay trái). */
-export function drawFishIcon(
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  size: number,
-  color: string,
-  tailWiggle = 0,
-  facing = 1,
-) {
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.scale(facing, 1);
-  ctx.strokeStyle = "rgba(0,0,0,0.3)";
-  ctx.lineWidth = Math.max(1, size * 0.045);
-
-  // Đuôi (vẫy theo tailWiggle).
-  ctx.save();
-  ctx.translate(-size * 0.42, 0);
-  ctx.rotate(tailWiggle);
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(-size * 0.34, -size * 0.28);
-  ctx.lineTo(-size * 0.34, size * 0.28);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-  ctx.restore();
-
-  // Thân.
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.ellipse(0, 0, size * 0.42, size * 0.26, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-
-  // Vây lưng.
-  ctx.beginPath();
-  ctx.moveTo(size * 0.02, -size * 0.2);
-  ctx.quadraticCurveTo(size * 0.12, -size * 0.44, size * 0.22, -size * 0.18);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  // Mắt.
-  ctx.fillStyle = "#fffaf0";
-  ctx.beginPath();
-  ctx.arc(size * 0.24, -size * 0.04, size * 0.09, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#2d2018";
-  ctx.beginPath();
-  ctx.arc(size * 0.27, -size * 0.04, size * 0.045, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.restore();
-}
-
-/** Minigame kéo cá "1 thanh dọc duy nhất" (redesign theo yêu cầu trực tiếp của Vicent + 2 ảnh phác
- * thảo tay — xem shared/src/constants.ts đầu mục Reel): vẽ 1 thanh dọc (0 = đáy, 100 = đỉnh), 1 dải
- * màu là "vùng bắt" (`zoneY` ± `zoneSize`/2, do người chơi điều khiển — giữ chuột đẩy lên, thả ra
- * rơi xuống) và 1 biểu tượng cá (`fishY`) tự bơi lang thang thất thường kiểu Stardew Valley. Dải
- * bắt đổi màu xanh lá khi cá đang nằm trong, vàng khi cá ở ngoài — phản hồi tức thời cho người chơi
- * biết có đang "trúng" hay không mà không cần đọc số. Không còn cần câu cong hay hồ nước — chỉ 1
- * thanh đúng như ảnh phác thảo, đơn giản và rõ ràng hơn hẳn cảnh cũ. */
+/** Minigame kéo cá — dựng lại nguyên khung theo ảnh Stardew Valley Vicent gửi (14/07/2026): 1 khung
+ * gỗ dọc, bên trái là thanh thước bằng kim loại có khấc + ông câu cá nhỏ ngồi dưới góc, ở giữa là
+ * máng nước xanh chứa "ô bắt" xanh lá (`zoneY` ± `zoneSize`/2, người chơi giữ chuột đẩy lên / thả ra
+ * rơi xuống) và con cá (`fishY`) bơi lang thang thất thường, bên phải là cột progress dâng từ dưới
+ * lên theo `progress` (đổi màu đỏ→vàng→xanh lá theo %). Ô bắt sáng/glow khi cá đang nằm trong. Vẽ
+ * gọn trong canvas 260×360 (xem ui.ts#updateFishingModal). */
 export function drawModalReelScene(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
-  fishY: number, // 0..100, 0 = đáy thanh, 100 = đỉnh thanh
-  zoneY: number, // 0..100, tâm dải bắt
-  zoneSize: number, // 0..100, bề rộng dải bắt
+  fishY: number, // 0..100, 0 = đáy máng, 100 = đỉnh máng
+  zoneY: number, // 0..100, tâm ô bắt
+  zoneSize: number, // 0..100, bề cao ô bắt
   fishColor: string,
   nowMs: number,
+  progress: number = 0, // 0..100, % tiến độ bắt cá — cột progress bên phải
+  speciesId: string = "", // chọn hình cá riêng theo loài (xem fishArt.ts)
 ) {
   ctx.clearRect(0, 0, width, height);
+  const clamp = (v: number) => Math.max(0, Math.min(100, v));
+  const lerp = (a: number, b: number, t: number) => Math.round(a + (b - a) * t);
 
-  const barTop = height * 0.05;
-  const barBottom = height * 0.95;
-  const barHeight = barBottom - barTop;
-  const barCenterX = width / 2;
-  const barWidth = Math.min(width * 0.4, 70);
+  // ---------------------------------------------------------------- KHUNG GỖ (nền)
+  const woodGrad = ctx.createLinearGradient(0, 0, width, 0);
+  woodGrad.addColorStop(0, "#c79a5b");
+  woodGrad.addColorStop(0.5, "#a9743f");
+  woodGrad.addColorStop(1, "#c79a5b");
+  ctx.fillStyle = woodGrad;
+  ctx.fillRect(0, 0, width, height);
+  // Ván gỗ dọc 2 mép cho khớp viền bamboo/gỗ trong ảnh.
+  ctx.fillStyle = "rgba(233, 205, 150, 0.55)";
+  ctx.fillRect(4, 4, 8, height - 8);
+  ctx.fillRect(width - 12, 4, 8, height - 8);
+  ctx.strokeStyle = "rgba(74, 48, 22, 0.5)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(3, 3, width - 6, height - 6);
 
-  const toPixelY = (v: number) => barBottom - (Math.max(0, Math.min(100, v)) / 100) * barHeight;
+  const playTop = 14;
+  const playBottom = height - 14;
+  const playH = playBottom - playTop;
+  const toPixelY = (v: number) => playBottom - (clamp(v) / 100) * playH;
 
-  // Khung thanh (nền gỗ nhạt, khớp theme chung).
-  ctx.save();
-  ctx.fillStyle = "rgba(60, 42, 26, 0.16)";
-  ctx.fillRect(barCenterX - barWidth / 2, barTop, barWidth, barHeight);
+  // ---------------------------------------------------------------- THANH PROGRESS = THƯỚC (trái)
+  // Gộp progress vào luôn thanh thước bên trái (Vicent 2026-07-14: bỏ cột phải cho gọn UI): rãnh tối,
+  // fill dâng từ đáy theo % (màu đỏ→vàng→xanh lá), phủ khấc ngang lên trên nên vẫn ra dáng "thước".
+  const rulerX = 14;
+  const rulerW = 20;
+  const pct = clamp(progress);
+  let pr: number, pg: number, pb: number;
+  if (pct < 50) {
+    const t = pct / 50;
+    pr = lerp(224, 242, t); pg = lerp(83, 193, t); pb = lerp(63, 78, t);
+  } else {
+    const t = (pct - 50) / 50;
+    pr = lerp(242, 111, t); pg = lerp(193, 191, t); pb = lerp(78, 79, t);
+  }
+  // Rãnh tối.
+  ctx.fillStyle = "#3a2a1c";
+  ctx.fillRect(rulerX, playTop, rulerW, playH);
+  // Fill dâng từ đáy.
+  const fillH = (pct / 100) * playH;
+  const fillGrad = ctx.createLinearGradient(rulerX, 0, rulerX + rulerW, 0);
+  fillGrad.addColorStop(0, `rgb(${Math.round(pr * 0.8)}, ${Math.round(pg * 0.8)}, ${Math.round(pb * 0.8)})`);
+  fillGrad.addColorStop(0.5, `rgb(${pr}, ${pg}, ${pb})`);
+  fillGrad.addColorStop(1, `rgb(${Math.round(pr * 0.75)}, ${Math.round(pg * 0.75)}, ${Math.round(pb * 0.75)})`);
+  ctx.fillStyle = fillGrad;
+  ctx.fillRect(rulerX, playBottom - fillH, rulerW, fillH);
+  if (fillH > 2) {
+    ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+    ctx.fillRect(rulerX + 3, playBottom - fillH, 3, fillH);
+  }
+  // Khấc ngang (thang đo) phủ lên trên cho vẫn ra dáng thước.
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 22; i++) {
+    const ty = playTop + (playH * i) / 22;
+    const long = i % 5 === 0;
+    ctx.beginPath();
+    ctx.moveTo(rulerX, ty);
+    ctx.lineTo(rulerX + (long ? rulerW : rulerW * 0.5), ty);
+    ctx.stroke();
+  }
   ctx.strokeStyle = "#7a5233";
   ctx.lineWidth = 3;
-  ctx.strokeRect(barCenterX - barWidth / 2, barTop, barWidth, barHeight);
-  ctx.restore();
+  ctx.strokeRect(rulerX, playTop, rulerW, playH);
 
-  // Vạch chia nhỏ dọc thanh cho có cảm giác "đo lường" giống ảnh phác thảo.
+  // ---------------------------------------------------------------- MÁNG NƯỚC (giữa, chiếm phần còn lại)
+  const chX = rulerX + rulerW + 12;
+  const chW = width - chX - 14;
+  const chCenter = chX + chW / 2;
+  const waterGrad = ctx.createLinearGradient(0, playTop, 0, playBottom);
+  waterGrad.addColorStop(0, "#a9dbf5");
+  waterGrad.addColorStop(1, "#6fb4e0");
+  ctx.fillStyle = waterGrad;
+  ctx.fillRect(chX, playTop, chW, playH);
+  // Gợn nước ngang mờ, trôi chậm.
   ctx.save();
-  ctx.strokeStyle = "rgba(122, 82, 51, 0.35)";
-  ctx.lineWidth = 1;
-  for (let i = 1; i < 10; i++) {
-    const ty = barTop + (barHeight * i) / 10;
+  ctx.beginPath();
+  ctx.rect(chX, playTop, chW, playH);
+  ctx.clip();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.22)";
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 7; i++) {
+    const ry = playTop + ((i * 60 + (nowMs / 40) % 60)) % playH;
     ctx.beginPath();
-    ctx.moveTo(barCenterX - barWidth / 2, ty);
-    ctx.lineTo(barCenterX - barWidth / 2 + 6, ty);
-    ctx.moveTo(barCenterX + barWidth / 2 - 6, ty);
-    ctx.lineTo(barCenterX + barWidth / 2, ty);
+    ctx.moveTo(chX, ry);
+    ctx.lineTo(chX + chW, ry);
     ctx.stroke();
   }
   ctx.restore();
+  ctx.strokeStyle = "#3f7ba0";
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(chX, playTop, chW, playH);
 
-  // Dải bắt (catch zone) — xanh lá khi cá đang ở trong, vàng khi cá ở ngoài.
+  // Rong dưới đáy máng cho khớp ảnh.
+  ctx.strokeStyle = "#4f9f5a";
+  ctx.lineWidth = 3;
+  for (let i = -1; i <= 1; i++) {
+    const bx = chCenter + i * 16;
+    const sway = Math.sin(nowMs / 400 + i) * 4;
+    ctx.beginPath();
+    ctx.moveTo(bx, playBottom - 2);
+    ctx.quadraticCurveTo(bx + sway, playBottom - 16, bx + sway * 1.5, playBottom - 28);
+    ctx.stroke();
+  }
+
+  // ---------------------------------------------------------------- Ô BẮT (catch zone)
   const isInZone = Math.abs(fishY - zoneY) <= zoneSize / 2;
   const zoneTopPx = toPixelY(zoneY + zoneSize / 2);
   const zoneBottomPx = toPixelY(zoneY - zoneSize / 2);
+  const boxX = chCenter - (chW * 0.62) / 2;
+  const boxW = chW * 0.62;
   ctx.save();
-  ctx.fillStyle = isInZone ? "rgba(122, 200, 99, 0.55)" : "rgba(255, 201, 92, 0.4)";
-  ctx.fillRect(barCenterX - barWidth / 2 + 3, zoneTopPx, barWidth - 6, zoneBottomPx - zoneTopPx);
-  ctx.strokeStyle = isInZone ? "#4f8f2f" : "#c9960a";
-  ctx.lineWidth = 2;
-  ctx.strokeRect(barCenterX - barWidth / 2 + 3, zoneTopPx, barWidth - 6, zoneBottomPx - zoneTopPx);
+  if (isInZone) {
+    ctx.shadowColor = "rgba(120, 220, 90, 0.9)";
+    ctx.shadowBlur = 14;
+  }
+  const boxGrad = ctx.createLinearGradient(0, zoneTopPx, 0, zoneBottomPx);
+  boxGrad.addColorStop(0, isInZone ? "#8fe06a" : "#8fce6c");
+  boxGrad.addColorStop(1, isInZone ? "#5fbf3f" : "#5aa84a");
+  ctx.fillStyle = boxGrad;
+  ctx.globalAlpha = isInZone ? 0.95 : 0.8;
+  ctx.fillRect(boxX, zoneTopPx, boxW, zoneBottomPx - zoneTopPx);
+  ctx.globalAlpha = 1;
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = isInZone ? "#3c7a24" : "#4f8f2f";
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(boxX, zoneTopPx, boxW, zoneBottomPx - zoneTopPx);
   ctx.restore();
 
-  // Cá — vẫy đuôi nhẹ nhàng liên tục, không cần lật hướng vì cá chỉ di chuyển lên/xuống.
+  // ---------------------------------------------------------------- CÁ
   const fishPixelY = toPixelY(fishY);
   const wiggle = Math.sin(nowMs / 130) * 0.5;
-  drawFishIcon(ctx, barCenterX, fishPixelY, barWidth * 0.85, fishColor, wiggle, 1);
+  drawFishIcon(ctx, chCenter, fishPixelY, boxW * 0.9, speciesId, fishColor, wiggle, 1);
+
+  // ---------------------------------------------------------------- ÔNG CÂU CÁ (góc dưới trái)
+  drawTinyAngler(ctx, rulerX + rulerW / 2, playBottom, nowMs);
+}
+
+/** Ông câu cá tí hon kiểu pixel ngồi ở góc dưới trái khung minigame (trang trí, khớp ảnh Stardew).
+ * Cần câu hơi nhún theo thời gian cho có sức sống. */
+function drawTinyAngler(ctx: CanvasRenderingContext2D, x: number, baseY: number, nowMs: number) {
+  const bob = Math.sin(nowMs / 500) * 1.5;
+  ctx.save();
+  ctx.translate(x, baseY - 4 + bob);
+  // Thân (áo nâu).
+  ctx.fillStyle = "#8a5a2c";
+  ctx.fillRect(-7, -14, 14, 14);
+  // Đầu (da).
+  ctx.fillStyle = "#e8b98a";
+  ctx.beginPath();
+  ctx.arc(0, -20, 6, 0, Math.PI * 2);
+  ctx.fill();
+  // Nón (vàng đất).
+  ctx.fillStyle = "#c98a3a";
+  ctx.beginPath();
+  ctx.arc(0, -22, 6.5, Math.PI, Math.PI * 2);
+  ctx.fill();
+  ctx.fillRect(-8, -22, 16, 2.5);
+  // Cần câu chĩa lên.
+  ctx.strokeStyle = "#5a3a1c";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(4, -8);
+  ctx.lineTo(16, -34);
+  ctx.stroke();
+  ctx.restore();
 }
 
 /** Fishing line + bobber, drawn from wherever the character stands out to their bobber's world
@@ -1124,8 +1255,99 @@ export interface RenderOptions {
   getPlayerAnimation: (playerId: string) => PlayerAnimation;
 }
 
+/** Hiệu ứng bắn nước tức thời khi phao chạm mặt hồ (Vicent 2026-07-14): vài vòng sóng lan tròn +
+ * mấy giọt nước văng lên rồi rơi xuống. Trạng thái tạm sống ngắn (~650ms), gom trong module này để
+ * render() vẫn "snapshot -> pixels"; main.ts gọi `spawnCastSplash` đúng lúc phao đáp nước. */
+interface CastSplash {
+  x: number;
+  y: number;
+  startMs: number;
+  drops: { vx: number; vy: number }[];
+}
+const castSplashes: CastSplash[] = [];
+const CAST_SPLASH_DURATION_MS = 650;
+
+export function spawnCastSplash(worldX: number, worldY: number, nowMs: number): void {
+  const drops: { vx: number; vy: number }[] = [];
+  for (let i = 0; i < 8; i++) {
+    // Chủ yếu bắn lên trên (-90°) toả sang 2 bên, tốc độ ngẫu nhiên cho tự nhiên.
+    const ang = -Math.PI / 2 + (Math.random() - 0.5) * 1.7;
+    const speed = 55 + Math.random() * 95;
+    drops.push({ vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed });
+  }
+  castSplashes.push({ x: worldX, y: worldY, startMs: nowMs, drops });
+}
+
+function drawCastSplashes(ctx: CanvasRenderingContext2D, camera: Camera, nowMs: number): void {
+  for (let i = castSplashes.length - 1; i >= 0; i--) {
+    const s = castSplashes[i];
+    const elapsed = nowMs - s.startMs;
+    if (elapsed >= CAST_SPLASH_DURATION_MS || elapsed < 0) {
+      castSplashes.splice(i, 1);
+      continue;
+    }
+    const t = elapsed / CAST_SPLASH_DURATION_MS;
+    const [sx, sy] = worldToScreen(camera, s.x, s.y);
+    if (sx < -60 || sy < -60 || sx > camera.width + 60 || sy > camera.height + 60) continue;
+
+    ctx.save();
+    // Vòng sóng lan: 3 vòng nở ra so le, dẹt theo trục dọc cho cảm giác nhìn nghiêng mặt nước.
+    const easeOut = 1 - Math.pow(1 - t, 2);
+    for (let r = 0; r < 3; r++) {
+      const rt = t * 1.2 - r * 0.16;
+      if (rt <= 0 || rt >= 1) continue;
+      const radius = 4 + easeOut * (20 + r * 9);
+      ctx.strokeStyle = `rgba(255, 255, 255, ${(1 - rt) * 0.5})`;
+      ctx.lineWidth = 2 - r * 0.4;
+      ctx.beginPath();
+      ctx.ellipse(sx, sy, radius, radius * 0.5, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    // Giọt nước văng: quỹ đạo parabol (trọng lực), mờ dần, biến mất khi rơi lại mặt nước.
+    const ts = elapsed / 1000;
+    const g = 340;
+    for (const d of s.drops) {
+      const px = d.vx * ts;
+      const py = d.vy * ts + 0.5 * g * ts * ts;
+      if (py > 5) continue;
+      ctx.fillStyle = `rgba(206, 233, 250, ${Math.max(0, 1 - t * 1.4)})`;
+      ctx.beginPath();
+      ctx.arc(sx + px, sy + py, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+/** Tên hồ vẽ ngay GIỮA hồ (Vicent 2026-07-14) — dùng tâm AABB (bounds) chứ không phải centerX/Y, vì
+ * vài hồ (nhất là con sông) có centerX/Y = 0,0 lệch hẳn khỏi thân hồ. Chữ nâu cozy, viền giấy da cho
+ * nổi trên mặt nước xanh. Kích thước theo world nên tự thu/phóng cùng zoom. */
+function drawLakeName(ctx: CanvasRenderingContext2D, camera: Camera, lake: LakeDefinition): void {
+  const midX = (lake.bounds.minX + lake.bounds.maxX) / 2;
+  const midY = (lake.bounds.minY + lake.bounds.maxY) / 2;
+  const [sx, sy] = worldToScreen(camera, midX, midY);
+  ctx.save();
+  ctx.font = "700 40px 'Baloo 2', system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.lineWidth = 7;
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "rgba(255, 246, 222, 0.9)";
+  ctx.strokeText(lake.name, sx, sy);
+  ctx.fillStyle = "rgba(74, 48, 22, 0.62)";
+  ctx.fillText(lake.name, sx, sy);
+  ctx.restore();
+}
+
 export function render(ctx: CanvasRenderingContext2D, opts: RenderOptions) {
   const { snapshot, camera, localPlayerId, nowMs } = opts;
+
+  // Zoom: vẽ toàn cảnh trong hệ toạ độ "virtual" (world = virtual px), rồi scale 1 lần xuống pixel
+  // thật của canvas — mọi vị trí + kích thước thu nhỏ đồng đều. worldToScreen giữ nguyên (virtual),
+  // các phép cull so với camera.width/height (cũng virtual) vẫn đúng. reset về identity sau khi vẽ.
+  const zoomScale = camera.scale ?? 1;
+  ctx.save();
+  ctx.scale(zoomScale, zoomScale);
 
   clearBackground(ctx, camera, snapshot.players, nowMs);
   for (const lake of LAKE_DEFINITIONS) {
@@ -1135,10 +1357,14 @@ export function render(ctx: CanvasRenderingContext2D, opts: RenderOptions) {
     const [lcx, lcy] = worldToScreen(camera, lake.centerX, lake.centerY);
     if (lcx < -maxRadius || lcy < -maxRadius || lcx > camera.width + maxRadius || lcy > camera.height + maxRadius) continue;
     drawLake(ctx, camera, lake, nowMs);
+    drawLakeName(ctx, camera, lake);
   }
   drawWorldBounds(ctx, camera);
   drawProceduralTrees(ctx, camera);
   drawFences(ctx, camera);
+
+  // Hiệu ứng bắn nước vẽ ngay trên mặt hồ, trước khi vẽ nhân vật/phao (nằm dưới các đối tượng đó).
+  drawCastSplashes(ctx, camera, nowMs);
 
   const visuals = new Map<string, VisualPosition>();
   for (const player of snapshot.players) {
@@ -1154,8 +1380,11 @@ export function render(ctx: CanvasRenderingContext2D, opts: RenderOptions) {
     const skin = getSkinDefinition(player.skinId);
     const animation = opts.getPlayerAnimation(player.id);
 
-    // Scale character size based on total fish value caught (up to 2.5x original size)
-    const scale = 1 + Math.min(1.5, Math.sqrt(player.totalValue || 0) * 0.05);
+    // Scale character size based on total fish value caught (up to 2.5x original size). Chia điểm
+    // cho 10 trước khi lấy căn để BÙ lại việc đã x10 toàn bộ value (Vicent 2026-07-14) — giữ nhịp
+    // phình to y hệt trước lúc x10, nếu không nhân vật chạm trần 2.5x gần như tức thì (chỉ 1 con
+    // legendary). Trần 2.5x giờ đạt khi totalValue ≈ 9000 thay vì 900.
+    const scale = 1 + Math.min(1.5, Math.sqrt((player.totalValue || 0) / 10) * 0.05);
     const dynamicSize = PLAYER_VISUAL_SIZE * scale;
 
     drawFishingLineAndBobber(ctx, camera, sx, sy, dynamicSize, player, nowMs);
@@ -1163,4 +1392,6 @@ export function render(ctx: CanvasRenderingContext2D, opts: RenderOptions) {
     if (isLocal) drawYouMarker(ctx, sx, sy, dynamicSize, nowMs);
     drawNameTag(ctx, sx, sy, dynamicSize, player);
   }
+
+  ctx.restore();
 }

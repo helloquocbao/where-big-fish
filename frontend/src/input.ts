@@ -67,6 +67,13 @@ export class InputController {
   private send: (message: ClientMessage) => void;
   private getOrigin: () => { x: number; y: number };
   private getFishState: () => FishingState;
+  private getPlayerPos: () => { x: number; y: number };
+
+  private targetWorldX = 0;
+  private targetWorldY = 0;
+  private hasTarget = false;
+  private targetAngle = 0;
+  private targetMoving = false;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -76,11 +83,13 @@ export class InputController {
     getOrigin: () => { x: number; y: number },
     // Trạng thái câu cá hiện tại của local player — quyết định chuột trái làm gì (cast/hook/reel).
     getFishState: () => FishingState,
+    getPlayerPos: () => { x: number; y: number },
   ) {
     this.canvas = canvas;
     this.send = send;
     this.getOrigin = getOrigin;
     this.getFishState = getFishState;
+    this.getPlayerPos = getPlayerPos;
     this.mouseX = canvas.width / 2;
     this.mouseY = canvas.height / 2;
 
@@ -88,6 +97,7 @@ export class InputController {
     canvas.addEventListener("mousedown", this.onMouseDown);
     canvas.addEventListener("mouseup", this.onMouseUp);
     canvas.addEventListener("mouseleave", this.onMouseLeave);
+    canvas.addEventListener("contextmenu", this.onContextMenu);
     window.addEventListener("keydown", this.onKeyDown);
     window.addEventListener("keyup", this.onKeyUp);
     window.addEventListener("blur", this.onWindowBlur);
@@ -112,6 +122,7 @@ export class InputController {
     this.canvas.removeEventListener("mousedown", this.onMouseDown);
     this.canvas.removeEventListener("mouseup", this.onMouseUp);
     this.canvas.removeEventListener("mouseleave", this.onMouseLeave);
+    this.canvas.removeEventListener("contextmenu", this.onContextMenu);
     window.removeEventListener("keydown", this.onKeyDown);
     window.removeEventListener("keyup", this.onKeyUp);
     window.removeEventListener("blur", this.onWindowBlur);
@@ -123,11 +134,27 @@ export class InputController {
     this.mouseY = e.clientY - rect.top;
   };
 
+  private onContextMenu = (e: MouseEvent) => {
+    e.preventDefault();
+    if (this.getFishState() !== "idle") return; // Chỉ cho di chuyển khi rảnh tay
+
+    const origin = this.getOrigin();
+    const dx = this.mouseX - origin.x;
+    const dy = this.mouseY - origin.y;
+
+    const playerPos = this.getPlayerPos();
+    this.targetWorldX = playerPos.x + dx;
+    this.targetWorldY = playerPos.y + dy;
+    this.hasTarget = true;
+    this.targetMoving = true;
+  };
+
   private onMouseDown = (e: MouseEvent) => {
     if (e.button !== 0) return;
     if (this.getFishState() === "reeling") {
+      // Giữ chuột = kéo vùng bắt lên. Không gửi gì lên server nữa — minigame chạy hoàn toàn client
+      // (xem reelSim.ts), server chỉ nhận kết quả cuối. Chỉ bật cờ cục bộ cho sim + tiếng lách cách.
       this.reelHeld = true;
-      this.send({ type: "reel", pulling: true });
     } else {
       this.chargeStartAt = performance.now();
     }
@@ -137,7 +164,6 @@ export class InputController {
     if (e.button !== 0) return;
     if (this.reelHeld) {
       this.reelHeld = false;
-      this.send({ type: "reel", pulling: false });
       return;
     }
     this.releaseCast();
@@ -148,10 +174,7 @@ export class InputController {
     // cursor leaves the canvas mid-hold. Cũng ngưng kéo cần nếu đang giữ chuột lúc rời canvas —
     // tránh kẹt "đang kéo" mãi vì không còn nhận được mouseup.
     this.chargeStartAt = null;
-    if (this.reelHeld) {
-      this.reelHeld = false;
-      this.send({ type: "reel", pulling: false });
-    }
+    this.reelHeld = false;
   };
 
   private releaseCast() {
@@ -170,6 +193,7 @@ export class InputController {
       // khác gốc (performance.now() tính từ lúc trang tải) sẽ khiến hiệu số luôn cực lớn, làm mọi
       // phím bị coi là "kẹt" và xoá ngay lập tức mỗi frame (bug vừa gặp: không đi được luôn).
       this.heldMoveKeys.set(e.code, Date.now());
+      this.hasTarget = false; // Nhấn WASD thì hủy đích di chuyển bằng chuột phải
     }
     // Space không còn tác dụng gì — bước móc câu đã bỏ (cá cắn tự vào reeling), kéo cần chỉ dùng
     // chuột (xem class docstring).
@@ -193,22 +217,27 @@ export class InputController {
 
   private onWindowBlur = () => {
     this.heldMoveKeys.clear();
+    this.hasTarget = false;
   };
 
-  /** Góc + trạng thái di chuyển hiện tại, suy ra từ tổng vector các phím WASD/mũi tên đang giữ.
-   * Không giữ phím nào -> moving=false, giữ nguyên góc mặt hướng cuối cùng lúc còn đi (angle lúc
-   * này không có ý nghĩa với backend — xem movement.ts, chỉ dùng khi moving === true). */
+  /** Góc + trạng thái di chuyển hiện tại, suy ra từ tổng vector các phím WASD/mũi tên đang giữ hoặc đích chuột phải.
+   * Không giữ phím nào và không có đích chuột phải -> moving=false, giữ nguyên góc mặt hướng cuối cùng lúc còn đi. */
   private get movementInput(): { angle: number; moving: boolean } {
-    let dx = 0;
-    let dy = 0;
-    for (const code of this.heldMoveKeys.keys()) {
-      const v = MOVE_KEY_VECTORS[code];
-      dx += v.dx;
-      dy += v.dy;
+    if (this.heldMoveKeys.size > 0) {
+      let dx = 0;
+      let dy = 0;
+      for (const code of this.heldMoveKeys.keys()) {
+        const v = MOVE_KEY_VECTORS[code];
+        dx += v.dx;
+        dy += v.dy;
+      }
+      if (dx === 0 && dy === 0) return { angle: this.lastMovementAngle, moving: false };
+      this.lastMovementAngle = Math.atan2(dy, dx);
+      return { angle: this.lastMovementAngle, moving: true };
+    } else if (this.hasTarget) {
+      return { angle: this.targetAngle, moving: this.targetMoving };
     }
-    if (dx === 0 && dy === 0) return { angle: this.lastMovementAngle, moving: false };
-    this.lastMovementAngle = Math.atan2(dy, dx);
-    return { angle: this.lastMovementAngle, moving: true };
+    return { angle: this.lastMovementAngle, moving: false };
   }
 
   /** Angle (radians) from wherever the local player is actually drawn this frame to the mouse. */
@@ -235,6 +264,25 @@ export class InputController {
    * hồi tức thời, không như thay đổi góc nhỏ giữa chừng lúc đang đi (dedupe được). */
   tick(nowMs: number) {
     this.purgeStaleKeys(nowMs);
+
+    if (this.getFishState() !== "idle") {
+      this.hasTarget = false;
+    }
+
+    if (this.hasTarget) {
+      const playerPos = this.getPlayerPos();
+      const dx = this.targetWorldX - playerPos.x;
+      const dy = this.targetWorldY - playerPos.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > 5) {
+        this.targetAngle = Math.atan2(dy, dx);
+        this.targetMoving = true;
+      } else {
+        this.hasTarget = false;
+        this.targetMoving = false;
+      }
+    }
+
     const { angle, moving } = this.movementInput;
     const movingChanged = this.lastSentMoving === null || moving !== this.lastSentMoving;
 

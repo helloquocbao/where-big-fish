@@ -9,8 +9,10 @@
 import type { FishRarity } from "./constants.js";
 
 /** Không còn state "biting" — cá cắn câu là TỰ ĐỘNG móc, chuyển thẳng waiting -> reeling (quyết
- * định của Vicent: bỏ bước bấm-kịp-0.9s, đơn giản hoá core loop, xem docs/progress.md). */
-export type FishingState = "idle" | "casting" | "waiting" | "reeling";
+ * định của Vicent: bỏ bước bấm-kịp-0.9s, đơn giản hoá core loop, xem docs/progress.md).
+ * Cũng không có state "casting" riêng — server resolve cast đồng bộ (idle -> waiting trong 1 bước,
+ * xem backend/src/systems/fishing.ts#tryCast), nên phao không có giai đoạn "đang bay" ở tầng state. */
+export type FishingState = "idle" | "waiting" | "reeling";
 
 export interface PlayerState {
   id: string;
@@ -26,15 +28,15 @@ export interface PlayerState {
   bobberX: number; // vị trí phao trên mặt hồ khi đang waiting/reeling
   bobberY: number;
   activeFishSpeciesId: string; // loài cá đang kéo (chỉ có khi fishState === "reeling"), "" nếu không có
-  // ---- Minigame kéo cá "1 thanh" (xem constants.ts đầu mục Reel) ----
-  reelProgress: number; // 0..100 — % thời gian cá nằm trong vùng bắt TÍNH TỚI THỜI ĐIỂM HIỆN TẠI của
-  // phiên kéo đang diễn ra (timeInZoneMs / elapsedMs); đây cũng chính là % sẽ dùng để roll xác suất
-  // bắt được cá lúc hết REEL_DURATION_MS, xem backend/src/systems/fishing.ts#updateReeling
-  reelFishY: number; // 0..100 — vị trí hiện tại của "cá" trên thanh (0 = đáy, 100 = đỉnh), cá tự bơi
-  // lang thang thất thường, KHÔNG chịu điều khiển bởi người chơi
-  reelZoneY: number; // 0..100 — tâm của "vùng bắt" do người chơi điều khiển: giữ chuột đẩy lên, thả
-  // ra rơi xuống theo trọng lực; bề rộng vùng bắt xem computeReelZoneSize (phụ thuộc reelDifficulty
-  // của loài đang kéo, không đồng bộ riêng vì frontend tự tính lại được từ activeFishSpeciesId)
+  activeFishWeight: number; // cân nặng của con cá đang kéo (kg)
+  // ---- Minigame kéo cá "1 thanh" ----
+  // reelProgress / reelFishY / reelZoneY CỐ TÌNH KHÔNG nằm trong state đồng bộ: chúng đổi mỗi tick
+  // (20Hz) và CHỈ có ý nghĩa với modal của CHÍNH người chơi đang kéo — không client nào render
+  // reel-internals của người khác. Trước đây sync qua schema thì Colyseus broadcast delta cho MỌI
+  // client trong room (lãng phí ~O(số người kéo × số client) mỗi 50ms). Giờ server gửi RIÊNG cho chủ
+  // nhân qua ServerEvent "reel_state" mỗi tick (xem backend/src/systems/fishing.ts#updateReeling +
+  // frontend/src/main.ts). Bề rộng vùng bắt frontend tự tính lại từ activeFishSpeciesId nên không
+  // cần đồng bộ.
 
   // ---- Thành tích ----
   caughtCount: number;
@@ -77,19 +79,23 @@ export interface InputCastMessage {
   power: number;
 }
 
-/** Giữ/nhả nút kéo cần trong minigame kéo cá — chỉ có ý nghĩa khi fishState === "reeling". */
-export interface InputReelMessage {
-  type: "reel";
-  pulling: boolean;
+/** Kết quả minigame kéo cá do CLIENT tự mô phỏng rồi báo về — client-authoritative để giảm tải
+ * server (Vicent 2026-07-14): server không còn sim vùng bắt/cá mỗi tick, chỉ nhận tổng thời gian cá
+ * nằm trong vùng bắt (ms) suốt phiên, clamp theo reelDurationMs rồi roll xác suất bắt được. */
+export interface ReelResultMessage {
+  type: "reel_result";
+  timeInZoneMs: number;
 }
 
-export type ClientMessage = InputMoveMessage | InputCastMessage | InputReelMessage;
+export type ClientMessage = InputMoveMessage | InputCastMessage | ReelResultMessage;
 
 // ---- Server -> Client event messages (ngoài state sync định kỳ) ----
 
 export type ServerEvent =
   // Cá cắn câu (và TỰ ĐỘNG móc, vào thẳng reeling) — client hiện hiệu ứng/mở modal kéo cá.
   | { type: "fish_bite"; playerId: string }
+  // (Đã bỏ "reel_state": client tự mô phỏng minigame kéo cá & báo kết quả về qua ReelResultMessage,
+  // server không còn bắn trạng thái thanh kéo 20Hz nữa — giảm tải server, Vicent 2026-07-14.)
   | {
       type: "catch_result";
       playerId: string;
@@ -97,6 +103,7 @@ export type ServerEvent =
       speciesId?: string;
       rarity?: FishRarity;
       value?: number;
+      weight?: number; // Cân nặng của con cá câu được (kg)
       isFirstCatch?: boolean; // true nếu đây là lần đầu bắt được loài này (thêm vào sổ sưu tập)
       reason?: "fish_escaped"; // hết REEL_DURATION_MS, roll xác suất theo % thời gian trong vùng bắt
       // không trúng — cá thoát. Không còn "line_snapped" (đứt dây) sau khi bỏ cơ chế tension.

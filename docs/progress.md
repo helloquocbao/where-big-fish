@@ -1,5 +1,185 @@
 # Progress Log
 
+## 2026-07-14 - Điều chỉnh kích thước khung quảng cáo AdSense thành 320x50
+
+Cập nhật lại CSS và nội dung placeholder để đặt kích thước khung hiển thị quảng cáo AdSense cố định là 320x50 chuẩn theo yêu cầu mới.
+
+- `frontend/src/style.css`: 
+  - Đặt `.ad-banner-content` có kích thước cố định `width: 320px` và `height: 50px`.
+  - Thay đổi các container bọc ngoài (`.ad-banner`, `.hud-banner`, `.ad-banner-mini`) từ kích thước cứng thành `width: fit-content` hoặc căn chỉnh linh hoạt để ôm vừa khít quảng cáo.
+- `frontend/src/ui.ts`: Cập nhật text placeholder từ `300x50` thành `320x50`.
+
+## 2026-07-14 - Scale ngang hạ tầng: Redis presence/driver + multi-process (opt-in)
+
+Chuẩn bị backend cho scale ngang nhiều process/máy, HOÀN TOÀN opt-in qua env (dev local + deploy
+single-process hiện tại không đổi hành vi). Build + typecheck sạch; đã verify runtime các nhánh
+không cần Redis (xem cuối mục). Hướng dẫn đầy đủ: `docs/scaling.md`.
+
+Bối cảnh thuận lợi: rooms độc lập hoàn toàn (state per-room, leaderboard per-room, không chia sẻ
+xuyên room) → scale ngang "sạch", mỗi room sống trọn trên 1 process, Redis chỉ lo matchmaking dùng
+chung. Không phải sửa logic game.
+
+- `backend/package.json`: thêm `@colyseus/redis-presence@^0.15.6`, `@colyseus/redis-driver@^0.15.6`
+  (khớp Colyseus 0.15.x).
+- `backend/src/index.ts`:
+  - `REDIS_URL` set → `new Server({ presence: new RedisPresence(url), driver: new RedisDriver(url) })`;
+    không set → single-process in-memory như cũ.
+  - `PUBLIC_ADDRESS` (env) → `publicAddress` để client kết nối thẳng process giữ room khi ở sau LB.
+  - Port = `PORT` + `NODE_APP_INSTANCE` (PM2 tự set) → mỗi instance nghe cổng riêng 2567/2568/...
+  - `gameServer.onShutdown(...)` log khi drain (Colyseus mặc định tự graceful shutdown SIGTERM/SIGINT).
+  - Log rõ mode: `[single-process]` / `[redis scale-out]`.
+- `ecosystem.config.js` (gốc repo): PM2 chạy N=cpu process, `exec_mode: 'fork'` (KHÔNG cluster).
+- `docs/scaling.md`: env vars, chạy local/PM2/nhiều máy, nginx mẫu, graceful shutdown, giới hạn.
+
+Đã verify runtime: single-process khởi động OK cả qua `tsx` (dev) lẫn `node dist/index.js` (prod);
+`NODE_APP_INSTANCE=1` offset đúng sang :2568; named-import 2 package Redis chạy được ở runtime.
+CHƯA verify được nhánh Redis thật (máy build không có Redis đang chạy + không có load balancer) —
+cần test `docs/scaling.md` mục 2-3 trên staging có Redis trước khi lên production.
+
+Follow-up để ngỏ: leaderboard vẫn per-room (không vỡ khi multi-process); muốn leaderboard toàn cục
+xuyên process thì phải lưu Redis/DB — việc bổ sung riêng.
+
+## 2026-07-14 - Scalability BE giai đoạn 2: tách reel-state khỏi schema + leaderboard skip-if-unchanged
+
+Hai tối ưu băng thông tiếp theo (thuần backend, có phần FE consume tối thiểu cho #1). Build +
+typecheck sạch; live smoke-test xác nhận modal kéo cá vẫn chạy đúng qua kênh mới.
+
+### 1. Tách reel-minigame state khỏi state đồng bộ (giảm ~40× bandwidth room đông)
+Trước: `reelProgress`/`reelFishY`/`reelZoneY` là field synced trong `PlayerSchema`, đổi mỗi tick
+(20Hz) cho MỌI người đang kéo → Colyseus broadcast delta cho MỌI client trong room, dù chỉ chủ nhân
+cần (không ai render reel-internals của người khác). Room 40 người cùng kéo ≈ 40×3×20×40 ≈ 96k
+number-send/giây/room. Giờ 3 field này KHÔNG còn trong schema — server gửi RIÊNG cho chủ nhân qua
+ServerEvent `reel_state` mỗi tick (chỉ tới 1 client) → giảm còn ≈ 2.4k/giây/room (~40×).
+- `shared/src/types.ts`: bỏ `reelProgress`/`reelFishY`/`reelZoneY` khỏi `PlayerState`; thêm event
+  `{ type: "reel_state"; reelProgress; reelFishY; reelZoneY }`.
+- `backend/src/schema/State.ts`: 3 field đổi từ `@type("number")` synced sang plain server-internal.
+- `backend/src/systems/fishing.ts#updateReeling`: `ctx.notify(player.id, { type: "reel_state", ... })` mỗi tick cho người thật đang kéo.
+- `frontend/src/main.ts`: lưu `latestReelState` từ event, feed vào `updateFishingModal` (thay cho đọc từ snapshot); reset về giữa thanh khi vào phiên kéo mới.
+- Live-test: reel fields đã biến mất khỏi synced schema; nhận 158 giá trị reel_state biến thiên mượt/phiên; bite+catch targeted vẫn tới đúng chủ nhân.
+
+### 2. Leaderboard bỏ re-sync khi top-N không đổi
+`recomputeLeaderboard` (chạy mỗi 1s/room) trước đây luôn `clear()`+rebuild ArraySchema → ép Colyseus
+re-sync cả 10 entry cho mọi client dù nội dung y hệt. Giờ so sánh nông top-N với lần trước, không đổi
+thì return sớm, không đụng ArraySchema.
+- `backend/src/systems/leaderboard.ts`: nhánh so sánh + early-return.
+
+### Chưa làm (giải thích lựa chọn)
+- **Giảm chi phí nền NPC (đề xuất #2 trước đó)**: đụng CẢM GIÁC gameplay (mỗi hồ trông đông/vắng thế
+  nào — quyết định thiết kế của Vicent, xem concept_brief). Không tự đổi; cần Vicent chốt hạ
+  `NPC_FISHER_TARGET_POPULATION` hay chỉ lấp NPC ở hồ có người thật. Lưu ý: room rỗng đã được Colyseus
+  autoDispose nên không tồn tại NPC "ma" lâu dài.
+- **Gộp 3 vòng lặp player/tick thành 1 (đề xuất #3)**: lợi ích không đáng kể (duyệt Map <=40 phần tử,
+  chi phí vượt trội nằm ở sync chứ không phải iterate), lại làm coupling 3 system rõ ràng hiện tại →
+  cố ý bỏ qua để giữ code sạch.
+
+## 2026-07-14 - Tối ưu scalability backend (tải nhiều người dùng đồng thời)
+
+Giảm CPU/tick và băng thông state-sync khi nhiều người truy cập. Không đổi trải nghiệm client
+(đã live smoke-test: 24 người/room, targeted event vẫn tới đúng client, NPC reel-fields đứng yên).
+Build + typecheck toàn workspace pass sạch.
+
+### 1. NPC không chạy minigame kéo cá thật (nút thắt lớn nhất)
+Trước: mỗi room có ~23-27 NPC (3/hồ × 9 hồ) chạy full reel-sim, mutate 3 field synced
+(`reelFishY`/`reelZoneY`/`reelProgress`) MỖI TICK 20Hz → Colyseus broadcast delta cho MỌI client mỗi
+50ms (~1.380 field-update/giây/room thuần lãng phí, vì không client nào render reel-internals của
+người khác — chỉ dùng cho modal của chính người chơi local). Giờ NPC chỉ "giả vờ" kéo đủ
+`REEL_DURATION_MS` rồi về idle, KHÔNG đụng field synced nào trong phiên → 0 churn. Nhìn từ ngoài NPC
+vẫn thấy phao giật + trạng thái reeling như cũ.
+- `backend/src/systems/fishing.ts#updateReeling`: nhánh sớm cho `player.isNpc`.
+- `backend/src/systems/npcFishers.ts`: bỏ AI bám cá per-tick (`NPC_REEL_TOLERANCE` + nhánh reeling), NPC chỉ còn cast lúc idle.
+
+### 2. Event gửi TARGETED thay vì broadcast cả room
+`fish_bite` và `catch_result` chỉ có ý nghĩa với chính người chơi (client bỏ qua event của người
+khác — main.ts). Trước broadcast toàn room = fanout O(số client)/event; giờ gửi thẳng tới đúng client
+(NPC không có client → no-op, không tốn gì).
+- `backend/src/systems/fishing.ts`: `FishingContext.broadcast` -> `notify(playerId, event)`.
+- `backend/src/rooms/GameRoom.ts`: thêm `notifyPlayer` (client.send tới đúng sessionId), bỏ `broadcastEvent`.
+
+### 3. Tra cứu O(1) trên hot path
+`getFishSpecies` (gọi mỗi tick/mỗi reeling player), `getSkinDefinition`, `getLakeById` đổi từ
+`.find()` tuyến tính sang Map dựng 1 lần.
+- `shared/src/constants.ts`: `FISH_BY_ID`, `SKIN_BY_ID`.
+- `shared/src/lakes.ts`: `LAKE_BY_ID`.
+
+### Ghi chú follow-up (chưa làm — cần cân nhắc)
+- Với NGƯỜI CHƠI THẬT, `reelFishY`/`reelZoneY`/`reelProgress` vẫn sync cho cả room dù chỉ chủ nhân
+  cần. Muốn triệt để phải per-client filter (Colyseus `@filter`) hoặc chuyển reel-state ra khỏi
+  schema và gửi riêng tới owner — refactor lớn hơn, để riêng. Sau tối ưu #1 thì phần dư này chỉ còn
+  tỉ lệ với số người ĐANG kéo cá thật, không còn nhân theo NPC nữa.
+
+## 2026-07-14 - Dọn dẹp & tối ưu hiệu năng render/geometry
+
+Đợt kiểm tra + tối ưu tổng thể (không đổi gameplay). Build + typecheck toàn bộ workspace pass sạch.
+
+### 1. AABB early-out cho point-in-polygon của hồ
+Thêm bounding-box (AABB) precompute cho mỗi hồ làm bộ lọc rẻ tiền O(1) trước khi chạy
+point-in-polygon / quét cạnh O(n đỉnh) đắt tiền. Không đổi hành vi (differential-test 200k điểm
+ngẫu nhiên trùng khớp 100% với brute-force). `findNearestLake` nhanh ~2.9x; render mỗi frame hưởng
+lợi nhiều hơn vì đa số ô bị loại ngay thay vì quét polygon sông ~132 đỉnh.
+- `shared/src/lakes.ts`: thêm `LakeBounds` + field `bounds` vào `LakeDefinition` (`computeLakeBounds`),
+  export `aabbDistanceToLake`; AABB reject trong `isInsideLake`; AABB lower-bound pruning trong `findNearestLake`.
+- `frontend/src/render.ts`: `isNearAnyLakeEdge` reject sớm bằng `aabbDistanceToLake`.
+
+### 2. Cache trang trí procedural theo ô lưới (render)
+`drawShorePatches` / `drawShoreDecorations` / `drawProceduralTrees` trước đây tính lại placement +
+các phép kiểm tra hồ/núi đắt tiền cho từng ô đang thấy MỖI FRAME. Giờ cache quyết định TĨNH của mỗi
+ô (tính 1 lần/vòng đời trang, chặn trên tự nhiên bởi số ô trong world), mỗi frame chỉ tra cứu O(1)
+rồi vẽ. Yếu tố động (né vị trí người chơi ở shore decor) vẫn xử lý lúc vẽ, không cache. Visual giữ
+nguyên (cùng seed hash xác định).
+- `frontend/src/render.ts`: thêm `cachedCell` + `computeShorePatchCell`/`computeShoreDecorCell`/`computeTreeCell`.
+
+### 3. Bỏ state "casting" không dùng khỏi FishingState (shared contract)
+Server resolve cast đồng bộ (idle -> waiting trong 1 bước), không bao giờ set "casting" — bỏ khỏi
+union type cho khớp thực tế.
+- `shared/src/types.ts`: `FishingState = "idle" | "waiting" | "reeling"` (bỏ `"casting"`).
+- `backend/src/systems/movement.ts`: cập nhật comment cho khớp.
+
+### 4. NPC không lên bảng xếp hạng
+NPC là dân số nền thuần cosmetic ("never compete with real players for anything" — npcFishers.ts),
+nên lọc `isNpc` ra khỏi leaderboard để không cạnh tranh điểm với người chơi thật.
+- `backend/src/systems/leaderboard.ts`: `.filter((p) => !p.isNpc)` trước khi sort.
+- ĐÁNH ĐỔI: hồ chỉ có NPC + 1 người thật sẽ hiện bảng xếp hạng "vắng" hơn. Muốn giữ cảm giác đông
+  thì revert (field `isNpc` trên `LeaderboardEntrySchema` vẫn còn để FE phân biệt nếu cần).
+
+### 5. Dọn dead code
+- Xoá 9 file hệ thống rỗng của game PvP cũ: `backend/src/systems/{pounce,bomb,bullets,collision,extraLives,death,food,spatialGrid,bots}.ts`.
+- Xoá helper `distance()` không dùng trong `backend/src/systems/utils.ts`.
+- Bỏ bản `hashString` trùng lặp trong `frontend/src/render.ts`, import từ `@bomio/shared`.
+
+## 2026-07-14 - Thêm Các Loài Cá Meme/Bựa & Mô Tả Sổ Cá
+
+Thêm các loài vật meme siêu bựa vào Catalog (Old Boot, Soggy Bread, Sad Blobfish, Vicent's Wallet) và viết mô tả hài hước cho toàn bộ loài cá trong Sổ cá (lộ diện khi câu được).
+
+- `shared/src/constants.ts`:
+  - Thêm `description` vào `FishSpecies`.
+  - Thêm 4 loài cá/vật phẩm bựa mới vào `FISH_CATALOG`.
+  - Cập nhật mô tả chi tiết hài hước cho toàn bộ loài cá.
+- `frontend/src/ui.ts` & `frontend/src/style.css`:
+  - Điều chỉnh layout Sổ cá (`.collection-item`) sang dạng xếp dọc (`column`) để chứa mô tả.
+  - Hiển thị mô tả cá chi tiết (`.collection-item-desc`) khi người chơi đã câu được loài đó.
+
+## 2026-07-14 - Thêm Cân Nặng Cá & Điều Chỉnh Độ Khó Minigame Theo Cân Nặng + Độ Hiếm
+
+Thêm thông số cân nặng cá, hiển thị cân nặng khi câu được cá và điều chỉnh độ khó minigame kéo cá động dựa trên cân nặng và độ hiếm.
+
+- `shared/src/constants.ts`: 
+  - Bổ sung `minWeight` và `maxWeight` vào `FishSpecies` interface.
+  - Cấu hình khoảng cân nặng thực tế hợp lý cho từng loài trong `FISH_CATALOG`.
+  - Thêm helper `computeActualDifficulty` tính toán độ khó động (cá càng nặng càng khó bám theo và vùng bắt càng hẹp).
+- `shared/src/types.ts`:
+  - Thêm `activeFishWeight` vào `PlayerState` và `weight` vào ServerEvent `"catch_result"`.
+- `backend/src/schema/State.ts`:
+  - Thêm `activeFishWeight` vào `PlayerSchema` để đồng bộ trạng thái cân nặng con cá hiện tại qua Colyseus.
+- `backend/src/systems/fishing.ts`:
+  - Sinh cân nặng cá ngẫu nhiên khi cắn câu (`updateBiteScheduling`).
+  - Sử dụng `computeActualDifficulty` tính toán độ khó thực tế của con cá trong minigame kéo cá (`updateReeling`).
+  - Truyền cân nặng cá vào broadcast event `"catch_result"`.
+- `frontend/src/ui.ts` & `frontend/src/main.ts`:
+  - Hiển thị cân nặng của cá trên modal kết quả khi câu thành công.
+  - Sử dụng cân nặng cá từ state để tính toán độ khó thực tế giúp đồng bộ hóa hiển thị/chạy minigame ở client.
+- `frontend/src/input.ts`:
+  - Bổ sung cơ chế di chuyển bằng cách click chuột phải. Khi click chuột phải tại bất kỳ vị trí nào trên màn hình, nhân vật tự động di chuyển đến vị trí đó (world coordinates) và tự động dừng lại khi đến gần đích hoặc khi nhấn các phím di chuyển WASD/mũi tên. Chặn menu chuột phải mặc định của trình duyệt.
+
 ## 2026-07-14 - Integrated Google AdSense Banners
 
 Integrated real Google AdSense advertisements, replacing static lobby, HUD, and collection panel placeholders.

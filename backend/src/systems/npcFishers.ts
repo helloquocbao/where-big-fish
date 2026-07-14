@@ -15,12 +15,6 @@ const NPC_NAME_POOL = [
   "Zola", "Nico", "Elin", "Anya", "Lukas", "Kai", "Mika", "Noor", "Théo", "Freya",
 ];
 
-// Vùng đệm (deadzone, cùng thang 0..100 với reelFishY/reelZoneY) cho AI kéo cá của NPC (xem
-// updateNpcFishers) — cá ở TRÊN tâm vùng bắt quá ngưỡng này thì giữ chuột (đẩy vùng bắt lên đuổi
-// theo), ở DƯỚI quá ngưỡng thì thả ra (rơi xuống đuổi theo); nằm trong khoảng đệm thì giữ nguyên
-// trạng thái đang có để khỏi giật liên tục qua lại mỗi tick.
-const NPC_REEL_TOLERANCE = 4;
-
 function generateNpcName(): string {
   const base = pickRandom(NPC_NAME_POOL) ?? "Player";
   if (Math.random() < 0.35) {
@@ -38,6 +32,14 @@ function createNpc(lake: LakeDefinition): PlayerSchema {
   npc.name = generateNpcName();
   npc.isNpc = true;
   npc.skinId = pickRandom(SKIN_CATALOG)?.id ?? SKIN_CATALOG[0].id;
+  // Seed điểm ban đầu để người mới vào (chưa có ai thật) vẫn thấy leaderboard sống động, không toàn
+  // số 0 (Vicent 2026-07-14). Rải ngẫu nhiên: đa số đã câu được ít nhiều, ~20% "vừa vào" nên 0 điểm.
+  // Điểm ~ số cá × giá trị trung bình mỗi con (value đã x10) cho ra dải rộng tự nhiên. Sau đó chúng
+  // vẫn tích thêm dần theo thời gian (xem NPC_CATCH_CHANCE trong fishing.ts#updateReeling).
+  if (Math.random() < 0.8) {
+    npc.caughtCount = Math.floor(randRange(1, 28));
+    npc.totalValue = Math.round(npc.caughtCount * randRange(70, 340));
+  }
   const spawn = spawnPointNearLake(lake);
   npc.x = spawn.x;
   npc.y = spawn.y;
@@ -92,28 +94,22 @@ export function rebalanceNpcFishers(players: MapSchema<PlayerSchema>): void {
 
 /**
  * Cheap NPC behavior: cast toward a random direction/power when idle (bites auto-hook straight
- * into reeling now — see fishing.ts#updateBiteScheduling, no reaction step needed anymore), then
- * manage the reel with a pull/release tension hysteresis. Not meant to be impressive — just enough
- * activity to keep an empty lake feeling alive, purely cosmetic population (NPCs never compete
- * with real players for anything).
+ * into reeling now — see fishing.ts#updateBiteScheduling, no reaction step needed anymore). NPCs
+ * KHÔNG chơi minigame kéo cá thật — updateReeling chỉ cho NPC "giả vờ" kéo đủ REEL_DURATION_MS rồi
+ * quay về idle (không mutate field synced nào, tiết kiệm băng thông dưới tải cao — xem lý do đầy đủ
+ * trong fishing.ts#updateReeling), nên ở đây chỉ cần lo việc cast lúc idle. Not meant to be
+ * impressive — just enough activity to keep an empty lake feeling alive, purely cosmetic population
+ * (NPCs never compete with real players for anything).
  */
 export function updateNpcFishers(players: MapSchema<PlayerSchema>, now: number): void {
   for (const [, npc] of players) {
     if (!npc.isNpc) continue;
 
-    if (npc.fishState === "idle") {
-      if (now >= npc.npcNextActionAt) {
-        const angle = Math.random() * Math.PI * 2;
-        const power = 0.3 + Math.random() * 0.7;
-        tryCast(npc, angle, power, now);
-        npc.npcNextActionAt = now + randRange(1500, 4000);
-      }
-    } else if (npc.fishState === "reeling") {
-      // Đuổi theo vị trí cá: cá ở trên vùng bắt thì giữ chuột đẩy lên, ở dưới thì thả ra cho rơi
-      // xuống — mô phỏng người chơi biết bám theo cá thay vì giữ/thả ngẫu nhiên.
-      const diff = npc.reelFishY - npc.reelZoneY;
-      if (diff > NPC_REEL_TOLERANCE) npc.reelPulling = true;
-      else if (diff < -NPC_REEL_TOLERANCE) npc.reelPulling = false;
+    if (npc.fishState === "idle" && now >= npc.npcNextActionAt) {
+      const angle = Math.random() * Math.PI * 2;
+      const power = 0.3 + Math.random() * 0.7;
+      tryCast(npc, angle, power, now);
+      npc.npcNextActionAt = now + randRange(1500, 4000);
     }
   }
 }

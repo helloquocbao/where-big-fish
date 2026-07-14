@@ -38,9 +38,49 @@ interface LakeShapeInput {
   fishWeights: Record<string, number>;
 }
 
+/** Axis-aligned bounding box của hồ trong TOẠ ĐỘ WORLD (đã cộng centerX/centerY vào polygon) —
+ * tính 1 lần lúc module load. Dùng làm bộ lọc rẻ tiền (O(1)) trước khi chạy point-in-polygon
+ * O(n đỉnh) đắt tiền: 1 điểm nằm ngoài AABB thì chắc chắn nằm ngoài hồ, và khoảng cách tới AABB là
+ * cận dưới của khoảng cách thật tới biên hồ — xem aabbDistanceToLake + các hàm hot bên dưới. */
+export interface LakeBounds {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+}
+
 export interface LakeDefinition extends LakeShapeInput {
   /** Toạ độ TƯƠNG ĐỐI so với (centerX, centerY), sinh 1 lần lúc module load — xem generateBlobPolygon. */
   polygon: LakePoint[];
+  /** AABB world-space, precompute từ polygon — xem LakeBounds. */
+  bounds: LakeBounds;
+}
+
+/** AABB world-space của 1 hồ từ polygon (toạ độ tương đối) + tâm hồ. */
+function computeLakeBounds(centerX: number, centerY: number, polygon: LakePoint[]): LakeBounds {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const p of polygon) {
+    const wx = centerX + p.x;
+    const wy = centerY + p.y;
+    if (wx < minX) minX = wx;
+    if (wx > maxX) maxX = wx;
+    if (wy < minY) minY = wy;
+    if (wy > maxY) maxY = wy;
+  }
+  return { minX, minY, maxX, maxY };
+}
+
+/** Khoảng cách từ 1 điểm world tới AABB của hồ (0 nếu nằm trong AABB) — LUÔN <= khoảng cách thật
+ * tới biên hồ, nên dùng được làm cận dưới để bỏ qua sớm các hồ ở xa mà không cần point-in-polygon
+ * hay quét từng cạnh. */
+export function aabbDistanceToLake(lake: LakeDefinition, worldX: number, worldY: number): number {
+  const b = lake.bounds;
+  const dx = worldX < b.minX ? b.minX - worldX : worldX > b.maxX ? worldX - b.maxX : 0;
+  const dy = worldY < b.minY ? b.minY - worldY : worldY > b.maxY ? worldY - b.maxY : 0;
+  return Math.hypot(dx, dy);
 }
 
 /** Sinh 1 polygon khép kín méo mó từ 1 ellipse cơ sở — bán kính mỗi đỉnh bị jitter theo 1 seeded
@@ -191,13 +231,19 @@ function generateRiverPolygon(): LakePoint[] {
   return points;
 }
 
-export const LAKE_DEFINITIONS: LakeDefinition[] = LAKE_SHAPES.map((shape) => ({
-  ...shape,
-  polygon: shape.id === "song_chinh" ? generateRiverPolygon() : generateBlobPolygon(shape),
-}));
+export const LAKE_DEFINITIONS: LakeDefinition[] = LAKE_SHAPES.map((shape) => {
+  const polygon = shape.id === "song_chinh" ? generateRiverPolygon() : generateBlobPolygon(shape);
+  return {
+    ...shape,
+    polygon,
+    bounds: computeLakeBounds(shape.centerX, shape.centerY, polygon),
+  };
+});
+
+const LAKE_BY_ID = new Map(LAKE_DEFINITIONS.map((l) => [l.id, l]));
 
 export function getLakeById(id: string | null | undefined): LakeDefinition | undefined {
-  return LAKE_DEFINITIONS.find((l) => l.id === id);
+  return id != null ? LAKE_BY_ID.get(id) : undefined;
 }
 
 // ---- Hình học polygon (dùng chung cho gate thả cần ở backend + vẽ/skip-decor ở frontend) ----
@@ -244,6 +290,10 @@ export function distanceToPolygon(localX: number, localY: number, polygon: LakeP
 }
 
 export function isInsideLake(lake: LakeDefinition, worldX: number, worldY: number): boolean {
+  // Cheap AABB reject first — a point outside the bounding box can't be inside the polygon, so we
+  // skip the O(n) point-in-polygon scan for the (common) case of a point far from this lake.
+  const b = lake.bounds;
+  if (worldX < b.minX || worldX > b.maxX || worldY < b.minY || worldY > b.maxY) return false;
   return isPointInPolygon(worldX - lake.centerX, worldY - lake.centerY, lake.polygon);
 }
 
@@ -268,6 +318,9 @@ export function distanceToLakeBoundary(lake: LakeDefinition, worldX: number, wor
 export function findNearestLake(worldX: number, worldY: number): { lake: LakeDefinition; distance: number } | null {
   let best: { lake: LakeDefinition; distance: number } | null = null;
   for (const lake of LAKE_DEFINITIONS) {
+    // aabbDistanceToLake là cận dưới của khoảng cách thật tới biên hồ — nếu ngay cả cận dưới này đã
+    // >= khoảng cách tốt nhất tìm được, không cần chạy distanceToLakeEdge (O(n cạnh)) cho hồ này.
+    if (best && aabbDistanceToLake(lake, worldX, worldY) >= best.distance) continue;
     const d = distanceToLakeEdge(lake, worldX, worldY);
     if (!best || d < best.distance) best = { lake, distance: d };
   }

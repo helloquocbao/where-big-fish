@@ -1,4 +1,5 @@
 import { Schema, type, MapSchema, ArraySchema } from "@colyseus/schema";
+import { REEL_DURATION_MS } from "@bomio/shared";
 import type { FishingState } from "@bomio/shared";
 
 /**
@@ -20,9 +21,7 @@ export class PlayerSchema extends Schema {
   @type("number") bobberX: number = 0;
   @type("number") bobberY: number = 0;
   @type("string") activeFishSpeciesId: string = "";
-  @type("number") reelProgress: number = 0;
-  @type("number") reelFishY: number = 50;
-  @type("number") reelZoneY: number = 50;
+  @type("number") activeFishWeight: number = 0;
 
   @type("number") caughtCount: number = 0;
   @type("number") totalValue: number = 0;
@@ -53,16 +52,26 @@ export class PlayerSchema extends Schema {
 
   // ---- Reel minigame "1 thanh" bookkeeping thuần server (không cần đồng bộ, xem
   // shared/src/types.ts#PlayerState + backend/src/systems/fishing.ts#updateReeling) ----
+  /** 0..100 — % thời gian cá nằm trong vùng bắt tính tới hiện tại của phiên đang kéo (dùng để roll
+   * xác suất lúc hết giờ). KHÔNG synced qua schema — gửi riêng cho chủ nhân qua event "reel_state". */
+  reelProgress: number = 0;
+  /** 0..100 — vị trí "cá" trên thanh (cá tự bơi thất thường). KHÔNG synced — xem reelProgress. */
+  reelFishY: number = 50;
+  /** 0..100 — tâm "vùng bắt" do người chơi điều khiển. KHÔNG synced — xem reelProgress. */
+  reelZoneY: number = 50;
   /** Vận tốc hiện tại (units/s) của vùng bắt (reelZoneY) — tăng khi giữ chuột, giảm (rơi) khi thả. */
   reelZoneVelocity: number = 0;
   /** Điểm ngẫu nhiên (0..100) mà "cá" (reelFishY) đang bơi hướng tới. */
   reelFishTargetY: number = 50;
   /** Epoch ms lúc cá chọn điểm đích ngẫu nhiên KẾ TIẾP. */
   reelFishNextRetargetAt: number = 0;
-  /** Epoch ms lúc phiên kéo cá hiện tại bắt đầu — dùng để tính elapsed vs REEL_DURATION_MS. */
+  /** Epoch ms lúc phiên kéo cá hiện tại bắt đầu — dùng để tính elapsed vs reelDurationMs. */
   reelStartedAtMs: number = 0;
+  /** Thời lượng phiên kéo cá hiện tại (ms) — tính theo cân nặng con cá lúc cắn câu
+   * (computeReelDurationMs): cá nặng kéo lâu hơn. Mặc định = REEL_DURATION_MS phòng khi chưa set. */
+  reelDurationMs: number = REEL_DURATION_MS;
   /** Tổng cộng dồn (ms) thời gian cá nằm trong vùng bắt kể từ reelStartedAtMs — % của số này so với
-   * REEL_DURATION_MS chính là xác suất bắt được cá lúc hết giờ. */
+   * reelDurationMs chính là xác suất bắt được cá lúc hết giờ. */
   reelTimeInZoneMs: number = 0;
 }
 

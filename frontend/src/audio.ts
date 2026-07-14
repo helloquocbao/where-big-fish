@@ -354,47 +354,74 @@ class AudioManager {
     noiseSource.stop(time + 0.3);
   }
 
-  /** Splash: Bobber hitting water */
+  /** Splash: Bobber hitting water — "ka-plunk" nghe như CỤC ĐÁ ném xuống nước (yêu cầu Vicent
+   * 2026-07-14): trầm, nặng, pitch CHÌM XUỐNG (ngược với bản giọt nước vút lên). 4 lớp: thân "gloop"
+   * chìm nhanh, sub-thump cực trầm cho trọng lượng vật rơi, 1 tiếng "tóc" contact lúc chạm mặt, và
+   * fizz nước bắn hơi to hơn tí vì đá đội nhiều nước. */
   public playSplash() {
     this.init();
     if (!this.ctx || !this.sfxVolume) return;
 
     const time = this.ctx.currentTime;
 
-    // 1. Bass plop (sine wave sweeping down)
-    const osc = this.ctx.createOscillator();
-    const oscGain = this.ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(140, time);
-    osc.frequency.exponentialRampToValueAtTime(45, time + 0.15);
+    // 1. Thân "gloop" — sine chìm nhanh từ 320→55Hz: cái tiếng đá chui vào hốc nước.
+    const body = this.ctx.createOscillator();
+    const bodyGain = this.ctx.createGain();
+    body.type = "sine";
+    body.frequency.setValueAtTime(320, time);
+    body.frequency.exponentialRampToValueAtTime(55, time + 0.13);
+    bodyGain.gain.setValueAtTime(0.0001, time);
+    bodyGain.gain.exponentialRampToValueAtTime(0.5, time + 0.008);
+    bodyGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.24);
+    body.connect(bodyGain);
+    bodyGain.connect(this.sfxVolume);
+    body.start(time);
+    body.stop(time + 0.26);
 
-    oscGain.gain.setValueAtTime(0.5, time);
-    oscGain.gain.exponentialRampToValueAtTime(0.001, time + 0.15);
+    // 2. Sub-thump cực trầm (sine 95→42Hz) — sức nặng của vật rơi, để tai "cảm" hơn là "nghe".
+    const sub = this.ctx.createOscillator();
+    const subGain = this.ctx.createGain();
+    sub.type = "sine";
+    sub.frequency.setValueAtTime(95, time);
+    sub.frequency.exponentialRampToValueAtTime(42, time + 0.2);
+    subGain.gain.setValueAtTime(0.34, time);
+    subGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.28);
+    sub.connect(subGain);
+    subGain.connect(this.sfxVolume);
+    sub.start(time);
+    sub.stop(time + 0.3);
 
-    osc.connect(oscGain);
-    oscGain.connect(this.sfxVolume);
+    // 3. Tiếng "tóc" lúc chạm mặt nước — noise ngắn qua lowpass, cho cú va có điểm khởi đầu rõ.
+    const knock = this.ctx.createBufferSource();
+    knock.buffer = this.getNoiseBuffer();
+    const knockFilter = this.ctx.createBiquadFilter();
+    knockFilter.type = "lowpass";
+    knockFilter.frequency.setValueAtTime(1200, time);
+    const knockGain = this.ctx.createGain();
+    knockGain.gain.setValueAtTime(0.18, time);
+    knockGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.05);
+    knock.connect(knockFilter);
+    knockFilter.connect(knockGain);
+    knockGain.connect(this.sfxVolume);
+    knock.start(time);
+    knock.stop(time + 0.06);
 
-    osc.start(time);
-    osc.stop(time + 0.16);
-
-    // 2. High noise burst for splash spray
+    // 4. Fizz nước bắn — noise bandpass ~550Hz, to hơn bản cũ tí (đá đội nhiều nước hơn phao).
     const noise = this.ctx.createBufferSource();
     noise.buffer = this.getNoiseBuffer();
-
     const filter = this.ctx.createBiquadFilter();
-    filter.type = "highpass";
-    filter.frequency.setValueAtTime(900, time);
-
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(550, time);
+    filter.Q.setValueAtTime(0.7, time);
     const noiseGain = this.ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.12, time);
-    noiseGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.12);
-
+    noiseGain.gain.setValueAtTime(0.0001, time);
+    noiseGain.gain.exponentialRampToValueAtTime(0.11, time + 0.02);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.16);
     noise.connect(filter);
     filter.connect(noiseGain);
     noiseGain.connect(this.sfxVolume);
-
     noise.start(time);
-    noise.stop(time + 0.15);
+    noise.stop(time + 0.18);
   }
 
   /** Exclamation/Bite: Sharp double notification beep */

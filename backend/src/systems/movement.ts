@@ -7,7 +7,7 @@ const HALF_H = WORLD_HEIGHT / 2;
 
 /**
  * Advance a single player's position for one tick based on their last-received desired angle.
- * A player standing anywhere except "idle" (casting/waiting/biting/reeling) is planted at their
+ * A player standing anywhere except "idle" (waiting/reeling) is planted at their
  * spot — you can't wander off around the lake mid-cast, matching "post up and fish" pacing
  * instead of agar.io-style constant movement. Speed is a fixed constant now (no more size-speed
  * tradeoff — there's no growth mechanic in the fishing pivot).
@@ -33,8 +33,20 @@ export function stepPlayerMovement(player: PlayerSchema, deltaSeconds: number): 
   const nextX = clamp(player.x + dx, -HALF_W, HALF_W);
   const nextY = clamp(player.y + dy, -HALF_H, HALF_H);
 
+  // Chặn với BIÊN AN TOÀN (~nửa thân): trước đây chỉ test đúng điểm tâm nên người chơi đẩy được nửa
+  // thân vào mép nước ("đôi khi đi vào hồ được" — Vicent 2026-07-14). Nay coi như bị chặn nếu tâm HOẶC
+  // 1 trong 4 điểm quanh tâm ở bán kính FOOT_MARGIN chạm nước/núi → dừng cách mép nước 1 khoảng, thân
+  // không đè lên mặt nước. FOOT_MARGIN << LAKE_CAST_RANGE nên vẫn tới đủ gần để thả cần.
+  const FOOT_MARGIN = 16;
   const isBlocked = (x: number, y: number) => {
-    return isInsideAnyLake(x, y) || isInsideMountains(x, y);
+    if (isInsideMountains(x, y)) return true;
+    if (isInsideAnyLake(x, y)) return true;
+    return (
+      isInsideAnyLake(x + FOOT_MARGIN, y) ||
+      isInsideAnyLake(x - FOOT_MARGIN, y) ||
+      isInsideAnyLake(x, y + FOOT_MARGIN) ||
+      isInsideAnyLake(x, y - FOOT_MARGIN)
+    );
   };
 
   if (!isBlocked(nextX, nextY)) {

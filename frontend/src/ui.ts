@@ -17,6 +17,7 @@ import {
   LAKE_DEFINITIONS,
   getLakeById,
   computeReelZoneSize,
+  computeActualDifficulty,
 } from "@bomio/shared";
 import { drawSkinPreview, drawFishIcon, drawModalReelScene } from "./render.ts";
 import type { FishRarity } from "@bomio/shared";
@@ -65,7 +66,6 @@ export class UI {
   private fishingModal: HTMLDivElement;
   private fishingModalCanvas: HTMLCanvasElement;
   private fishingModalCanvasCtx: CanvasRenderingContext2D;
-  private fishingModalChanceValue: HTMLSpanElement;
 
   private collectionButton: HTMLButtonElement;
   private collectionCount: HTMLSpanElement;
@@ -77,6 +77,7 @@ export class UI {
   private catchModalCanvas: HTMLCanvasElement;
   private catchModalCtx: CanvasRenderingContext2D;
   private catchModalName: HTMLDivElement;
+  private catchModalWeight: HTMLDivElement;
   private catchModalRarity: HTMLDivElement;
   private catchModalValue: HTMLDivElement;
   private catchModalNew: HTMLDivElement;
@@ -160,7 +161,7 @@ export class UI {
         <div class="ad-banner-content" id="hud-ad-banner">
           <div class="ad-placeholder">
             <span class="ad-placeholder-icon">📢</span>
-            <span class="ad-placeholder-text">Ad banner placeholder (300x50)</span>
+            <span class="ad-placeholder-text">Ad banner placeholder (320x50)</span>
           </div>
         </div>
       </div>
@@ -185,13 +186,10 @@ export class UI {
         <div class="cast-meter-label">Hold mouse to power cast — release to fish</div>
       </div>
       <div class="fishing-modal hidden">
-        <div class="fishing-modal-card panel-cut">
-          <div class="fishing-modal-title">FISH ON THE LINE!</div>
-          <div class="fishing-modal-subtitle">Hold mouse to lift the zone — keep the fish inside it!</div>
+        <div class="fishing-modal-card">
           <div class="fishing-modal-game-container">
             <canvas class="fishing-modal-canvas" width="200" height="360"></canvas>
           </div>
-          <div class="fishing-modal-chance">Chance to catch: <span class="fishing-modal-chance-value">0%</span></div>
         </div>
       </div>
       <div class="collection-modal hidden">
@@ -222,8 +220,9 @@ export class UI {
           </div>
           <button type="button" class="catch-modal-close">×</button>
           <div class="catch-modal-new hidden">New species caught!</div>
-          <canvas class="catch-modal-canvas" width="140" height="100"></canvas>
+          <canvas class="catch-modal-canvas" width="240" height="120"></canvas>
           <div class="catch-modal-name"></div>
+          <div class="catch-modal-weight"></div>
           <div class="catch-modal-rarity"></div>
           <div class="catch-modal-value"></div>
         </div>
@@ -243,7 +242,6 @@ export class UI {
     this.fishingModal = this.hud.querySelector<HTMLDivElement>(".fishing-modal")!;
     this.fishingModalCanvas = this.hud.querySelector<HTMLCanvasElement>(".fishing-modal-canvas")!;
     this.fishingModalCanvasCtx = this.fishingModalCanvas.getContext("2d")!;
-    this.fishingModalChanceValue = this.hud.querySelector<HTMLSpanElement>(".fishing-modal-chance-value")!;
 
     this.collectionButton = this.hud.querySelector<HTMLButtonElement>(".collection-button")!;
     this.collectionCount = this.hud.querySelector<HTMLSpanElement>(".collection-count")!;
@@ -261,6 +259,7 @@ export class UI {
     this.catchModalCanvas = this.hud.querySelector<HTMLCanvasElement>(".catch-modal-canvas")!;
     this.catchModalCtx = this.catchModalCanvas.getContext("2d")!;
     this.catchModalName = this.hud.querySelector<HTMLDivElement>(".catch-modal-name")!;
+    this.catchModalWeight = this.hud.querySelector<HTMLDivElement>(".catch-modal-weight")!;
     this.catchModalRarity = this.hud.querySelector<HTMLDivElement>(".catch-modal-rarity")!;
     this.catchModalValue = this.hud.querySelector<HTMLDivElement>(".catch-modal-value")!;
     this.catchModalNew = this.hud.querySelector<HTMLDivElement>(".catch-modal-new")!;
@@ -359,7 +358,7 @@ export class UI {
     this.leaderboardList.innerHTML = top
       .map((entry) => {
         const isLocal = entry.playerId === localPlayerId;
-        return `<li class="${isLocal ? "me" : ""}">${escapeHtml(entry.name)} — ${Math.round(entry.totalValue)} (${entry.caughtCount} 🐟)</li>`;
+        return `<li class="${isLocal ? "me" : ""}">${escapeHtml(entry.name)} — ${Math.round(entry.totalValue)}</li>`;
       })
       .join("");
   }
@@ -389,9 +388,12 @@ export class UI {
       const isCaught = caught.has(fish.id);
       return `
         <div class="collection-item${isCaught ? " caught" : ""}">
-          <span class="collection-item-dot" style="background:${isCaught ? fish.color : "#cfd6c9"}"></span>
-          <span class="collection-item-name">${isCaught ? escapeHtml(fish.name) : "???"}</span>
-          <span class="collection-item-rarity" style="color:${RARITY_COLOR[fish.rarity]}">${RARITY_LABEL[fish.rarity]}</span>
+          <div class="collection-item-header">
+            <span class="collection-item-dot" style="background:${isCaught ? fish.color : "#cfd6c9"}"></span>
+            <span class="collection-item-name">${isCaught ? escapeHtml(fish.name) : "???"}</span>
+            <span class="collection-item-rarity" style="color:${RARITY_COLOR[fish.rarity]}">${RARITY_LABEL[fish.rarity]}</span>
+          </div>
+          ${isCaught ? `<div class="collection-item-desc">${escapeHtml(fish.description)}</div>` : ""}
         </div>
       `;
     }).join("");
@@ -424,18 +426,21 @@ export class UI {
    * xác suất lúc hết giờ (xem backend/src/systems/fishing.ts#updateReeling). */
   updateFishingModal(
     active: boolean,
-    data: { reelProgress?: number; reelFishY?: number; reelZoneY?: number; speciesId?: string; nowMs?: number } = {},
+    data: { reelProgress?: number; reelFishY?: number; reelZoneY?: number; speciesId?: string; activeFishWeight?: number; nowMs?: number } = {},
   ) {
     this.fishingModal.classList.toggle("hidden", !active);
     if (!active) return;
 
-    const chancePct = Math.max(0, Math.min(100, data.reelProgress ?? 0));
-    this.fishingModalChanceValue.textContent = `${Math.round(chancePct)}%`;
-    this.fishingModalChanceValue.classList.toggle("warning", chancePct >= 35 && chancePct < 65);
-    this.fishingModalChanceValue.classList.toggle("good", chancePct >= 65);
+    const progressPct = Math.max(0, Math.min(100, data.reelProgress ?? 0));
 
     const species = getFishSpecies(data.speciesId);
-    const zoneSize = species ? computeReelZoneSize(species.reelDifficulty) : 40;
+    const actualDifficulty = (species && data.activeFishWeight != null)
+      ? computeActualDifficulty(species.reelDifficulty, data.activeFishWeight, species.minWeight, species.maxWeight)
+      : (species ? species.reelDifficulty : 0.5);
+    const zoneSize = species ? computeReelZoneSize(actualDifficulty) : 40;
+    // Trong lúc kéo KHÔNG lộ loài cá (Vicent 2026-07-14): vẽ 1 bóng cá tối vô danh (speciesId="" →
+    // hình generic, màu bóng), chỉ khi câu xong (catch modal) mới lộ đúng loài + màu. zoneSize vẫn
+    // tính theo loài thật để độ khó đúng, nhưng hình không tiết lộ đó là con gì.
     drawModalReelScene(
       this.fishingModalCanvasCtx,
       this.fishingModalCanvas.width,
@@ -443,8 +448,10 @@ export class UI {
       data.reelFishY ?? 50,
       data.reelZoneY ?? 50,
       zoneSize,
-      species?.color ?? "#7fa8d9",
+      "#33404a", // màu bóng tối — cá bí ẩn
       data.nowMs ?? 0,
+      progressPct,
+      "", // ẩn loài: dùng hình silhouette generic
     );
   }
 
@@ -461,14 +468,15 @@ export class UI {
    * KHÔNG bung hết hiệu ứng ở mọi lần câu, để cảm giác "wow" thật sự dành riêng cho cá hiếm/huyền
    * thoại thay vì bị pha loãng và gây mỏi mắt ở mọi lần câu cá thường. Xem `.rarity-*` trong
    * style.css. */
-  showCatchModal(speciesId: string, rarity: FishRarity | undefined, value: number, isFirstCatch: boolean) {
+  showCatchModal(speciesId: string, rarity: FishRarity | undefined, value: number, weight: number, isFirstCatch: boolean) {
     const species = getFishSpecies(speciesId);
     if (!species) return;
 
     this.catchModalCtx.clearRect(0, 0, this.catchModalCanvas.width, this.catchModalCanvas.height);
-    drawFishIcon(this.catchModalCtx, this.catchModalCanvas.width / 2, this.catchModalCanvas.height / 2, 84, species.color);
+    drawFishIcon(this.catchModalCtx, this.catchModalCanvas.width / 2, this.catchModalCanvas.height / 2, 180, species.id, species.color);
 
     this.catchModalName.textContent = species.name;
+    this.catchModalWeight.textContent = `Weight: ${weight.toFixed(2)} kg`;
     this.catchModalRarity.textContent = rarity ? RARITY_LABEL[rarity] : "";
     this.catchModalRarity.style.color = rarity ? RARITY_COLOR[rarity] : "";
     this.catchModalNew.classList.toggle("hidden", !isFirstCatch);
@@ -488,11 +496,10 @@ export class UI {
 
     this.animateCatchValue(value);
 
+    // Không tự tắt nữa — modal đứng yên cho tới khi người chơi TỰ đóng (nút × hoặc bấm ra vùng nền,
+    // xem listener trong constructor). Vẫn clear timeout cũ phòng trường hợp còn sót từ bản trước.
     window.clearTimeout(this.catchModalTimeout);
     this.catchModal.classList.remove("hidden");
-    this.catchModalTimeout = window.setTimeout(() => {
-      this.catchModal.classList.add("hidden");
-    }, 3200);
   }
 
   /** Đếm số điểm chạy từ 0 lên giá trị thật (ease-out, ~550ms) thay vì hiện thẳng con số cuối —

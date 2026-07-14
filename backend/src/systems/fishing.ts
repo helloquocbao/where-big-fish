@@ -3,14 +3,9 @@ import {
   CAST_MIN_RANGE,
   CAST_MAX_RANGE,
   REEL_DURATION_MS,
-  REEL_ZONE_RISE_ACCEL,
-  REEL_ZONE_GRAVITY,
-  REEL_ZONE_MAX_SPEED,
-  REEL_FISH_RETARGET_MIN_MS,
-  REEL_FISH_RETARGET_MAX_MS,
-  REEL_FISH_TARGET_MARGIN,
-  computeReelZoneSize,
-  computeReelFishSpeed,
+  NPC_CATCH_CHANCE,
+  computeCatchScore,
+  computeReelDurationMs,
   getFishSpecies,
   findNearestLake,
   isInsideLake,
@@ -21,11 +16,19 @@ import type { ServerEvent } from "@bomio/shared";
 import type { PlayerSchema } from "../schema/State.js";
 import { clamp, randRange } from "./utils.js";
 
+/** Thời gian gia hạn (ms) sau reelDurationMs mà server chờ client báo kết quả kéo cá; quá hạn này
+ * (client mất mạng/đóng tab) thì tự đưa về idle để không kẹt trạng thái reeling. */
+const REEL_RESULT_GRACE_MS = 5000;
+
 export interface FishingContext {
   players: MapSchema<PlayerSchema>;
   now: number;
   deltaSeconds: number;
-  broadcast: (event: ServerEvent) => void;
+  /** Gửi 1 event TỚI ĐÚNG người chơi liên quan (không broadcast cả room). fish_bite/catch_result
+   * chỉ có ý nghĩa với chính người chơi đó (client bỏ qua event của người khác — xem
+   * frontend/src/main.ts), nên fanout ra cả room là lãng phí băng thông theo O(số client). NPC
+   * không có client → notify là no-op (xem GameRoom.notifyPlayer). */
+  notify: (playerId: string, event: ServerEvent) => void;
 }
 
 export type CastResult = "ok" | "not_idle" | "too_far";
@@ -69,21 +72,35 @@ export function tryCast(player: PlayerSchema, angle: number, power: number, now:
     }
   }
 
-  // Fallback: if we cast completely away from water, find the closest lake polygon vertex to the target
+  // Fallback: nếu cả tia player→target không hề chạm nước (người chơi ngắm ra xa/lệch khỏi hồ) thì
+  // ĐẢM BẢO phao vẫn rơi TRONG nước (bug cũ: bám đỉnh polygon nằm ngay mép → phao "ra khỏi hồ",
+  // Vicent 2026-07-14). Cách làm: quét từ target về CENTROID (trung bình các đỉnh) — điểm này nằm
+  // trong hồ với cả hồ blob lẫn con sông uốn — lấy điểm-trong-nước đầu tiên gần phía đã ngắm nhất.
   if (!found) {
-    let bestVertex = lake.polygon[0];
-    let minDist = Infinity;
-    for (const vertex of lake.polygon) {
-      const vx = lake.centerX + vertex.x;
-      const vy = lake.centerY + vertex.y;
-      const d = Math.hypot(vx - rawBobberX, vy - rawBobberY);
-      if (d < minDist) {
-        minDist = d;
-        bestVertex = vertex;
+    let cxSum = 0;
+    let cySum = 0;
+    for (const v of lake.polygon) {
+      cxSum += lake.centerX + v.x;
+      cySum += lake.centerY + v.y;
+    }
+    const centroidX = cxSum / lake.polygon.length;
+    const centroidY = cySum / lake.polygon.length;
+    for (let step = 0; step <= 24; step++) {
+      const t = step / 24;
+      const testX = rawBobberX * (1 - t) + centroidX * t;
+      const testY = rawBobberY * (1 - t) + centroidY * t;
+      if (isInsideLake(lake, testX, testY)) {
+        bobberX = testX;
+        bobberY = testY;
+        found = true;
+        break;
       }
     }
-    bobberX = lake.centerX + bestVertex.x;
-    bobberY = lake.centerY + bestVertex.y;
+    if (!found) {
+      // Cực hiếm (centroid rơi ngoài hồ lõm bất thường) — dùng thẳng centroid.
+      bobberX = centroidX;
+      bobberY = centroidY;
+    }
   }
 
   player.bobberX = bobberX;
@@ -100,6 +117,7 @@ export function tryCast(player: PlayerSchema, angle: number, power: number, now:
 function resetToIdle(player: PlayerSchema): void {
   player.fishState = "idle";
   player.activeFishSpeciesId = "";
+  player.activeFishWeight = 0;
   player.pendingSpeciesId = "";
   player.reelProgress = 0;
   player.reelFishY = 50;
@@ -109,6 +127,7 @@ function resetToIdle(player: PlayerSchema): void {
   player.reelFishTargetY = 50;
   player.reelFishNextRetargetAt = 0;
   player.reelStartedAtMs = 0;
+  player.reelDurationMs = REEL_DURATION_MS;
   player.reelTimeInZoneMs = 0;
 }
 
@@ -121,6 +140,15 @@ export function updateBiteScheduling(ctx: FishingContext): void {
     if (player.fishState === "waiting" && ctx.now >= player.biteAt) {
       player.fishState = "reeling";
       player.activeFishSpeciesId = player.pendingSpeciesId;
+      const species = getFishSpecies(player.activeFishSpeciesId);
+      if (species) {
+        player.activeFishWeight = Math.round(randRange(species.minWeight, species.maxWeight) * 100) / 100;
+        // Cá càng nặng, phiên kéo càng dài (yêu cầu Vicent 2026-07-14).
+        player.reelDurationMs = computeReelDurationMs(player.activeFishWeight, species.minWeight, species.maxWeight);
+      } else {
+        player.activeFishWeight = 0;
+        player.reelDurationMs = REEL_DURATION_MS;
+      }
       player.pendingSpeciesId = "";
       // Bắt đầu 1 thanh mới: cá + vùng bắt đều xuất phát ở giữa thanh, phiên tính giờ từ đây.
       player.reelProgress = 0;
@@ -131,7 +159,7 @@ export function updateBiteScheduling(ctx: FishingContext): void {
       player.reelFishNextRetargetAt = ctx.now;
       player.reelStartedAtMs = ctx.now;
       player.reelTimeInZoneMs = 0;
-      ctx.broadcast({ type: "fish_bite", playerId: player.id });
+      ctx.notify(player.id, { type: "fish_bite", playerId: player.id });
     }
   }
 }
@@ -151,73 +179,81 @@ export function updateBiteScheduling(ctx: FishingContext): void {
 export function updateReeling(ctx: FishingContext): void {
   for (const [, player] of ctx.players) {
     if (player.fishState !== "reeling") continue;
-    const species = getFishSpecies(player.activeFishSpeciesId);
-    if (!species) {
-      // Shouldn't happen, but don't leave the player stuck reeling a nonexistent fish forever.
-      resetToIdle(player);
+
+    // NPC KHÔNG chạy minigame kéo cá thật: không client nào render reel-internals của NPC
+    // (reelFishY/reelZoneY/reelProgress chỉ dùng cho modal của CHÍNH người chơi local, xem
+    // frontend/src/main.ts), và NPC đã bị loại khỏi leaderboard (thuần cosmetic). Nếu để NPC chạy
+    // sim thì mỗi tick lại mutate 3 field synced × ~27 NPC/room → Colyseus broadcast delta cho mọi
+    // client mỗi 50ms, lãng phí băng thông cực lớn dưới tải cao. Thay vào đó NPC chỉ "giả vờ" kéo
+    // đủ REEL_DURATION_MS (nhìn từ ngoài vẫn thấy phao giật + trạng thái reeling) rồi quay về idle
+    // để cast tiếp — không đụng field synced nào trong suốt phiên, không phát event.
+    if (player.isNpc) {
+      if (ctx.now - player.reelStartedAtMs >= REEL_DURATION_MS) {
+        // NPC "câu" xong 1 phiên giả: roll xác suất đơn giản để thỉnh thoảng bắt được cá và tích
+        // điểm dần → lên leaderboard chung với người thật cho hồ sống động (Vicent 2026-07-14).
+        // KHÔNG mô phỏng minigame thật (xem lý do băng thông ở comment dưới), chỉ cộng điểm 1 lần.
+        const npcSpecies = getFishSpecies(player.activeFishSpeciesId);
+        if (npcSpecies && Math.random() < NPC_CATCH_CHANCE) {
+          const w = Math.round(randRange(npcSpecies.minWeight, npcSpecies.maxWeight) * 100) / 100;
+          player.caughtCount += 1;
+          player.totalValue += computeCatchScore(npcSpecies.value, w, npcSpecies.minWeight, npcSpecies.maxWeight);
+        }
+        resetToIdle(player);
+      }
       continue;
     }
 
-    const zoneSize = computeReelZoneSize(species.reelDifficulty);
-    const halfZone = zoneSize / 2;
-    const fishSpeed = computeReelFishSpeed(species.reelDifficulty);
-
-    // 1) Cá bơi lang thang: tới giờ thì chọn điểm đích ngẫu nhiên mới, luôn bơi thẳng tới điểm đích
-    // hiện tại với tốc độ cố định theo loài.
-    if (ctx.now >= player.reelFishNextRetargetAt) {
-      player.reelFishTargetY = randRange(REEL_FISH_TARGET_MARGIN, 100 - REEL_FISH_TARGET_MARGIN);
-      player.reelFishNextRetargetAt = ctx.now + randRange(REEL_FISH_RETARGET_MIN_MS, REEL_FISH_RETARGET_MAX_MS);
+    // NGƯỜI CHƠI THẬT: minigame kéo cá giờ chạy HOÀN TOÀN trên client (client-authoritative để giảm
+    // tải server — Vicent 2026-07-14). Server KHÔNG mô phỏng vùng bắt/cá mỗi tick và KHÔNG bắn
+    // reel_state 20Hz nữa; client tự mô phỏng bằng cùng hằng số trong @bomio/shared rồi báo kết quả
+    // về qua message "reel_result" (xem GameRoom#onMessage + resolveReel). Ở đây chỉ còn 1 lưới an
+    // toàn: nếu client không báo kết quả (mất mạng, đóng tab...) sau khi đã quá hạn kha khá thì tự
+    // đưa về idle để không kẹt trạng thái reeling mãi.
+    if (getFishSpecies(player.activeFishSpeciesId) == null ||
+        ctx.now - player.reelStartedAtMs > player.reelDurationMs + REEL_RESULT_GRACE_MS) {
+      resetToIdle(player);
     }
-    const fishDiff = player.reelFishTargetY - player.reelFishY;
-    const fishStep = fishSpeed * ctx.deltaSeconds;
-    if (Math.abs(fishDiff) <= fishStep) {
-      player.reelFishY = player.reelFishTargetY;
-    } else {
-      player.reelFishY += Math.sign(fishDiff) * fishStep;
-    }
+  }
+}
 
-    // 2) Vùng bắt: đẩy lên khi giữ chuột, rơi xuống theo trọng lực khi thả ra.
-    if (player.reelPulling) {
-      player.reelZoneVelocity = Math.min(REEL_ZONE_MAX_SPEED, player.reelZoneVelocity + REEL_ZONE_RISE_ACCEL * ctx.deltaSeconds);
-    } else {
-      player.reelZoneVelocity = Math.max(-REEL_ZONE_MAX_SPEED, player.reelZoneVelocity - REEL_ZONE_GRAVITY * ctx.deltaSeconds);
-    }
-    const nextZoneY = clamp(player.reelZoneY + player.reelZoneVelocity * ctx.deltaSeconds, halfZone, 100 - halfZone);
-    // Chạm biên trên/dưới thanh thì dừng vận tốc lại (đỡ dội ngược trông giả).
-    if (nextZoneY <= halfZone || nextZoneY >= 100 - halfZone) player.reelZoneVelocity = 0;
-    player.reelZoneY = nextZoneY;
-
-    // 3) Cộng dồn thời gian cá nằm trong vùng bắt + cập nhật % hiện tại (hiển thị UI + dùng để roll
-    // lúc hết giờ).
-    const elapsedMs = ctx.now - player.reelStartedAtMs;
-    const isInZone = Math.abs(player.reelFishY - player.reelZoneY) <= halfZone;
-    if (isInZone) player.reelTimeInZoneMs += ctx.deltaSeconds * 1000;
-    player.reelProgress = elapsedMs > 0 ? clamp((player.reelTimeInZoneMs / elapsedMs) * 100, 0, 100) : 0;
-
-    // 4) Hết giờ cố định (REEL_DURATION_MS) — roll xác suất DUY NHẤT 1 LẦN dựa trên % thời gian
-    // trong vùng bắt suốt cả phiên, quyết định thành/bại ngay lập tức.
-    if (elapsedMs >= REEL_DURATION_MS) {
-      const catchChance = clamp(player.reelTimeInZoneMs / REEL_DURATION_MS, 0, 1);
-      const success = Math.random() < catchChance;
-      if (success) {
-        const isFirstCatch = !player.collection.includes(species.id);
-        player.caughtCount += 1;
-        player.totalValue += species.value;
-        if (isFirstCatch) player.collection.push(species.id);
-        resetToIdle(player);
-        ctx.broadcast({
-          type: "catch_result",
-          playerId: player.id,
-          success: true,
-          speciesId: species.id,
-          rarity: species.rarity,
-          value: species.value,
-          isFirstCatch,
-        });
-      } else {
-        resetToIdle(player);
-        ctx.broadcast({ type: "catch_result", playerId: player.id, success: false, reason: "fish_escaped" });
-      }
-    }
+/** Chốt kết quả 1 phiên kéo cá do client báo về (message "reel_result"). Server là bên quyết định
+ * cuối: clamp `timeInZoneMs` trong [0, reelDurationMs] (chặn client khai khống), roll xác suất =
+ * timeInZone/duration, rồi cộng điểm theo loài + cân nặng. Trả về event catch_result cho client. */
+export function resolveReel(
+  player: PlayerSchema,
+  timeInZoneMs: number,
+  notify: (playerId: string, event: ServerEvent) => void,
+): void {
+  if (player.fishState !== "reeling") return;
+  const species = getFishSpecies(player.activeFishSpeciesId);
+  if (!species) {
+    resetToIdle(player);
+    return;
+  }
+  const clampedInZone = Math.max(0, Math.min(player.reelDurationMs, Number(timeInZoneMs) || 0));
+  const catchChance = clamp(clampedInZone / player.reelDurationMs, 0, 1);
+  const success = Math.random() < catchChance;
+  if (success) {
+    const isFirstCatch = !player.collection.includes(species.id);
+    // Chốt cân nặng TRƯỚC resetToIdle (nó set activeFishWeight = 0) — nếu không weight về 0 (bug cũ).
+    const caughtWeight = player.activeFishWeight;
+    const catchScore = computeCatchScore(species.value, caughtWeight, species.minWeight, species.maxWeight);
+    player.caughtCount += 1;
+    player.totalValue += catchScore;
+    if (isFirstCatch) player.collection.push(species.id);
+    resetToIdle(player);
+    notify(player.id, {
+      type: "catch_result",
+      playerId: player.id,
+      success: true,
+      speciesId: species.id,
+      rarity: species.rarity,
+      value: catchScore,
+      weight: caughtWeight,
+      isFirstCatch,
+    });
+  } else {
+    resetToIdle(player);
+    notify(player.id, { type: "catch_result", playerId: player.id, success: false, reason: "fish_escaped" });
   }
 }
