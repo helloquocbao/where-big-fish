@@ -12,19 +12,19 @@ import { GameRoom } from "./rooms/GameRoom.js";
 
 const app = express();
 // CORS_ORIGIN (comma-separated if multiple) restricts which frontend origin(s) may connect - audit
-// fix chuẩn bị deploy: mặc định vẫn cho phép tất cả origin (giữ nguyên hành vi hiện tại, không phá
-// vỡ deploy hiện có) nếu biến này không được set, nhưng cho phép khóa lại khi đã biết domain
-// frontend thật. Đặt CORS_ORIGIN=https://your-frontend.example khi deploy production.
+// fix preparation for deployment: by default, still allow all origins (preserving current behavior, not breaking
+// existing deployments) if this variable is not set, but allow restricting it when the real frontend
+// domain is known. Set CORS_ORIGIN=https://your-frontend.example when deploying to production.
 const corsOrigin = process.env.CORS_ORIGIN?.split(",").map((o) => o.trim());
 app.use(cors(corsOrigin ? { origin: corsOrigin } : undefined));
 
-// audit fix chuẩn bị deploy: `app.use(cors(...))` ở trên KHÔNG áp dụng cho endpoint HTTP
-// "/matchmake/*" - Colyseus tự gỡ hết listener "request" gốc trên httpServer và chèn listener
-// riêng xử lý matchmake TRƯỚC KHI request tới được Express (xem attachMatchMakingRoutes trong
-// @colyseus/core), dùng CORS header cứng "Access-Control-Allow-Origin: <origin bất kỳ>" bất kể
-// origin là gì. Đây chính là endpoint client thật sự gọi đầu tiên (joinOrCreate), nên phải khóa
-// riêng ở đây thì CORS_ORIGIN mới thực sự có tác dụng, không chỉ khóa được các route Express khác
-// (hiện repo này không có route Express nào khác ngoài matchmake).
+// audit fix preparation for deployment: `app.use(cors(...))` above does NOT apply to the HTTP endpoint
+// "/matchmake/*" - Colyseus itself removes all original "request" listeners on httpServer and inserts a
+// custom listener to handle matchmaking BEFORE the request reaches Express (see attachMatchMakingRoutes in
+// @colyseus/core), using a hardcoded CORS header "Access-Control-Allow-Origin: <any origin>" regardless of
+// what the origin is. This is the endpoint that clients actually call first (joinOrCreate), so we must restrict
+// it here specifically for CORS_ORIGIN to actually take effect, not just restricting other Express routes
+// (currently, this repo has no other Express routes besides matchmake).
 if (corsOrigin) {
   const allowedOrigins = new Set(corsOrigin);
   matchMaker.controller.getCorsHeaders = (req: { headers?: Record<string, string | string[] | undefined> }) => {
@@ -36,31 +36,31 @@ if (corsOrigin) {
 
 const httpServer = createServer(app);
 
-// --- Scale-out ngang (opt-in qua env, xem docs/scaling.md) ---
-// Khi REDIS_URL được set: dùng Redis presence (IPC pub/sub giữa các process) + Redis driver (danh
-// sách room dùng chung) để NHIỀU process/máy cùng matchmake và phân phối room. KHÔNG set: chạy
-// single-process in-memory y hệt trước đây — dev local không cần Redis, không đổi hành vi.
+// --- Horizontal scale-out (opt-in via env, see docs/scaling.md) ---
+// When REDIS_URL is set: use Redis presence (IPC pub/sub between processes) + Redis driver (shared
+// room list) so MULTIPLE processes/machines can matchmake and distribute rooms. NOT set: run
+// single-process in-memory exactly as before — local dev does not need Redis, no behavioral change.
 const redisUrl = process.env.REDIS_URL;
 
 const gameServer = new Server({
   transport: new WebSocketTransport({ server: httpServer }),
   ...(redisUrl ? { presence: new RedisPresence(redisUrl), driver: new RedisDriver(redisUrl) } : {}),
-  // Mỗi process cần 1 địa chỉ public riêng để client (sau khi reserve seat qua LB) kết nối THẲNG
-  // tới đúng process đang giữ room. Chỉ cần khi chạy nhiều process sau load balancer (xem
-  // docs/scaling.md); single-process bỏ trống là được.
+  // Each process needs a unique public address so the client (after reserving a seat via LB) connects DIRECTLY
+  // to the correct process holding the room. Only needed when running multiple processes behind a load balancer (see
+  // docs/scaling.md); single-process can leave this empty.
   ...(process.env.PUBLIC_ADDRESS ? { publicAddress: process.env.PUBLIC_ADDRESS } : {}),
 });
 
 gameServer.define("game", GameRoom);
 
-// Log khi bắt đầu drain room (Colyseus tự bắt SIGTERM/SIGINT và gracefully shutdown mặc định —
-// rolling deploy/restart sẽ để room đóng gọn thay vì cắt kết nối đột ngột).
+// Log when starting to drain rooms (Colyseus automatically catches SIGTERM/SIGINT and gracefully shuts down by default —
+// rolling deploy/restart will allow rooms to close cleanly instead of cutting connections abruptly).
 gameServer.onShutdown(() => {
   console.log("[shutdown] draining rooms gracefully...");
 });
 
-// PM2 chạy N process cùng entrypoint, mỗi process nhận NODE_APP_INSTANCE = 0,1,2... → cộng vào PORT
-// để mỗi instance nghe 1 cổng riêng (2567, 2568, ...). Single-process thì offset = 0 (giữ 2567).
+// PM2 runs N processes with the same entrypoint, each process receives NODE_APP_INSTANCE = 0,1,2... -> add to PORT
+// so each instance listens on a unique port (2567, 2568, ...). Single-process has offset = 0 (keep 2567).
 const basePort = Number(process.env.PORT ?? 2567);
 const instanceOffset = Number(process.env.NODE_APP_INSTANCE ?? 0);
 const port = basePort + instanceOffset;

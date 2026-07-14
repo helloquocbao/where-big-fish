@@ -32,10 +32,10 @@ function createNpc(lake: LakeDefinition): PlayerSchema {
   npc.name = generateNpcName();
   npc.isNpc = true;
   npc.skinId = pickRandom(SKIN_CATALOG)?.id ?? SKIN_CATALOG[0].id;
-  // Seed điểm ban đầu để người mới vào (chưa có ai thật) vẫn thấy leaderboard sống động, không toàn
-  // số 0 (Vicent 2026-07-14). Rải ngẫu nhiên: đa số đã câu được ít nhiều, ~20% "vừa vào" nên 0 điểm.
-  // Điểm ~ số cá × giá trị trung bình mỗi con (value đã x10) cho ra dải rộng tự nhiên. Sau đó chúng
-  // vẫn tích thêm dần theo thời gian (xem NPC_CATCH_CHANCE trong fishing.ts#updateReeling).
+  // Seed initial score so new players entering (when there are no real players) still see a lively leaderboard,
+  // not all zeroes (Vicent 2026-07-14). Disperse randomly: most have caught some fish, ~20% "just entered" with 0 score.
+  // Score ~ number of fish × average value per fish (value already x10) gives a natural wide range. After that,
+  // they still gradually accumulate score over time (see NPC_CATCH_CHANCE in fishing.ts#updateReeling).
   if (Math.random() < 0.8) {
     npc.caughtCount = Math.floor(randRange(1, 28));
     npc.totalValue = Math.round(npc.caughtCount * randRange(70, 340));
@@ -95,9 +95,9 @@ export function rebalanceNpcFishers(players: MapSchema<PlayerSchema>): void {
 /**
  * Cheap NPC behavior: cast toward a random direction/power when idle (bites auto-hook straight
  * into reeling now — see fishing.ts#updateBiteScheduling, no reaction step needed anymore). NPCs
- * KHÔNG chơi minigame kéo cá thật — updateReeling chỉ cho NPC "giả vờ" kéo đủ REEL_DURATION_MS rồi
- * quay về idle (không mutate field synced nào, tiết kiệm băng thông dưới tải cao — xem lý do đầy đủ
- * trong fishing.ts#updateReeling), nên ở đây chỉ cần lo việc cast lúc idle. Not meant to be
+ * DO NOT play the real reeling minigame — updateReeling only lets NPCs "pretend" to reel for the full REEL_DURATION_MS then
+ * returns them to idle (mutating zero synced fields, saving bandwidth under high load — see full explanation
+ * in fishing.ts#updateReeling), so here we only need to worry about casting when idle. Not meant to be
  * impressive — just enough activity to keep an empty lake feeling alive, purely cosmetic population
  * (NPCs never compete with real players for anything).
  */

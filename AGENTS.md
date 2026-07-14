@@ -1,41 +1,29 @@
-# Hướng dẫn phối hợp cho các Agent làm việc trên dự án
+# Agent Collaboration Guidelines for the Project
 
-Mục đích: nhiều agent (hoặc nhiều người) có thể làm việc song song trên `frontend/`,
-`backend/`, `shared/` mà không giẫm chân/ghi đè lên nhau.
+Purpose: allows multiple agents (or people) to work concurrently on `frontend/`, `backend/`, and `shared/` without stepping on each other's toes or overwriting each other's work.
 
-## Cấu trúc thư mục
+## Directory Structure
 
-| Thư mục | Vai trò | Ai được sửa |
+| Directory | Role | Who can modify |
 |---|---|---|
-| `docs/` | Spec, concept brief, tài liệu quyết định thiết kế, log tiến độ | Tất cả agent, chỉ **thêm/cập nhật**, không xoá lịch sử quyết định đã chốt |
-| `frontend/` | Toàn bộ code client (render, input, UI) | Chỉ agent phụ trách frontend |
-| `backend/` | Toàn bộ code server (game loop, room, matchmaking, logic câu cá) | Chỉ agent phụ trách backend |
-| `shared/` | Hợp đồng dùng chung giữa FE-BE: game constants, schema message realtime, type definitions | Cả hai agent đều được sửa, nhưng phải theo quy trình bên dưới |
+| `docs/` | Spec, concept brief, design decision documents, progress log | All agents, **add/update only**, do not delete finalized decision history |
+| `frontend/` | Entire client code (render, input, UI) | Frontend agent only |
+| `backend/` | Entire server code (game loop, room, matchmaking, fishing logic) | Backend agent only |
+| `shared/` | Shared contract between FE-BE: game constants, realtime message schema, type definitions | Both agents can modify, but must follow the procedure below |
 
-## Quy tắc cốt lõi
+## Core Rules
 
-1. **Không sửa file ngoài phạm vi thư mục của mình.** Agent frontend không tự ý sửa code
-   trong `backend/` và ngược lại. Nếu phát hiện vấn đề ở phía kia, ghi chú vào
-   `docs/progress.md` thay vì tự sửa.
-2. **`shared/` là nguồn chân lý duy nhất** cho mọi giá trị/luật chơi mà cả hai phía đều cần
-   biết giống nhau — ví dụ: bảng loài cá + độ hiếm (`FISH_CATALOG`), khung thời gian chờ cắn
-   câu/móc câu (`HOOK_WINDOW_MS`), độ khó minigame kéo cá, tầm quăng cần, giới hạn người/hồ.
-   **Không hardcode các số này riêng ở frontend hoặc backend** — luôn import/tham chiếu từ
-   `shared/`.
-3. **Đổi `shared/` phải ghi chú lại** trong `docs/progress.md` (đổi gì, vì sao, ai đổi) trước
-   khi agent còn lại code dựa theo giá trị mới — tránh trường hợp 2 bên tính toán lệch nhau.
-4. **Đọc `docs/concept_brief.md` trước khi code** — đây là spec nguồn cho toàn bộ luật chơi.
-   Nếu cần đổi luật chơi so với brief, cập nhật brief trước, đừng tự diễn giải khác đi.
-5. **Ghi log vào `docs/progress.md`** mỗi khi bắt đầu/hoàn thành một phần việc lớn — agent
-   khác cần biết trạng thái hiện tại để tránh làm trùng hoặc giả định sai.
+1. **Do not modify files outside your designated directories.** The frontend agent must not modify code in `backend/` and vice versa. If you find an issue on the other side, note it in `docs/progress.md` instead of fixing it yourself.
+2. **`shared/` is the single source of truth** for all game values and rules that both sides need to know identically — e.g. fish species catalog + rarities (`FISH_CATALOG`), bite wait/hook window times (`HOOK_WINDOW_MS`), reel minigame difficulty, cast range, player/lake capacity limits. **Do not hardcode these numbers separately in frontend or backend** — always import or reference them from `shared/`.
+3. **Changes to `shared/` must be documented** in `docs/progress.md` (what was changed, why, and by whom) before the other agent writes code relying on the new values — preventing mismatch in client/server calculations.
+4. **Read `docs/concept_brief.md` before coding** — this is the source specification for all game rules. If game rules need to be changed from the brief, update the brief first instead of interpreting it differently.
+5. **Log progress in `docs/progress.md`** whenever starting or completing a significant task — other agents need to know the current status to avoid duplicate work or incorrect assumptions.
 
-## Khi có xung đột
+## In Case of Conflicts
 
-Nếu hai agent cùng cần sửa `shared/` cùng lúc, ưu tiên: BE đề xuất trước (vì logic luật chơi
-authoritative nằm ở server), FE theo sau. Nếu không chắc, dừng lại và hỏi người dùng thay vì tự
-quyết.
+If both agents need to modify `shared/` at the same time, priority goes to: BE proposes first (as authoritative game logic lives on the server), and FE follows. If unsure, stop and ask the user instead of deciding on your own.
 
-## Tài liệu tham chiếu
+## References
 
-- `docs/concept_brief.md` — spec luật chơi/tính năng (nguồn chính)
-- `docs/progress.md` — log tiến độ, quyết định, việc đang làm/đã làm
+- `docs/concept_brief.md` — game rules / feature spec (primary source)
+- `docs/progress.md` — progress log, decisions, ongoing/completed tasks

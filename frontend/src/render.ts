@@ -22,13 +22,13 @@ export { drawFishIcon };
 export interface Camera {
   x: number;
   y: number;
-  /** Bề rộng/cao vùng WORLD camera nhìn thấy (đơn vị world = "virtual pixel"). Khi zoom xa, giá trị
-   * này > số pixel thật của canvas để lộ nhiều map hơn. */
+  /** Width/height of the WORLD area that camera sees (world unit = "virtual pixel"). When zoomed out, this value
+   * is > the real pixel count of the canvas to reveal more of the map. */
   width: number;
   height: number;
-  /** Hệ số scale virtual→real (= canvasPxWidth / camera.width). <1 = zoom xa. render() áp 1 lần cho
-   * cả cảnh nên mọi vị trí + kích thước đều thu nhỏ đồng đều (Vicent 2026-07-14: "zoom map nhỏ lại").
-   * Mặc định 1 nếu không set. */
+  /** Scale factor virtual→real (= canvasPxWidth / camera.width). <1 = zoom out. render() applies this once for
+   * the whole scene so all positions + dimensions shrink uniformly (Vicent 2026-07-14: "zoom map smaller").
+   * Default is 1 if not set. */
   scale?: number;
 }
 
@@ -45,18 +45,18 @@ function hashCell(cx: number, cy: number, salt: number): number {
   return h - Math.floor(h);
 }
 
-// ---- Lake geometry (world-space) — nhiều hồ rải khắp map, hình dạng/kích thước THẬT (gate thả
-// cần ở backend, xem shared/src/lakes.ts#LAKE_DEFINITIONS), không còn thuần cosmetic như bản 1 hồ
-// ellipse cố định trước đây.
+// ---- Lake geometry (world-space) — multiple lakes scattered across the map, REAL shapes/sizes (casting is verified
+// at the backend, see shared/src/lakes.ts#LAKE_DEFINITIONS), no longer purely cosmetic like the previous single fixed
+// elliptical lake.
 const NEAR_EDGE_THRESHOLD = 60;
 
-/** Gần mép BẤT KỲ hồ nào không (trong khoảng NEAR_EDGE_THRESHOLD tính từ biên, kể cả từ trong hay
- * ngoài hồ) — dùng để rải lau sậy đúng ngay mép nước. */
+/** Is it near the edge of ANY lake (within NEAR_EDGE_THRESHOLD from boundary, whether inside or
+ * outside the lake) — used to scatter reeds right at the water's edge. */
 function isNearAnyLakeEdge(worldX: number, worldY: number): boolean {
   return LAKE_DEFINITIONS.some(
     (lake) =>
-      // AABB reject trước: nếu điểm cách AABB của hồ đã xa hơn ngưỡng thì chắc chắn cách biên thật
-      // còn xa hơn nữa — bỏ qua distanceToLakeBoundary (quét từng cạnh, sông có ~132 cạnh) cho hồ đó.
+      // AABB reject first: if the point is further from the lake's AABB than the threshold, then it is definitely further
+      // from the real boundary — skip distanceToLakeBoundary (scanning each edge, river has ~132 edges) for that lake.
       aabbDistanceToLake(lake, worldX, worldY) < NEAR_EDGE_THRESHOLD &&
       distanceToLakeBoundary(lake, worldX, worldY) < NEAR_EDGE_THRESHOLD,
   );
@@ -65,12 +65,12 @@ function isNearAnyLakeEdge(worldX: number, worldY: number): boolean {
 const MEADOW_PATCH_CELL_SIZE = 480;
 const MEADOW_PATCH_COLORS = ["rgba(150,205,90,0.45)", "rgba(200,235,140,0.5)", "rgba(120,190,80,0.4)"];
 
-/** Các lớp trang trí tĩnh (đồng cỏ, cây, lau sậy...) được rải theo 1 hàm XÁC ĐỊNH của toạ độ ô lưới
- * world — kết quả không bao giờ đổi cho 1 ô. Trước đây mỗi frame lại tính lại placement + các phép
- * kiểm tra hồ/núi đắt tiền (point-in-polygon, sông ~132 đỉnh) cho từng ô đang thấy. Giờ cache quyết
- * định TĨNH của mỗi ô (tính đúng 1 lần cho suốt vòng đời trang), mỗi frame chỉ tra cứu O(1) rồi vẽ.
- * Cache bị chặn trên tự nhiên bởi số ô trong world (~vài nghìn ô/lớp) nên không phình vô hạn.
- * Lưu ý: các yếu tố ĐỘNG (vd né vị trí người chơi cho shore decor) vẫn xử lý lúc vẽ, không cache. */
+/** Static decoration layers (meadow patches, trees, reeds...) are scattered according to a DETERMINISTIC function of grid cell coordinates
+ * in world space — the result never changes for a cell. Previously, every frame recalculated placement + expensive
+ * lake/mountain checks (point-in-polygon, river ~132 vertices) for each visible cell. Now we cache the STATIC decision
+ * of each cell (computed exactly once for the page lifetime), and each frame just does an O(1) lookup and draws.
+ * The cache is naturally bounded by the cell count in the world (~a few thousand cells/layer) so it doesn't grow infinitely.
+ * Note: DYNAMIC elements (e.g. avoiding player positions for shore decor) are still processed at draw time, not cached. */
 function cachedCell<T>(cache: Map<string, T | null>, cx: number, cy: number, compute: (cx: number, cy: number) => T | null): T | null {
   const key = `${cx},${cy}`;
   let v = cache.get(key);
@@ -368,10 +368,10 @@ function drawMountains(ctx: CanvasRenderingContext2D, camera: Camera) {
   ctx.restore();
 }
 
-/** Vẽ 1 đường khép kín "mềm" đi qua danh sách điểm (đã ở screen-space) bằng quadraticCurveTo từ
- * trung điểm-tới-trung điểm, dùng chính các điểm gốc làm control point — biến 1 polygon góc cạnh
- * thành 1 hình blob bo tròn tự nhiên mà không cần thêm điểm nào. Không gọi ctx.fill()/stroke() —
- * caller tự quyết định style. */
+/** Traces a "smooth" closed path through a list of points (already in screen-space) using quadraticCurveTo from
+ * midpoint-to-midpoint, using the original points as control points — turning a sharp polygon
+ * into a natural rounded blob shape without adding extra points. Does not call ctx.fill()/stroke() —
+ * caller decides the styling. */
 function traceBlobPath(ctx: CanvasRenderingContext2D, points: [number, number][]) {
   const n = points.length;
   const [lastX, lastY] = points[n - 1];
@@ -549,7 +549,7 @@ function drawLake(ctx: CanvasRenderingContext2D, camera: Camera, lake: LakeDefin
 
 
 
-  // Tên hồ, hiện phía trên khối nước — giúp định hướng trên map lớn nhiều hồ.
+  // Lake name, shown above the water block — helps orientation on the large map with many lakes.
   const minSy = Math.min(...waterPoints.map(([, sy]) => sy));
   ctx.save();
   ctx.font = "bold 14px 'Baloo 2', system-ui, sans-serif";
@@ -985,12 +985,12 @@ function drawNameTag(ctx: CanvasRenderingContext2D, sx: number, sy: number, size
   ctx.fillText(label, sx, y);
 }
 
-/** Minigame kéo cá — dựng lại nguyên khung theo ảnh Stardew Valley Vicent gửi (14/07/2026): 1 khung
- * gỗ dọc, bên trái là thanh thước bằng kim loại có khấc + ông câu cá nhỏ ngồi dưới góc, ở giữa là
- * máng nước xanh chứa "ô bắt" xanh lá (`zoneY` ± `zoneSize`/2, người chơi giữ chuột đẩy lên / thả ra
- * rơi xuống) và con cá (`fishY`) bơi lang thang thất thường, bên phải là cột progress dâng từ dưới
- * lên theo `progress` (đổi màu đỏ→vàng→xanh lá theo %). Ô bắt sáng/glow khi cá đang nằm trong. Vẽ
- * gọn trong canvas 260×360 (xem ui.ts#updateFishingModal). */
+/** Reeling minigame — reconstructed the whole frame according to the Stardew Valley image sent by Vicent (2026-07-14): 1 vertical
+ * wooden frame, on the left is a metal ruler bar with notches + a tiny angler sitting in the bottom corner, in the middle is
+ * a blue water channel containing the green "catching zone" (`zoneY` ± `zoneSize`/2, player holds mouse to push up / releases to
+ * drop down) and the fish (`fishY`) swimming around erratically, on the right is a progress bar rising from the bottom
+ * based on `progress` (changes color red→yellow→green based on %). The catching zone glows when the fish is inside. Drawn
+ * compactly in a 260x360 canvas (see ui.ts#updateFishingModal). */
 export function drawModalReelScene(
   ctx: CanvasRenderingContext2D,
   width: number,
@@ -1007,14 +1007,14 @@ export function drawModalReelScene(
   const clamp = (v: number) => Math.max(0, Math.min(100, v));
   const lerp = (a: number, b: number, t: number) => Math.round(a + (b - a) * t);
 
-  // ---------------------------------------------------------------- KHUNG GỖ (nền)
+  // ---------------------------------------------------------------- WOODEN FRAME (background)
   const woodGrad = ctx.createLinearGradient(0, 0, width, 0);
   woodGrad.addColorStop(0, "#c79a5b");
   woodGrad.addColorStop(0.5, "#a9743f");
   woodGrad.addColorStop(1, "#c79a5b");
   ctx.fillStyle = woodGrad;
   ctx.fillRect(0, 0, width, height);
-  // Ván gỗ dọc 2 mép cho khớp viền bamboo/gỗ trong ảnh.
+  // Vertical wooden planks on both edges to match the bamboo/wood border in the image.
   ctx.fillStyle = "rgba(233, 205, 150, 0.55)";
   ctx.fillRect(4, 4, 8, height - 8);
   ctx.fillRect(width - 12, 4, 8, height - 8);
@@ -1027,9 +1027,9 @@ export function drawModalReelScene(
   const playH = playBottom - playTop;
   const toPixelY = (v: number) => playBottom - (clamp(v) / 100) * playH;
 
-  // ---------------------------------------------------------------- THANH PROGRESS = THƯỚC (trái)
-  // Gộp progress vào luôn thanh thước bên trái (Vicent 2026-07-14: bỏ cột phải cho gọn UI): rãnh tối,
-  // fill dâng từ đáy theo % (màu đỏ→vàng→xanh lá), phủ khấc ngang lên trên nên vẫn ra dáng "thước".
+  // ---------------------------------------------------------------- PROGRESS BAR = RULER (left)
+  // Combined progress into the left ruler bar (Vicent 2026-07-14: removed the right column to simplify UI): dark groove,
+  // fill rising from the bottom according to % (red→yellow→green), overlaid with horizontal notches to still look like a "ruler".
   const rulerX = 14;
   const rulerW = 20;
   const pct = clamp(progress);
@@ -1041,10 +1041,10 @@ export function drawModalReelScene(
     const t = (pct - 50) / 50;
     pr = lerp(242, 111, t); pg = lerp(193, 191, t); pb = lerp(78, 79, t);
   }
-  // Rãnh tối.
+  // Dark groove.
   ctx.fillStyle = "#3a2a1c";
   ctx.fillRect(rulerX, playTop, rulerW, playH);
-  // Fill dâng từ đáy.
+  // Fill rising from the bottom.
   const fillH = (pct / 100) * playH;
   const fillGrad = ctx.createLinearGradient(rulerX, 0, rulerX + rulerW, 0);
   fillGrad.addColorStop(0, `rgb(${Math.round(pr * 0.8)}, ${Math.round(pg * 0.8)}, ${Math.round(pb * 0.8)})`);
@@ -1056,7 +1056,7 @@ export function drawModalReelScene(
     ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
     ctx.fillRect(rulerX + 3, playBottom - fillH, 3, fillH);
   }
-  // Khấc ngang (thang đo) phủ lên trên cho vẫn ra dáng thước.
+  // Horizontal notches (scale) overlaid to still look like a ruler.
   ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
   ctx.lineWidth = 1;
   for (let i = 1; i < 22; i++) {
@@ -1071,7 +1071,7 @@ export function drawModalReelScene(
   ctx.lineWidth = 3;
   ctx.strokeRect(rulerX, playTop, rulerW, playH);
 
-  // ---------------------------------------------------------------- MÁNG NƯỚC (giữa, chiếm phần còn lại)
+  // ---------------------------------------------------------------- WATER CHANNEL (middle, occupies the rest)
   const chX = rulerX + rulerW + 12;
   const chW = width - chX - 14;
   const chCenter = chX + chW / 2;
@@ -1080,7 +1080,7 @@ export function drawModalReelScene(
   waterGrad.addColorStop(1, "#6fb4e0");
   ctx.fillStyle = waterGrad;
   ctx.fillRect(chX, playTop, chW, playH);
-  // Gợn nước ngang mờ, trôi chậm.
+  // Faint horizontal water ripples, drifting slowly.
   ctx.save();
   ctx.beginPath();
   ctx.rect(chX, playTop, chW, playH);
@@ -1099,7 +1099,7 @@ export function drawModalReelScene(
   ctx.lineWidth = 2.5;
   ctx.strokeRect(chX, playTop, chW, playH);
 
-  // Rong dưới đáy máng cho khớp ảnh.
+  // Seaweed at the bottom of the channel to match the image.
   ctx.strokeStyle = "#4f9f5a";
   ctx.lineWidth = 3;
   for (let i = -1; i <= 1; i++) {
@@ -1111,7 +1111,7 @@ export function drawModalReelScene(
     ctx.stroke();
   }
 
-  // ---------------------------------------------------------------- Ô BẮT (catch zone)
+  // ---------------------------------------------------------------- CATCH ZONE
   const isInZone = Math.abs(fishY - zoneY) <= zoneSize / 2;
   const zoneTopPx = toPixelY(zoneY + zoneSize / 2);
   const zoneBottomPx = toPixelY(zoneY - zoneSize / 2);
@@ -1135,36 +1135,36 @@ export function drawModalReelScene(
   ctx.strokeRect(boxX, zoneTopPx, boxW, zoneBottomPx - zoneTopPx);
   ctx.restore();
 
-  // ---------------------------------------------------------------- CÁ
+  // ---------------------------------------------------------------- FISH
   const fishPixelY = toPixelY(fishY);
   const wiggle = Math.sin(nowMs / 130) * 0.5;
   drawFishIcon(ctx, chCenter, fishPixelY, boxW * 0.9, speciesId, fishColor, wiggle, 1);
 
-  // ---------------------------------------------------------------- ÔNG CÂU CÁ (góc dưới trái)
+  // ---------------------------------------------------------------- TINY ANGLER (bottom-left corner)
   drawTinyAngler(ctx, rulerX + rulerW / 2, playBottom, nowMs);
 }
 
-/** Ông câu cá tí hon kiểu pixel ngồi ở góc dưới trái khung minigame (trang trí, khớp ảnh Stardew).
- * Cần câu hơi nhún theo thời gian cho có sức sống. */
+/** Tiny pixel-style angler sitting in the bottom-left corner of the minigame frame (decorative, matches Stardew image).
+ * Fishing rod bobs slightly over time to look alive. */
 function drawTinyAngler(ctx: CanvasRenderingContext2D, x: number, baseY: number, nowMs: number) {
   const bob = Math.sin(nowMs / 500) * 1.5;
   ctx.save();
   ctx.translate(x, baseY - 4 + bob);
-  // Thân (áo nâu).
+  // Body (brown shirt).
   ctx.fillStyle = "#8a5a2c";
   ctx.fillRect(-7, -14, 14, 14);
-  // Đầu (da).
+  // Head (skin).
   ctx.fillStyle = "#e8b98a";
   ctx.beginPath();
   ctx.arc(0, -20, 6, 0, Math.PI * 2);
   ctx.fill();
-  // Nón (vàng đất).
+  // Hat (ochre).
   ctx.fillStyle = "#c98a3a";
   ctx.beginPath();
   ctx.arc(0, -22, 6.5, Math.PI, Math.PI * 2);
   ctx.fill();
   ctx.fillRect(-8, -22, 16, 2.5);
-  // Cần câu chĩa lên.
+  // Fishing rod pointing up.
   ctx.strokeStyle = "#5a3a1c";
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -1255,9 +1255,9 @@ export interface RenderOptions {
   getPlayerAnimation: (playerId: string) => PlayerAnimation;
 }
 
-/** Hiệu ứng bắn nước tức thời khi phao chạm mặt hồ (Vicent 2026-07-14): vài vòng sóng lan tròn +
- * mấy giọt nước văng lên rồi rơi xuống. Trạng thái tạm sống ngắn (~650ms), gom trong module này để
- * render() vẫn "snapshot -> pixels"; main.ts gọi `spawnCastSplash` đúng lúc phao đáp nước. */
+/** Instant water splash effect when the bobber hits the lake surface (Vicent 2026-07-14): a few expanding ripple rings +
+ * some water droplets shooting up and falling down. Short-lived state (~650ms), kept in this module so
+ * render() remains "snapshot -> pixels"; main.ts calls `spawnCastSplash` at the exact moment the bobber lands. */
 interface CastSplash {
   x: number;
   y: number;
@@ -1270,7 +1270,7 @@ const CAST_SPLASH_DURATION_MS = 650;
 export function spawnCastSplash(worldX: number, worldY: number, nowMs: number): void {
   const drops: { vx: number; vy: number }[] = [];
   for (let i = 0; i < 8; i++) {
-    // Chủ yếu bắn lên trên (-90°) toả sang 2 bên, tốc độ ngẫu nhiên cho tự nhiên.
+    // Mainly shoots upwards (-90°) spreading to both sides, random speed for natural look.
     const ang = -Math.PI / 2 + (Math.random() - 0.5) * 1.7;
     const speed = 55 + Math.random() * 95;
     drops.push({ vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed });
@@ -1291,7 +1291,7 @@ function drawCastSplashes(ctx: CanvasRenderingContext2D, camera: Camera, nowMs: 
     if (sx < -60 || sy < -60 || sx > camera.width + 60 || sy > camera.height + 60) continue;
 
     ctx.save();
-    // Vòng sóng lan: 3 vòng nở ra so le, dẹt theo trục dọc cho cảm giác nhìn nghiêng mặt nước.
+    // Ripple rings: 3 rings expanding in staggered intervals, flattened vertically for an angled perspective of the water surface.
     const easeOut = 1 - Math.pow(1 - t, 2);
     for (let r = 0; r < 3; r++) {
       const rt = t * 1.2 - r * 0.16;
@@ -1303,7 +1303,7 @@ function drawCastSplashes(ctx: CanvasRenderingContext2D, camera: Camera, nowMs: 
       ctx.ellipse(sx, sy, radius, radius * 0.5, 0, 0, Math.PI * 2);
       ctx.stroke();
     }
-    // Giọt nước văng: quỹ đạo parabol (trọng lực), mờ dần, biến mất khi rơi lại mặt nước.
+    // Water droplets: parabolic trajectory (gravity), fading out, disappearing when falling back to the water surface.
     const ts = elapsed / 1000;
     const g = 340;
     for (const d of s.drops) {
@@ -1319,9 +1319,9 @@ function drawCastSplashes(ctx: CanvasRenderingContext2D, camera: Camera, nowMs: 
   }
 }
 
-/** Tên hồ vẽ ngay GIỮA hồ (Vicent 2026-07-14) — dùng tâm AABB (bounds) chứ không phải centerX/Y, vì
- * vài hồ (nhất là con sông) có centerX/Y = 0,0 lệch hẳn khỏi thân hồ. Chữ nâu cozy, viền giấy da cho
- * nổi trên mặt nước xanh. Kích thước theo world nên tự thu/phóng cùng zoom. */
+/** Lake name drawn right in the MIDDLE of the lake (Vicent 2026-07-14) — uses AABB center (bounds) instead of centerX/Y, because
+ * some lakes (especially the river) have centerX/Y = 0,0 far from the actual body. Cozy brown text with parchment border
+ * to stand out against the blue water. World-sized so it automatically scales with zoom. */
 function drawLakeName(ctx: CanvasRenderingContext2D, camera: Camera, lake: LakeDefinition): void {
   const midX = (lake.bounds.minX + lake.bounds.maxX) / 2;
   const midY = (lake.bounds.minY + lake.bounds.maxY) / 2;
@@ -1380,10 +1380,10 @@ export function render(ctx: CanvasRenderingContext2D, opts: RenderOptions) {
     const skin = getSkinDefinition(player.skinId);
     const animation = opts.getPlayerAnimation(player.id);
 
-    // Scale character size based on total fish value caught (up to 2.5x original size). Chia điểm
-    // cho 10 trước khi lấy căn để BÙ lại việc đã x10 toàn bộ value (Vicent 2026-07-14) — giữ nhịp
-    // phình to y hệt trước lúc x10, nếu không nhân vật chạm trần 2.5x gần như tức thì (chỉ 1 con
-    // legendary). Trần 2.5x giờ đạt khi totalValue ≈ 9000 thay vì 900.
+    // Scale character size based on total fish value caught (up to 2.5x original size). Divide score
+    // by 10 before square rooting to COMPENSATE for scaling up all values by x10 (Vicent 2026-07-14) — keeping the same
+    // growth pacing as before the x10, otherwise character hits 2.5x cap almost instantly (with just 1
+    // legendary). The 2.5x cap is now reached when totalValue ≈ 9000 instead of 900.
     const scale = 1 + Math.min(1.5, Math.sqrt((player.totalValue || 0) / 10) * 0.05);
     const dynamicSize = PLAYER_VISUAL_SIZE * scale;
 

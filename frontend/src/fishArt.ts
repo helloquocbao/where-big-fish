@@ -1,20 +1,20 @@
 /**
- * Vẽ icon từng loài cá bằng canvas (yêu cầu Vicent 2026-07-14: mỗi con 1 hình riêng thay vì dùng
- * chung 1 hình chỉ khác màu). `drawFishIcon` là dispatcher: tra `FISH_DRAWERS[speciesId]`, không có
- * thì rơi về `drawGenericFish` (giữ y hệt hình cũ) — nên loài chưa vẽ riêng vẫn hiển thị bình
- * thường. Mọi drawer làm việc trong hệ toạ độ đã dời về tâm (0,0), đầu cá quay +x, nét viền + độ
- * rộng nét đã set sẵn; chỉ cần vẽ hình theo `size` (bề ngang tổng ~size) và tô `color`.
+ * Draws each fish species icon using canvas (Vicent's request 2026-07-14: each has its own distinct shape instead of sharing
+ * a single shape with only color changes). `drawFishIcon` is a dispatcher: queries `FISH_DRAWERS[speciesId]`, falls back
+ * to `drawGenericFish` (keeping it exactly like the old shape) if not found — so species not yet custom drawn will display normally.
+ * All drawers work in a coordinate system shifted to the center (0,0), fish head facing +x, outlines + line widths pre-configured;
+ * they only need to draw the shape based on `size` (total width ~size) and fill with `color`.
  *
- * Dùng ở 2 nơi: minigame kéo cá (cá đang bơi, có `tailWiggle`) và modal câu được cá (ui.ts).
+ * Used in 2 places: reeling minigame (swimming fish, has `tailWiggle`) and catch celebration modal (ui.ts).
  */
 
 type FishDrawer = (ctx: CanvasRenderingContext2D, size: number, color: string, tailWiggle: number) => void;
 
-// ---------------------------------------------------------------- helpers màu
+// ---------------------------------------------------------------- color helpers
 function clampByte(n: number): number {
   return Math.max(0, Math.min(255, Math.round(n)));
 }
-/** Làm sáng (factor>1) / tối (factor<1) 1 màu #rrggbb. */
+/** Lightens (factor>1) / darkens (factor<1) a #rrggbb color. */
 function shade(hex: string, factor: number): string {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
   if (!m) return hex;
@@ -54,7 +54,7 @@ function eye(ctx: CanvasRenderingContext2D, x: number, y: number, r: number): vo
   ctx.fill();
 }
 
-/** Đuôi tam giác (mặc định), vẫy theo góc `wiggle`. Đặt gốc đuôi ở x = -bodyHalf. */
+/** Triangular tail (default), wiggling based on the `wiggle` angle. Places the tail base at x = -bodyHalf. */
 function triTail(ctx: CanvasRenderingContext2D, size: number, color: string, wiggle: number, bodyHalf: number, spread: number): void {
   ctx.save();
   ctx.translate(-bodyHalf, 0);
@@ -70,7 +70,7 @@ function triTail(ctx: CanvasRenderingContext2D, size: number, color: string, wig
   ctx.restore();
 }
 
-/** Đuôi chẻ đôi (forked) kiểu cá bơi nhanh. */
+/** Forked tail style for fast-swimming fish. */
 function forkedTail(ctx: CanvasRenderingContext2D, size: number, color: string, wiggle: number, bodyHalf: number, spread = 0.3): void {
   ctx.save();
   ctx.translate(-bodyHalf, 0);
@@ -87,7 +87,7 @@ function forkedTail(ctx: CanvasRenderingContext2D, size: number, color: string, 
   ctx.restore();
 }
 
-/** Đuôi lưỡi liềm (crescent) kiểu cá ngừ — 2 thuỳ nhọn cong. */
+/** Crescent tail style for tuna — 2 curved sharp lobes. */
 function crescentTail(ctx: CanvasRenderingContext2D, size: number, color: string, wiggle: number, bodyHalf: number): void {
   ctx.save();
   ctx.translate(-bodyHalf, 0);
@@ -105,7 +105,7 @@ function crescentTail(ctx: CanvasRenderingContext2D, size: number, color: string
   ctx.restore();
 }
 
-/** Đuôi tròn (rounded fan) kiểu cá chép/koi. */
+/** Rounded fan tail style for carp/koi. */
 function roundTail(ctx: CanvasRenderingContext2D, size: number, color: string, wiggle: number, bodyHalf: number, r = 0.3): void {
   ctx.save();
   ctx.translate(-bodyHalf, 0);
@@ -121,7 +121,7 @@ function roundTail(ctx: CanvasRenderingContext2D, size: number, color: string, w
   ctx.restore();
 }
 
-/** Vảy: vài hàng cung nhỏ gợi lớp vảy, cắt trong hình thân (gọi sau khi đã set clip nếu cần). */
+/** Scales: a few rows of small arcs suggesting scales, clipped inside the body shape (called after setting clip if needed). */
 function scales(ctx: CanvasRenderingContext2D, size: number, color: string): void {
   ctx.strokeStyle = shade(color, 0.8);
   ctx.lineWidth = Math.max(1, size * 0.02);
@@ -136,7 +136,7 @@ function scales(ctx: CanvasRenderingContext2D, size: number, color: string): voi
   }
 }
 
-/** Sọc dọc gợn sóng trên lưng (mackerel). */
+/** Wavy vertical stripes on the back (mackerel). */
 function backStripes(ctx: CanvasRenderingContext2D, size: number, color: string, count: number): void {
   ctx.strokeStyle = shade(color, 0.6);
   ctx.lineWidth = Math.max(1, size * 0.022);
@@ -149,7 +149,7 @@ function backStripes(ctx: CanvasRenderingContext2D, size: number, color: string,
   }
 }
 
-// ---------------------------------------------------------------- generic (fallback = hình cũ)
+// ---------------------------------------------------------------- generic (fallback = old shape)
 const drawGenericFish: FishDrawer = (ctx, size, color, wiggle) => {
   triTail(ctx, size, color, wiggle, size * 0.42, 0.28);
   ctx.fillStyle = bodyGrad(ctx, color, size * 0.26);
@@ -170,10 +170,10 @@ const drawGenericFish: FishDrawer = (ctx, size, color, wiggle) => {
   eye(ctx, size * 0.24, -size * 0.04, size * 0.09);
 };
 
-// ---------------------------------------------------------------- Catfish (râu dài, đầu bẹt)
+// ---------------------------------------------------------------- Catfish (long barbels, flat head)
 const drawCatfish: FishDrawer = (ctx, size, color, wiggle) => {
   const dark = shade(color, 0.7);
-  // Đuôi tròn to.
+  // Large rounded tail.
   ctx.save();
   ctx.translate(-size * 0.4, 0);
   ctx.rotate(wiggle);
@@ -186,7 +186,7 @@ const drawCatfish: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.fill();
   ctx.stroke();
   ctx.restore();
-  // Thân dài, đầu bẹt to phía trước.
+  // Long body, large flat head in front.
   ctx.fillStyle = bodyGrad(ctx, color, size * 0.23);
   ctx.beginPath();
   ctx.ellipse(0, 0, size * 0.44, size * 0.23, 0, 0, Math.PI * 2);
@@ -195,7 +195,7 @@ const drawCatfish: FishDrawer = (ctx, size, color, wiggle) => {
 
   highlight(ctx, -size * 0.05, -size * 0.08, size * 0.25, size * 0.05, -0.02);
 
-  // Vây lưng thấp dài.
+  // Long low dorsal fin.
   ctx.fillStyle = dark;
   ctx.beginPath();
   ctx.moveTo(-size * 0.1, -size * 0.2);
@@ -203,7 +203,7 @@ const drawCatfish: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  // Râu (barbels) — 2 cặp cong từ mõm.
+  // Barbels — 2 curved pairs from the snout.
   ctx.strokeStyle = dark;
   ctx.lineWidth = Math.max(1, size * 0.03);
   const mouth = size * 0.42;
@@ -222,10 +222,10 @@ const drawCatfish: FishDrawer = (ctx, size, color, wiggle) => {
   eye(ctx, size * 0.26, -size * 0.06, size * 0.075);
 };
 
-// ---------------------------------------------------------------- Koi (mảng trắng, vây dài)
+// ---------------------------------------------------------------- Koi (white patches, long fins)
 const drawKoi: FishDrawer = (ctx, size, color, wiggle) => {
   const white = "#fdf7ef";
-  // Vây đuôi xoè mềm.
+  // Soft spreading tail fin.
   ctx.save();
   ctx.translate(-size * 0.4, 0);
   ctx.rotate(wiggle);
@@ -239,7 +239,7 @@ const drawKoi: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.fill();
   ctx.stroke();
   ctx.restore();
-  // Thân tròn mập.
+  // Plump round body.
   ctx.fillStyle = bodyGrad(ctx, color, size * 0.28);
   ctx.beginPath();
   ctx.ellipse(0, 0, size * 0.4, size * 0.28, 0, 0, Math.PI * 2);
@@ -247,7 +247,7 @@ const drawKoi: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.stroke();
 
   highlight(ctx, -size * 0.05, -size * 0.1, size * 0.2, size * 0.06, -0.05);
-  // Mảng trắng đặc trưng koi.
+  // Characteristic koi white patches.
   ctx.fillStyle = white;
   ctx.beginPath();
   ctx.ellipse(-size * 0.05, -size * 0.05, size * 0.16, size * 0.12, -0.3, 0, Math.PI * 2);
@@ -255,7 +255,7 @@ const drawKoi: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.beginPath();
   ctx.ellipse(size * 0.2, size * 0.08, size * 0.09, size * 0.07, 0.2, 0, Math.PI * 2);
   ctx.fill();
-  // Vây bụng xoè.
+  // Spreading ventral fin.
   ctx.fillStyle = shade(color, 1.08);
   ctx.beginPath();
   ctx.moveTo(size * 0.02, size * 0.18);
@@ -263,14 +263,14 @@ const drawKoi: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  // Vây lưng mềm.
+  // Soft dorsal fin.
   ctx.beginPath();
   ctx.moveTo(-size * 0.08, -size * 0.24);
   ctx.quadraticCurveTo(size * 0.06, -size * 0.4, size * 0.18, -size * 0.22);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  // Râu nhỏ.
+  // Small barbels.
   ctx.strokeStyle = shade(color, 0.7);
   ctx.lineWidth = Math.max(1, size * 0.022);
   for (const s of [-1, 1]) {
@@ -284,11 +284,11 @@ const drawKoi: FishDrawer = (ctx, size, color, wiggle) => {
   eye(ctx, size * 0.26, -size * 0.02, size * 0.075);
 };
 
-// ---------------------------------------------------------------- Baby Shark (mõm nhọn, vây lưng, đuôi liềm)
+// ---------------------------------------------------------------- Baby Shark (pointed snout, dorsal fin, crescent tail)
 const drawBabyShark: FishDrawer = (ctx, size, color, wiggle) => {
   const belly = shade(color, 1.35);
   const dark = shade(color, 0.75);
-  // Đuôi liềm: thuỳ trên to hơn thuỳ dưới.
+  // Crescent tail: upper lobe larger than lower lobe.
   ctx.save();
   ctx.translate(-size * 0.36, 0);
   ctx.rotate(wiggle);
@@ -302,7 +302,7 @@ const drawBabyShark: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.fill();
   ctx.stroke();
   ctx.restore();
-  // Thân thoi, mõm nhọn về +x.
+  // Fusiform body, pointed snout towards +x.
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.moveTo(size * 0.48, 0);
@@ -311,7 +311,7 @@ const drawBabyShark: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  // Bụng sáng.
+  // Light belly.
   ctx.fillStyle = belly;
   ctx.beginPath();
   ctx.moveTo(size * 0.4, size * 0.05);
@@ -319,7 +319,7 @@ const drawBabyShark: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.quadraticCurveTo(size * 0.05, size * 0.14, size * 0.4, size * 0.05);
   ctx.closePath();
   ctx.fill();
-  // Vây lưng tam giác.
+  // Triangular dorsal fin.
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.moveTo(-size * 0.02, -size * 0.22);
@@ -328,7 +328,7 @@ const drawBabyShark: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  // Vây ngực.
+  // Pectoral fin.
   ctx.beginPath();
   ctx.moveTo(size * 0.14, size * 0.14);
   ctx.lineTo(size * 0.02, size * 0.4);
@@ -336,7 +336,7 @@ const drawBabyShark: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  // Mang.
+  // Gills.
   ctx.strokeStyle = dark;
   ctx.lineWidth = Math.max(1, size * 0.02);
   for (let i = 0; i < 3; i++) {
@@ -346,7 +346,7 @@ const drawBabyShark: FishDrawer = (ctx, size, color, wiggle) => {
     ctx.quadraticCurveTo(gx - size * 0.02, 0, gx, size * 0.1);
     ctx.stroke();
   }
-  // Miệng cười.
+  // Smiling mouth.
   ctx.strokeStyle = dark;
   ctx.lineWidth = Math.max(1, size * 0.025);
   ctx.beginPath();
@@ -358,7 +358,7 @@ const drawBabyShark: FishDrawer = (ctx, size, color, wiggle) => {
   eye(ctx, size * 0.34, -size * 0.05, size * 0.06);
 };
 
-// ---------------------------------------------------------------- Silver Carp (thân bạc, vảy, đuôi chẻ)
+// ---------------------------------------------------------------- Silver Carp (silver body, scales, forked tail)
 const drawSilverCarp: FishDrawer = (ctx, size, color, wiggle) => {
   forkedTail(ctx, size, shade(color, 0.9), wiggle, size * 0.4, 0.28);
   ctx.fillStyle = bodyGrad(ctx, color, size * 0.27);
@@ -379,7 +379,7 @@ const drawSilverCarp: FishDrawer = (ctx, size, color, wiggle) => {
   eye(ctx, size * 0.27, size * 0.02, size * 0.08);
 };
 
-// ---------------------------------------------------------------- Minnow (bé xíu, mắt to)
+// ---------------------------------------------------------------- Minnow (tiny, big eyes)
 const drawMinnow: FishDrawer = (ctx, size, color, wiggle) => {
   forkedTail(ctx, size, color, wiggle, size * 0.34, 0.22);
   ctx.fillStyle = bodyGrad(ctx, color, size * 0.16);
@@ -389,7 +389,7 @@ const drawMinnow: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.stroke();
 
   highlight(ctx, -size * 0.05, -size * 0.05, size * 0.18, size * 0.04, -0.05);
-  // Sọc bên mảnh.
+  // Thin lateral stripe.
   ctx.strokeStyle = shade(color, 0.7);
   ctx.lineWidth = Math.max(1, size * 0.02);
   ctx.beginPath();
@@ -398,10 +398,10 @@ const drawMinnow: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.stroke();
   ctx.strokeStyle = "rgba(0,0,0,0.3)";
   ctx.lineWidth = Math.max(1, size * 0.045);
-  eye(ctx, size * 0.22, -size * 0.02, size * 0.1); // mắt to so với thân
+  eye(ctx, size * 0.22, -size * 0.02, size * 0.1); // big eyes compared to body
 };
 
-// ---------------------------------------------------------------- Tilapia (thân cao, vây lưng gai)
+// ---------------------------------------------------------------- Tilapia (deep body, spiny dorsal fin)
 const drawTilapia: FishDrawer = (ctx, size, color, wiggle) => {
   forkedTail(ctx, size, shade(color, 0.95), wiggle, size * 0.36, 0.24);
   ctx.fillStyle = bodyGrad(ctx, color, size * 0.32);
@@ -411,7 +411,7 @@ const drawTilapia: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.stroke();
 
   highlight(ctx, -size * 0.05, -size * 0.1, size * 0.2, size * 0.07, -0.05);
-  // Bands dọc mờ.
+  // Faint vertical bands.
   ctx.strokeStyle = shade(color, 0.78);
   ctx.lineWidth = Math.max(1, size * 0.025);
   for (let i = -1; i <= 2; i++) {
@@ -421,7 +421,7 @@ const drawTilapia: FishDrawer = (ctx, size, color, wiggle) => {
     ctx.lineTo(x, size * 0.26);
     ctx.stroke();
   }
-  // Vây lưng gai dài chạy dọc lưng.
+  // Long spiny dorsal fin running along the back.
   ctx.fillStyle = shade(color, 0.9);
   ctx.beginPath();
   ctx.moveTo(-size * 0.28, -size * 0.28);
@@ -438,11 +438,11 @@ const drawTilapia: FishDrawer = (ctx, size, color, wiggle) => {
   eye(ctx, size * 0.24, -size * 0.06, size * 0.08);
 };
 
-// ---------------------------------------------------------------- Snakehead (dài, đốm, vây lưng dài)
+// ---------------------------------------------------------------- Snakehead (long, spotted, long dorsal fin)
 const drawSnakehead: FishDrawer = (ctx, size, color, wiggle) => {
   const dark = shade(color, 0.65);
   roundTail(ctx, size, color, wiggle, size * 0.44, 0.22);
-  // Thân dài thuôn.
+  // Long elongated body.
   ctx.fillStyle = bodyGrad(ctx, color, size * 0.19);
   ctx.beginPath();
   ctx.ellipse(0, 0, size * 0.46, size * 0.19, 0, 0, Math.PI * 2);
@@ -450,7 +450,7 @@ const drawSnakehead: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.stroke();
 
   highlight(ctx, -size * 0.05, -size * 0.06, size * 0.25, size * 0.04, -0.02);
-  // Vây lưng thấp chạy gần hết lưng.
+  // Low dorsal fin running almost the entire back.
   ctx.fillStyle = shade(color, 0.85);
   ctx.beginPath();
   ctx.moveTo(-size * 0.34, -size * 0.15);
@@ -460,7 +460,7 @@ const drawSnakehead: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  // Đốm loang.
+  // Scattered spots.
   ctx.fillStyle = dark;
   for (const [dx, dy] of [[-0.2, 0.02], [0.0, -0.03], [0.18, 0.04], [-0.05, 0.1]]) {
     ctx.beginPath();
@@ -470,7 +470,7 @@ const drawSnakehead: FishDrawer = (ctx, size, color, wiggle) => {
   eye(ctx, size * 0.34, -size * 0.02, size * 0.06);
 };
 
-// ---------------------------------------------------------------- Giant Barb (chép khổng lồ, thân sâu)
+// ---------------------------------------------------------------- Giant Barb (giant carp, deep body)
 const drawGiantBarb: FishDrawer = (ctx, size, color, wiggle) => {
   roundTail(ctx, size, shade(color, 0.92), wiggle, size * 0.38, 0.34);
   ctx.fillStyle = bodyGrad(ctx, color, size * 0.34);
@@ -481,7 +481,7 @@ const drawGiantBarb: FishDrawer = (ctx, size, color, wiggle) => {
 
   highlight(ctx, -size * 0.05, -size * 0.12, size * 0.2, size * 0.08, -0.05);
   scales(ctx, size, color);
-  // Vây lưng lớn.
+  // Large dorsal fin.
   ctx.fillStyle = shade(color, 0.88);
   ctx.beginPath();
   ctx.moveTo(-size * 0.18, -size * 0.3);
@@ -489,7 +489,7 @@ const drawGiantBarb: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  // Vây bụng lớn.
+  // Large ventral fin.
   ctx.beginPath();
   ctx.moveTo(-size * 0.05, size * 0.28);
   ctx.quadraticCurveTo(-size * 0.12, size * 0.5, size * 0.14, size * 0.34);
@@ -499,10 +499,10 @@ const drawGiantBarb: FishDrawer = (ctx, size, color, wiggle) => {
   eye(ctx, size * 0.26, -size * 0.02, size * 0.075);
 };
 
-// ---------------------------------------------------------------- Golden Arowana (dài, vảy to, râu)
+// ---------------------------------------------------------------- Golden Arowana (long, large scales, barbels)
 const drawGoldenArowana: FishDrawer = (ctx, size, color, wiggle) => {
   const edge = shade(color, 0.78);
-  // Vây lưng + hậu môn dài về phía đuôi tạo dáng "rồng".
+  // Long dorsal + anal fins towards the tail creating a "dragon" shape.
   ctx.fillStyle = shade(color, 1.05);
   ctx.save();
   ctx.rotate(wiggle * 0.4);
@@ -516,7 +516,7 @@ const drawGoldenArowana: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.fill();
   ctx.stroke();
   ctx.restore();
-  // Thân ribbon dài.
+  // Long ribbon body.
   ctx.fillStyle = bodyGrad(ctx, color, size * 0.17);
   ctx.beginPath();
   ctx.ellipse(0, 0, size * 0.46, size * 0.17, 0, 0, Math.PI * 2);
@@ -525,7 +525,7 @@ const drawGoldenArowana: FishDrawer = (ctx, size, color, wiggle) => {
 
   highlight(ctx, -size * 0.05, -size * 0.06, size * 0.25, size * 0.04, -0.01);
 
-  // Vảy to xếp lớp.
+  // Large overlapping scales.
   ctx.strokeStyle = edge;
   ctx.lineWidth = Math.max(1, size * 0.025);
   for (let c = 0; c < 4; c++) {
@@ -535,7 +535,7 @@ const drawGoldenArowana: FishDrawer = (ctx, size, color, wiggle) => {
       ctx.stroke();
     }
   }
-  // 2 râu chĩa lên trước.
+  // 2 barbels pointing forward.
   ctx.strokeStyle = edge;
   ctx.lineWidth = Math.max(1, size * 0.025);
   for (const s of [-1, 1]) {
@@ -549,7 +549,7 @@ const drawGoldenArowana: FishDrawer = (ctx, size, color, wiggle) => {
   eye(ctx, size * 0.32, -size * 0.03, size * 0.065);
 };
 
-// ---------------------------------------------------------------- Butterfish (nhỏ, tròn mập, mượt)
+// ---------------------------------------------------------------- Butterfish (small, plump round, smooth)
 const drawButterfish: FishDrawer = (ctx, size, color, wiggle) => {
   forkedTail(ctx, size, shade(color, 0.95), wiggle, size * 0.34, 0.2);
   ctx.fillStyle = bodyGrad(ctx, color, size * 0.27);
@@ -559,7 +559,7 @@ const drawButterfish: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.stroke();
 
   highlight(ctx, -size * 0.05, -size * 0.1, size * 0.18, size * 0.06, -0.05);
-  // Ánh bơ: mảng sáng trên lưng.
+  // Butter glow: light patch on the back.
   ctx.fillStyle = shade(color, 1.25);
   ctx.beginPath();
   ctx.ellipse(-size * 0.02, -size * 0.08, size * 0.22, size * 0.1, -0.15, 0, Math.PI * 2);
@@ -574,7 +574,7 @@ const drawButterfish: FishDrawer = (ctx, size, color, wiggle) => {
   eye(ctx, size * 0.22, -size * 0.02, size * 0.075);
 };
 
-// ---------------------------------------------------------------- Mackerel (thoi, sọc lưng, đuôi chẻ sâu)
+// ---------------------------------------------------------------- Mackerel (fusiform, back stripes, deeply forked tail)
 const drawMackerel: FishDrawer = (ctx, size, color, wiggle) => {
   forkedTail(ctx, size, shade(color, 0.9), wiggle, size * 0.4, 0.3);
   ctx.fillStyle = color;
@@ -586,7 +586,7 @@ const drawMackerel: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.fill();
   ctx.stroke();
   backStripes(ctx, size, color, 7);
-  // Finlet nhỏ gần đuôi.
+  // Small finlets near the tail.
   ctx.fillStyle = shade(color, 0.85);
   for (const s of [-1, 1]) {
     for (let i = 0; i < 2; i++) {
@@ -601,7 +601,7 @@ const drawMackerel: FishDrawer = (ctx, size, color, wiggle) => {
   eye(ctx, size * 0.3, -size * 0.02, size * 0.07);
 };
 
-// ---------------------------------------------------------------- Bluefin Tuna (torpedo, đuôi liềm, finlet)
+// ---------------------------------------------------------------- Bluefin Tuna (torpedo, crescent tail, finlets)
 const drawTuna: FishDrawer = (ctx, size, color, wiggle) => {
   const belly = shade(color, 1.7);
   crescentTail(ctx, size, shade(color, 0.9), wiggle, size * 0.42);
@@ -613,7 +613,7 @@ const drawTuna: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  // Bụng bạc.
+  // Silver belly.
   ctx.fillStyle = belly;
   ctx.beginPath();
   ctx.moveTo(size * 0.4, size * 0.06);
@@ -621,7 +621,7 @@ const drawTuna: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.quadraticCurveTo(size * 0.05, size * 0.13, size * 0.4, size * 0.06);
   ctx.closePath();
   ctx.fill();
-  // Vây lưng liềm.
+  // Crescent dorsal fin.
   ctx.fillStyle = shade(color, 0.82);
   ctx.beginPath();
   ctx.moveTo(-size * 0.02, -size * 0.24);
@@ -629,7 +629,7 @@ const drawTuna: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  // Finlets vàng dọc đuôi.
+  // Yellow finlets along the tail.
   ctx.fillStyle = "#f2c14e";
   for (const s of [-1, 1]) {
     for (let i = 0; i < 3; i++) {
@@ -645,10 +645,10 @@ const drawTuna: FishDrawer = (ctx, size, color, wiggle) => {
   eye(ctx, size * 0.32, -size * 0.03, size * 0.065);
 };
 
-// ---------------------------------------------------------------- Sad Blobfish (blob hồng, mặt sầu)
+// ---------------------------------------------------------------- Sad Blobfish (pink blob, sad face)
 const drawSadBlobfish: FishDrawer = (ctx, size, color, wiggle) => {
   const dark = shade(color, 0.82);
-  // Thân blob mềm oặt, hơi rung theo wiggle.
+  // Flabby blob body, wiggling slightly with wiggle.
   ctx.save();
   ctx.rotate(wiggle * 0.3);
   ctx.fillStyle = color;
@@ -661,13 +661,13 @@ const drawSadBlobfish: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  // Mũi to sụ xuống.
+  // Large droopy nose.
   ctx.fillStyle = shade(color, 0.95);
   ctx.beginPath();
   ctx.ellipse(size * 0.28, size * 0.12, size * 0.12, size * 0.1, 0.3, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
-  // Mắt buồn (mí trên sụp).
+  // Sad eyes (drooping upper eyelids).
   for (const s of [1, -1]) {
     const ex = size * 0.06, ey = -size * 0.06 + (s < 0 ? size * 0.0 : 0);
     void ey;
@@ -680,7 +680,7 @@ const drawSadBlobfish: FishDrawer = (ctx, size, color, wiggle) => {
     ctx.arc(ex + s * size * 0.11, -size * 0.02, size * 0.03, 0, Math.PI * 2);
     ctx.fill();
   }
-  // Miệng méo xuống (sad).
+  // Frowning mouth (sad).
   ctx.strokeStyle = dark;
   ctx.lineWidth = Math.max(1, size * 0.03);
   ctx.beginPath();
@@ -690,11 +690,11 @@ const drawSadBlobfish: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.restore();
 };
 
-// ---------------------------------------------------------------- Old Boot (chiếc giày cũ — meme)
+// ---------------------------------------------------------------- Old Boot (old boot — meme)
 const drawOldBoot: FishDrawer = (ctx, size, color, _wiggle) => {
   const dark = shade(color, 0.7);
   ctx.fillStyle = color;
-  // Cổ giày + thân + mũi + đế thành 1 khối hình chữ L.
+  // Boot shaft + body + toe + sole into a single L-shaped block.
   ctx.beginPath();
   ctx.moveTo(-size * 0.16, -size * 0.34);
   ctx.lineTo(size * 0.02, -size * 0.34);
@@ -705,7 +705,7 @@ const drawOldBoot: FishDrawer = (ctx, size, color, _wiggle) => {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  // Đế giày.
+  // Boot sole.
   ctx.fillStyle = dark;
   ctx.beginPath();
   ctx.moveTo(-size * 0.2, size * 0.3);
@@ -715,13 +715,13 @@ const drawOldBoot: FishDrawer = (ctx, size, color, _wiggle) => {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  // Miệng cổ giày.
+  // Boot opening.
   ctx.fillStyle = shade(color, 0.5);
   ctx.beginPath();
   ctx.ellipse(-size * 0.07, -size * 0.34, size * 0.09, size * 0.05, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
-  // Dây giày.
+  // Boot laces.
   ctx.strokeStyle = shade(color, 1.5);
   ctx.lineWidth = Math.max(1, size * 0.025);
   for (let i = 0; i < 3; i++) {
@@ -737,21 +737,21 @@ const drawOldBoot: FishDrawer = (ctx, size, color, _wiggle) => {
   ctx.lineWidth = Math.max(1, size * 0.045);
 };
 
-// ---------------------------------------------------------------- Soggy Bread (ổ bánh mì ỉu — meme)
+// ---------------------------------------------------------------- Soggy Bread (soggy bread — meme)
 const drawSoggyBread: FishDrawer = (ctx, size, color, _wiggle) => {
   const crust = shade(color, 0.7);
-  // Ổ bánh mì oval, hơi xẹp.
+  // Oval loaf of bread, slightly deflated.
   ctx.fillStyle = crust;
   ctx.beginPath();
   ctx.ellipse(0, size * 0.02, size * 0.42, size * 0.26, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
-  // Ruột bánh sáng.
+  // Light crumb.
   ctx.fillStyle = shade(color, 1.12);
   ctx.beginPath();
   ctx.ellipse(0, size * 0.06, size * 0.34, size * 0.17, 0, 0, Math.PI * 2);
   ctx.fill();
-  // Rãnh nứt trên vỏ.
+  // Score marks on the crust.
   ctx.strokeStyle = crust;
   ctx.lineWidth = Math.max(1, size * 0.025);
   for (const dx of [-0.16, 0, 0.16]) {
@@ -760,7 +760,7 @@ const drawSoggyBread: FishDrawer = (ctx, size, color, _wiggle) => {
     ctx.quadraticCurveTo(size * (dx + 0.04), -size * 0.05, size * dx, size * 0.02);
     ctx.stroke();
   }
-  // Giọt nước ỉu nhỏ xuống.
+  // Soggy water drops dripping down.
   ctx.fillStyle = "rgba(120,180,210,0.7)";
   for (const dx of [-0.24, 0.1, 0.28]) {
     ctx.beginPath();
@@ -771,10 +771,10 @@ const drawSoggyBread: FishDrawer = (ctx, size, color, _wiggle) => {
   ctx.lineWidth = Math.max(1, size * 0.045);
 };
 
-// ---------------------------------------------------------------- Vicent's Wallet (cái ví — meme)
+// ---------------------------------------------------------------- Vicent's Wallet (wallet — meme)
 const drawVicentWallet: FishDrawer = (ctx, size, color, _wiggle) => {
   const dark = shade(color, 0.7);
-  // Thân ví.
+  // Wallet body.
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.moveTo(-size * 0.4, -size * 0.24);
@@ -786,7 +786,7 @@ const drawVicentWallet: FishDrawer = (ctx, size, color, _wiggle) => {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  // Nắp gập.
+  // Flap.
   ctx.fillStyle = dark;
   ctx.beginPath();
   ctx.moveTo(-size * 0.4, -size * 0.02);
@@ -797,7 +797,7 @@ const drawVicentWallet: FishDrawer = (ctx, size, color, _wiggle) => {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  // Thẻ/tiền thò ra trên.
+  // Cards/money sticking out from the top.
   ctx.fillStyle = "#f6e7c1";
   ctx.fillRect(-size * 0.2, -size * 0.36, size * 0.3, size * 0.16);
   ctx.strokeRect(-size * 0.2, -size * 0.36, size * 0.3, size * 0.16);
@@ -811,7 +811,7 @@ const drawVicentWallet: FishDrawer = (ctx, size, color, _wiggle) => {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText("$", size * 0.24, -size * 0.27);
-  // Đường chỉ khâu.
+  // Stitching line.
   ctx.strokeStyle = shade(color, 1.4);
   ctx.setLineDash([size * 0.03, size * 0.02]);
   ctx.lineWidth = Math.max(1, size * 0.015);
@@ -841,8 +841,8 @@ const FISH_DRAWERS: Record<string, FishDrawer> = {
   vicent_wallet: drawVicentWallet,
 };
 
-/** Vẽ icon 1 loài cá tại (cx, cy), bề ngang ~size, quay đầu theo `facing` (1 phải, -1 trái), đuôi
- * vẫy theo `tailWiggle` (radian). `speciesId` chọn hình riêng; loài chưa có thì dùng hình generic. */
+/** Draws a fish species icon at (cx, cy), width ~size, facing direction based on `facing` (1 right, -1 left), tail
+ * wiggling based on `tailWiggle` (radians). `speciesId` selects the custom shape; if not found, falls back to generic. */
 export function drawFishIcon(
   ctx: CanvasRenderingContext2D,
   cx: number,

@@ -1,7 +1,7 @@
 /*
- * Theme "cozy Stardew": khung gỗ nâu + nền giấy da (parchment) + accent vàng hổ phách — đại trùng
- * tu theo yêu cầu trực tiếp của Vicent (xem docs/progress.md). Mọi panel dùng chung .panel-cut
- * (viền gỗ 2 lớp inset), nút bấm dày kiểu 3D đổ bóng cứng (không blur) đúng chất UI game pixel.
+ * Cozy Stardew theme: brown wood frame + parchment background + amber accent — major overhaul
+ * per direct request of Vicent (see docs/progress.md). All panels share .panel-cut
+ * (2-layer inset wood border), thick 3D-styled buttons with hard shadows (no blur) matching pixel game UI.
  */
 
 :root {
@@ -9,21 +9,21 @@
   font: 16px/1.4 system-ui, "Segoe UI", Roboto, sans-serif;
 
   /* ---- Wood & parchment palette ---- */
-  --c-bg: #bfe685; /* meadow green — thế giới game vẽ đè lên, chỉ lộ ra lúc load */
-  --c-outline: #4e3016; /* viền ngoài đậm nhất, gần đen nâu */
-  --c-wood: #b0793f; /* khung gỗ chính */
-  --c-wood-light: #d9a95e; /* gỗ sáng (viền trong) */
-  --c-wood-shadow: #7a4f26; /* bóng đổ cứng dưới panel/nút */
-  --c-parchment: #ffeec9; /* nền giấy da sáng */
-  --c-parchment-deep: #f3dca4; /* giấy da đậm hơn (đáy gradient / hàng chẵn) */
-  --c-ink: #5b3a1e; /* chữ nâu đậm */
-  --c-ink-dim: #93713d; /* chữ phụ nâu nhạt */
-  --c-gold: #ffc93c; /* accent vàng */
-  --c-amber: #e79b2e; /* hổ phách (nút chính) */
-  --c-leaf: #63a531; /* xanh lá (ok/tension thấp) */
+  --c-bg: #bfe685; /* meadow green — game world is drawn over it, only visible during load */
+  --c-outline: #4e3016; /* darkest outer border, close to dark brown */
+  --c-wood: #b0793f; /* main wood frame */
+  --c-wood-light: #d9a95e; /* light wood (inner border) */
+  --c-wood-shadow: #7a4f26; /* hard drop shadow under panels/buttons */
+  --c-parchment: #ffeec9; /* light parchment background */
+  --c-parchment-deep: #f3dca4; /* deeper parchment (gradient bottom / even rows) */
+  --c-ink: #5b3a1e; /* dark brown text */
+  --c-ink-dim: #93713d; /* dim brown secondary text */
+  --c-gold: #ffc93c; /* gold accent */
+  --c-amber: #e79b2e; /* amber (primary buttons) */
+  --c-leaf: #63a531; /* green (ok/low tension) */
   --c-leaf-dark: #45761f;
-  --c-berry: #d9534f; /* đỏ (nguy hiểm) */
-  --c-sky: #4fa9d9; /* xanh dương (thanh tiến độ) */
+  --c-berry: #d9534f; /* red (danger) */
+  --c-sky: #4fa9d9; /* blue (progress bar) */
   --font-display: "Baloo 2", "Comic Sans MS", system-ui, sans-serif;
 }
 
@@ -48,9 +48,9 @@ body {
   height: 100vh;
 }
 
-/* Nội dung crawlable cho SEO/GEO (xem index.html <main class="seo-content">). KHÔNG dùng display:none
-   (bot có thể bỏ qua) — đặt ngay DƯỚI màn game full-viewport; body overflow:hidden nên người chơi
-   không bao giờ cuộn tới, còn crawler/LLM vẫn đọc được text thật. */
+/* Crawlable content for SEO/GEO (see index.html <main class="seo-content">). Do NOT use display:none
+   (bots might ignore) — place it directly UNDER the full-viewport game screen; body is overflow:hidden so players
+   can never scroll to it, while crawlers/LLMs can still read the real text. */
 .seo-content {
   position: absolute;
   top: 100vh;
@@ -78,9 +78,9 @@ body {
   font-family: var(--font-display);
 }
 
-/* ---------- Shared panel: khung gỗ 2 lớp + nền giấy da ----------
-   Viền ngoài đậm (border) -> vòng gỗ sáng -> vòng gỗ chính (2 lớp inset shadow) -> nền parchment.
-   Panel nào dùng class này cần padding >= 14px để chữ không đè lên vòng gỗ inset. */
+/* ---------- Shared panel: 2-layer wood frame + parchment background ----------
+   Dark outer border -> light wood ring -> main wood ring (2 inset shadow layers) -> parchment background.
+   Any panel using this class needs padding >= 14px so text does not overlap with the inset wood ring. */
 
 .panel-cut {
   background: linear-gradient(180deg, var(--c-parchment), var(--c-parchment-deep));
@@ -93,7 +93,7 @@ body {
     0 10px 24px rgba(63, 40, 18, 0.3);
 }
 
-/* ---------- Nút bấm gỗ/hổ phách dùng chung ---------- */
+/* ---------- Shared wood/amber buttons ---------- */
 
 .wood-button {
   font-family: var(--font-display);
@@ -376,7 +376,7 @@ body {
   font-weight: 800;
 }
 
-/* Top 3: vàng / bạc / đồng. */
+/* Top 3: gold / silver / bronze. */
 .leaderboard-list li:nth-child(1) {
   color: #b8860b;
   font-weight: 800;
@@ -437,11 +437,11 @@ body {
   margin-top: 8px;
 }
 
-/* `.stats-panel > div` (bên trên) áp align-items:baseline cho MỌI div con trực tiếp — đúng ý cho
-   các hàng text đơn giản (label + số liệu canh theo baseline chữ) nhưng vô tình dính cả vào hàng
-   nút này (.stats-actions cũng là 1 div con trực tiếp của .stats-panel), khiến 2 nút bị lệch nhau
-   theo baseline chữ/icon thay vì canh giữa theo chiều dọc. Selector 2 lớp bên dưới có độ ưu tiên
-   cao hơn `.stats-panel > div` (2 class > 1 class + 1 thẻ) nên đè lại đúng ý muốn cho riêng hàng nút. */
+/* `.stats-panel > div` (above) applies align-items:baseline to EVERY direct child div — correct for
+   simple text rows (labels + values aligned to text baseline) but accidentally affects this button
+   row (.stats-actions is also a direct child of .stats-panel), causing the two buttons to misalign
+   based on text/icon baseline instead of centering vertically. The 2-class selector below has higher priority
+   than `.stats-panel > div` (2 classes > 1 class + 1 tag) so it overrides and applies correctly to the button row. */
 .stats-panel .stats-actions {
   align-items: center;
   justify-content: flex-start;
@@ -788,12 +788,12 @@ body {
   flex-direction: column;
   gap: 8px;
   padding-right: 8px;
-  /* Firefox: thanh cuộn mảnh, màu gỗ/amber khớp theme cozy thay vì xám thô. */
+  /* Firefox: thin scrollbar, wood/amber color matching the cozy theme instead of raw gray. */
   scrollbar-width: thin;
   scrollbar-color: var(--c-wood) transparent;
 }
 
-/* WebKit (Chrome/Safari/Edge): thanh cuộn bo tròn, thumb màu gỗ có viền sáng, rãnh trong suốt. */
+/* WebKit (Chrome/Safari/Edge): rounded scrollbar, wood-colored thumb with light border, transparent track. */
 .collection-list::-webkit-scrollbar {
   width: 10px;
 }
@@ -867,10 +867,10 @@ body {
 }
 
 /* ---------- Celebration Catch Modal ----------
-   "Độ hoành tráng" (glow quanh khung, tia nắng xoay, pháo hoa hạt bắn ra, rung màn hình) tăng dần
-   theo độ hiếm của cá (xem RARITY_COLOR trong shared + ui.ts#showCatchModal set `--rarity-color`
-   và class `.rarity-common|uncommon|rare|legendary`). Cố tình KHÔNG bung hết hiệu ứng ở cá thường —
-   càng hiếm càng "wow" thì mới thực sự đáng nhớ, bung hết cỡ ở MỌI lần câu sẽ mỏi mắt và vô nghĩa. */
+   "Grandeur level" (glow around frame, rotating light rays, particle burst, screen shake) increases
+   based on fish rarity (see RARITY_COLOR in shared + ui.ts#showCatchModal setting `--rarity-color`
+   and class `.rarity-common|uncommon|rare|legendary`). Intentionally NOT triggering all effects for common fish —
+   the rarer it is, the more "wow" it should be to be truly memorable. Maxing out everything on EVERY catch would cause eye strain and be meaningless. */
 
 .catch-modal {
   position: absolute;
@@ -888,8 +888,8 @@ body {
   display: none;
 }
 
-/* Chớp sáng toàn màn hình — chỉ bắn cho cá legendary (ui.ts thêm class .legendary-flash lên
-   .catch-modal), bán cảm giác "trúng độc đắc" trước khi lắng lại về lớp phủ mờ bình thường. */
+/* Full screen flash — only triggered for legendary fish (ui.ts adds class .legendary-flash on
+   .catch-modal), conveying a "jackpot" feeling before settling back to the normal dim overlay. */
 .catch-modal-flash {
   position: absolute;
   inset: 0;
@@ -914,7 +914,7 @@ body {
   }
 }
 
-/* Tia nắng xoay chậm phía sau khung — ẩn ở cá thường, mờ nhạt ở cá hiếm, rực ở huyền thoại. */
+/* Slow rotating light rays behind the frame — hidden for common fish, dim for rare, brilliant for legendary. */
 .catch-modal-rays {
   position: absolute;
   top: 50%;
@@ -947,8 +947,8 @@ body {
   opacity: 0.32;
 }
 
-/* Pháo hoa hạt — 12 chấm bắn toả ra từ tâm lúc modal xuất hiện, góc bắn set sẵn qua nth-child nên
-   không cần JS/inline style riêng cho từng hạt. Chỉ bắn ở cá hiếm/huyền thoại. */
+/* Particle burst — 12 dots radiating from the center when the modal appears, angles pre-set via nth-child
+   so no JS/inline style is needed for individual particles. Only triggers for rare/legendary fish. */
 .catch-modal-burst {
   position: absolute;
   inset: 0;
@@ -1117,8 +1117,8 @@ body {
   }
 }
 
-/* Cá thường: giữ nguyên khung gỗ gốc, chỉ có animation pop-in (không glow, không tia, không pháo
-   hoa) — độ hiếm thấp nhất nên KHÔNG ăn theo hiệu ứng, để phần thưởng thị giác dồn cho cá hiếm. */
+/* Common fish: keeps the original wood frame, only has pop-in animation (no glow, no rays, no particle burst) —
+   lowest rarity so NO effects applied, letting the visual reward accumulate for rarer fish. */
 
 .catch-modal-card.rarity-uncommon {
   animation:

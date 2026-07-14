@@ -1,12 +1,12 @@
 /**
- * Mô phỏng minigame kéo cá HOÀN TOÀN phía client (client-authoritative để giảm tải server — yêu cầu
- * Vicent 2026-07-14). Trước đây server chạy vật lý này mỗi tick rồi bắn `reel_state` 20Hz cho từng
- * người đang câu; giờ client tự chạy ở 60fps (mượt tuyệt đối, phản hồi tức thì với chuột), hết giờ
- * chỉ báo `timeInZoneMs` về cho server clamp + roll xác suất (xem backend fishing.ts#resolveReel).
+ * Simulates the reeling minigame ENTIRELY on the client side (client-authoritative to reduce server load — request
+ * by Vicent 2026-07-14). Previously, the server ran this physics simulation every tick and broadcast `reel_state` at 20Hz
+ * to everyone fishing; now the client runs it locally at 60fps (perfectly smooth, immediate response to mouse input), and when
+ * time is up, it simply reports `timeInZoneMs` back to the server to clamp + roll probability (see backend fishing.ts#resolveReel).
  *
- * Dùng ĐÚNG các hằng số / công thức trong @bomio/shared như server cũ nên cảm giác chơi không đổi:
- * vùng bắt đẩy lên khi giữ chuột, rơi theo trọng lực khi thả; cá bơi lang thang thất thường; tiến độ
- * = % thời gian cá nằm trong vùng bắt. Cá bơi giờ là RNG cục bộ (thuần hiển thị, không ai khác cần).
+ * Uses EXACTLY the same constants and formulas in @bomio/shared as the old server code so the gameplay feel remains unchanged:
+ * the catch zone rises when holding the mouse, falls by gravity when released; the fish swims around erratically; progress
+ * is the percentage of time the fish stays inside the catch zone. The fish movement is now a local RNG (purely visual, no one else needs it).
  */
 import {
   REEL_ZONE_RISE_ACCEL,
@@ -42,8 +42,8 @@ export class ReelSim {
   private fishRetargetInMs = 0;
   private elapsedMs = 0;
 
-  /** Bắt đầu 1 phiên kéo mới — suy hết tham số từ loài + cân nặng (đều lấy được từ state đã sync),
-   * y hệt server nên client/server nhất quán về thời lượng & độ khó. */
+  /** Starts a new reeling session — derives all parameters from the species + weight (both retrieved from synced state),
+   * exactly like the server, maintaining consistency in duration and difficulty between client and server. */
   start(speciesId: string, weight: number): void {
     const sp = getFishSpecies(speciesId);
     if (!sp) {
@@ -59,7 +59,7 @@ export class ReelSim {
     this.zoneY = 50;
     this.zoneVel = 0;
     this.fishTargetY = 50;
-    this.fishRetargetInMs = 0; // retarget ngay frame đầu (giống server set reelFishNextRetargetAt = now)
+    this.fishRetargetInMs = 0; // retarget on the very first frame (like server setting reelFishNextRetargetAt = now)
     this.elapsedMs = 0;
     this.timeInZoneMs = 0;
     this.progress = 0;
@@ -67,13 +67,13 @@ export class ReelSim {
     this.active = true;
   }
 
-  /** Tiến 1 bước mô phỏng theo delta thời gian frame (ms) + trạng thái giữ chuột kéo. */
+  /** Advances the simulation by one step based on frame delta time (ms) + mouse pulling state. */
   update(dtMs: number, pulling: boolean): void {
     if (!this.active || this.done) return;
     const dt = dtMs / 1000;
     const half = this.zoneSize / 2;
 
-    // Cá bơi lang thang: hết hạn thì chọn đích mới, luôn bơi thẳng tới đích với tốc độ cố định.
+    // Fish swimming around: selects a new target when expired, always swimming straight towards the target at a constant speed.
     this.fishRetargetInMs -= dtMs;
     if (this.fishRetargetInMs <= 0) {
       this.fishTargetY = rand(REEL_FISH_TARGET_MARGIN, 100 - REEL_FISH_TARGET_MARGIN);
@@ -84,14 +84,14 @@ export class ReelSim {
     if (Math.abs(fishDiff) <= fishStep) this.fishY = this.fishTargetY;
     else this.fishY += Math.sign(fishDiff) * fishStep;
 
-    // Vùng bắt: giữ chuột đẩy lên, thả rơi xuống; chạm biên thì dừng vận tốc.
+    // Catch zone: holding mouse pushes it up, releasing drops it down; sets velocity to 0 when hitting boundaries.
     if (pulling) this.zoneVel = Math.min(REEL_ZONE_MAX_SPEED, this.zoneVel + REEL_ZONE_RISE_ACCEL * dt);
     else this.zoneVel = Math.max(-REEL_ZONE_MAX_SPEED, this.zoneVel - REEL_ZONE_GRAVITY * dt);
     const nextZoneY = clamp(this.zoneY + this.zoneVel * dt, half, 100 - half);
     if (nextZoneY <= half || nextZoneY >= 100 - half) this.zoneVel = 0;
     this.zoneY = nextZoneY;
 
-    // Cộng dồn thời gian cá trong vùng bắt + cập nhật % (dùng hiển thị và gửi về server lúc hết giờ).
+    // Accumulates time the fish stays inside the catch zone + updates percentage (used for display and sent to server when time is up).
     this.elapsedMs += dtMs;
     if (Math.abs(this.fishY - this.zoneY) <= half) this.timeInZoneMs += dtMs;
     this.progress = this.elapsedMs > 0 ? clamp((this.timeInZoneMs / this.elapsedMs) * 100, 0, 100) : 0;

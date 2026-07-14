@@ -1,17 +1,17 @@
 /**
  * Input handling:
- * - WASD / phím mũi tên: đi bộ (chỉ có tác dụng lúc đang rảnh tay — xem
- *   backend/src/systems/movement.ts, đứng yên khi đang câu). Đứng yên khi không giữ phím nào,
- *   khác hẳn scheme .io cũ (luôn đi liên tục theo hướng chuột).
- * - Hướng chuột: TÁCH BIỆT khỏi đi bộ, chỉ dùng để nhắm hướng thả cần (kiểu twin-stick).
- * - Chuột trái, Ý NGHĨA TUỲ TRẠNG THÁI CÂU CÁ hiện tại (đọc qua `getFishState`, server vẫn tự bỏ
- *   qua hành động không hợp lệ ở trạng thái đó — đây chỉ là UX, không phải nguồn sự thật):
- *   - idle: giữ rồi thả ra = thả cần (cast) theo hướng con trỏ, lực quăng theo thời gian giữ (xem
- *     CAST_MAX_CHARGE_MS trong @bomio/shared).
- *   - reeling: GIỮ chuột xuống = đẩy vùng bắt lên đuổi theo cá, THẢ ra = vùng bắt rơi xuống theo
- *     trọng lực (minigame "1 thanh" — xem backend/src/systems/fishing.ts#updateReeling).
- *   (Không còn bước móc câu — cá cắn là tự động vào reeling, xem docs/progress.md, nên cũng không
- *   còn dùng Space cho bất kỳ hành động câu cá nào.)
+ * - WASD / arrow keys: walking (only effective when idle/free — see
+ *   backend/src/systems/movement.ts, stands still when fishing). Stands still when no key is held,
+ *   completely different from the old .io scheme (always moving towards cursor).
+ * - Mouse direction: SEPARATE from walking, only used to aim the cast (twin-stick style).
+ * - Left click, MEANING DEPENDS ON CURRENT FISHING STATE (read via `getFishState`, server still ignores
+ *   invalid actions for that state — this is just UX, not the source of truth):
+ *   - idle: hold then release = cast bobber in cursor direction, power based on hold time (see
+ *     CAST_MAX_CHARGE_MS in @bomio/shared).
+ *   - reeling: HOLD mouse down = push catch zone up to chase the fish, RELEASE = catch zone falls down
+ *     due to gravity (the "1-bar" minigame — see backend/src/systems/fishing.ts#updateReeling).
+ *   (No more hooking phase — fish biting automatically enters reeling, see docs/progress.md, so Space is no
+ *   longer used for any fishing action.)
  *
  * This module only tracks intent and exposes it via getters + a `tick` hook — it does not decide
  * whether an action is actually allowed (that's the server's job).
@@ -25,8 +25,8 @@ import { CAST_MAX_CHARGE_MS, MOVE_SEND_INTERVAL_MS } from "./config.ts";
 // whatever angle was last stable instead of recomputing a meaningless-and-unstable one.
 const POINTER_DEADZONE_PX = 8;
 
-/** Mỗi phím di chuyển giữ được ánh xạ sang 1 vector đơn vị — giữ nhiều phím cùng lúc (vd W+D) cộng
- * dồn vector rồi lấy góc, cho phép đi 8 hướng. */
+/** Each held movement key maps to a unit vector — holding multiple keys simultaneously (e.g. W+D) adds
+ * the vectors and gets the angle, allowing movement in 8 directions. */
 const MOVE_KEY_VECTORS: Record<string, { dx: number; dy: number }> = {
   KeyW: { dx: 0, dy: -1 },
   ArrowUp: { dx: 0, dy: -1 },
@@ -46,18 +46,18 @@ export class InputController {
   private lastSentMoving: boolean | null = null;
   private lastMoveSendAt = 0;
 
-  // code -> thời điểm (performance.now()) nhận được keydown gần nhất cho phím đó — Map thay vì Set
-  // để có thể phát hiện phím "kẹt" (xem purgeStaleKeys).
+  // code -> timestamp (Date.now()) of the latest keydown event for that key — Map instead of Set
+  // to be able to detect "stuck" keys (see purgeStaleKeys).
   private heldMoveKeys = new Map<string, number>();
   private lastMovementAngle = 0;
 
-  // Bao lâu không thấy thêm 1 lần keydown lặp lại (auto-repeat của OS khi giữ phím thật) thì coi
-  // phím đó là đã nhả. Vá lỗi thực tế gặp trên Windows khi bật bộ gõ tiếng Việt (Unikey/EVKey...):
-  // bộ gõ hook bàn phím ở tầng OS để chèn dấu, thỉnh thoảng "nuốt" mất sự kiện keyup gốc của phím
-  // vừa gõ (vd nhấn "A") khiến trình duyệt tưởng phím đó VẪN đang giữ mãi mãi -> nhân vật trôi 1
-  // chiều không dừng cho tới khi bấm lại đúng phím đó. Phím giữ THẬT luôn tự phát lại keydown (auto-
-  // repeat của OS, thường lặp << 1s/lần) nên ngưỡng này không ảnh hưởng cảm giác giữ phím bình
-  // thường, chỉ tự "nhả" phím kẹt sau tối đa ~0.9s thay vì kẹt vĩnh viễn.
+  // Time threshold with no repeat keydowns (OS auto-repeat when key is actually held) to consider
+  // the key released. Fixes a real-world issue on Windows when Vietnamese input method (Unikey/EVKey...)
+  // is enabled: the input method hooks keyboard events at the OS level to insert accent marks, sometimes
+  // "swallowing" the original keyup event of the pressed key (e.g., pressing "A"), making the browser think
+  // the key is STILL held forever -> character drifts in one direction without stopping until that key is pressed again.
+  // Actually held keys will auto-repeat keydown events (OS auto-repeat, usually << 1s/interval) so this threshold
+  // does not affect normal movement feel, but automatically "releases" stuck keys after at most ~0.9s instead of stuck forever.
   private static readonly KEY_STALE_MS = 900;
 
   private chargeStartAt: number | null = null;
@@ -103,10 +103,10 @@ export class InputController {
     window.addEventListener("blur", this.onWindowBlur);
   }
 
-  /** Gắn thêm mousedown/mouseup/mouseleave (dùng lại đúng handler đã bind cho canvas) lên 1 phần tử
-   * DOM khác — dùng cho modal câu cá (ui.ts#fishingModalInteractiveEl): click/giữ chuột ngay trong
-   * modal cũng móc câu/kéo cần y hệt bấm trên canvas, vì modal che phủ canvas nên canvas không còn
-   * nhận được các sự kiện này lúc modal đang mở. */
+  /** Binds additional mousedown/mouseup/mouseleave (reusing the exact handlers bound to canvas) to another
+   * DOM element — used for the fishing modal (ui.ts#fishingModalInteractiveEl): clicking/holding right inside
+   * the modal also reels/pulls the rod just like on the canvas, because the modal covers the canvas and the canvas
+   * no longer receives these events while the modal is open. */
   bindAdditionalTarget(el: HTMLElement) {
     el.addEventListener("mousedown", this.onMouseDown);
     el.addEventListener("mouseup", this.onMouseUp);
@@ -136,7 +136,7 @@ export class InputController {
 
   private onContextMenu = (e: MouseEvent) => {
     e.preventDefault();
-    if (this.getFishState() !== "idle") return; // Chỉ cho di chuyển khi rảnh tay
+    if (this.getFishState() !== "idle") return; // Only allow movement when idle/free
 
     const origin = this.getOrigin();
     const dx = this.mouseX - origin.x;
@@ -152,8 +152,8 @@ export class InputController {
   private onMouseDown = (e: MouseEvent) => {
     if (e.button !== 0) return;
     if (this.getFishState() === "reeling") {
-      // Giữ chuột = kéo vùng bắt lên. Không gửi gì lên server nữa — minigame chạy hoàn toàn client
-      // (xem reelSim.ts), server chỉ nhận kết quả cuối. Chỉ bật cờ cục bộ cho sim + tiếng lách cách.
+      // Hold mouse = pull catch zone up. No longer send anything to server — minigame runs entirely on the client
+      // (see reelSim.ts), server only receives the final result. Only set local flag for simulation + click SFX.
       this.reelHeld = true;
     } else {
       this.chargeStartAt = performance.now();
@@ -171,8 +171,8 @@ export class InputController {
 
   private onMouseLeave = () => {
     // Cancel an in-progress charge rather than firing a cast the player can no longer aim, if the
-    // cursor leaves the canvas mid-hold. Cũng ngưng kéo cần nếu đang giữ chuột lúc rời canvas —
-    // tránh kẹt "đang kéo" mãi vì không còn nhận được mouseup.
+    // cursor leaves the canvas mid-hold. Also stop reeling if mouse is held when leaving the canvas —
+    // avoiding getting stuck in "reeling" forever because mouseup is never received.
     this.chargeStartAt = null;
     this.reelHeld = false;
   };
@@ -187,16 +187,16 @@ export class InputController {
 
   private onKeyDown = (e: KeyboardEvent) => {
     if (e.code in MOVE_KEY_VECTORS) {
-      e.preventDefault(); // chặn mũi tên cuộn trang
-      // Dùng Date.now() (không phải performance.now()) vì đây là mốc thời gian sẽ được so sánh với
-      // `nowMs` trong `tick`/`purgeStaleKeys`, và main.ts gọi `input.tick(Date.now())` — 2 đồng hồ
-      // khác gốc (performance.now() tính từ lúc trang tải) sẽ khiến hiệu số luôn cực lớn, làm mọi
-      // phím bị coi là "kẹt" và xoá ngay lập tức mỗi frame (bug vừa gặp: không đi được luôn).
+      e.preventDefault(); // prevent arrow keys from scrolling the page
+      // Use Date.now() (not performance.now()) because this timestamp will be compared with
+      // `nowMs` in `tick`/`purgeStaleKeys`, and main.ts calls `input.tick(Date.now())` — 2 clocks
+      // with different origins (performance.now() starts from page load) will cause the difference to be extremely large,
+      // making all keys considered "stuck" and deleted instantly every frame (recent bug: couldn't move at all).
       this.heldMoveKeys.set(e.code, Date.now());
-      this.hasTarget = false; // Nhấn WASD thì hủy đích di chuyển bằng chuột phải
+      this.hasTarget = false; // Pressing WASD cancels right-click movement destination
     }
-    // Space không còn tác dụng gì — bước móc câu đã bỏ (cá cắn tự vào reeling), kéo cần chỉ dùng
-    // chuột (xem class docstring).
+    // Space no longer does anything — hook phase was removed (fish bite automatically enters reeling), reeling only uses
+    // mouse (see class docstring).
   };
 
   private onKeyUp = (e: KeyboardEvent) => {
@@ -205,8 +205,8 @@ export class InputController {
     }
   };
 
-  /** Dọn các phím "kẹt" — đã lâu (> KEY_STALE_MS) không thấy thêm lần keydown lặp lại nào nhưng
-   * cũng chưa từng nhận được keyup tương ứng. Gọi mỗi frame từ `tick` trước khi tính hướng đi. */
+  /** Cleans up "stuck" keys — keys that haven't repeated keydown for a long time (> KEY_STALE_MS) but
+   * have never received a corresponding keyup. Called every frame from `tick` before calculating movement direction. */
   private purgeStaleKeys(nowMs: number) {
     for (const [code, lastSeenAt] of this.heldMoveKeys) {
       if (nowMs - lastSeenAt > InputController.KEY_STALE_MS) {
@@ -220,8 +220,8 @@ export class InputController {
     this.hasTarget = false;
   };
 
-  /** Góc + trạng thái di chuyển hiện tại, suy ra từ tổng vector các phím WASD/mũi tên đang giữ hoặc đích chuột phải.
-   * Không giữ phím nào và không có đích chuột phải -> moving=false, giữ nguyên góc mặt hướng cuối cùng lúc còn đi. */
+  /** Current angle + movement state, derived from the vector sum of held WASD/arrow keys or right-click destination.
+   * No keys held and no right-click destination -> moving=false, keeping the last facing angle when moving. */
   private get movementInput(): { angle: number; moving: boolean } {
     if (this.heldMoveKeys.size > 0) {
       let dx = 0;
@@ -259,9 +259,9 @@ export class InputController {
     return Math.min(1, (performance.now() - this.chargeStartAt) / CAST_MAX_CHARGE_MS);
   }
 
-  /** Called once per animation frame; throttles + dedupes `move` sends, nhưng luôn gửi ngay khi
-   * trạng thái "đang giữ phím di chuyển" vừa đổi (không chờ throttle) — bắt đầu/dừng đi bộ cần phản
-   * hồi tức thời, không như thay đổi góc nhỏ giữa chừng lúc đang đi (dedupe được). */
+  /** Called once per animation frame; throttles + dedupes `move` sends, but always sends immediately when
+   * the "holding movement key" state has just changed (no throttling delay) — starting/stopping walking needs instant
+   * feedback, unlike small angle changes midway while walking (which can be deduped). */
   tick(nowMs: number) {
     this.purgeStaleKeys(nowMs);
 

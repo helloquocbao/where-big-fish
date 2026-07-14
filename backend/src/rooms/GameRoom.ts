@@ -56,14 +56,14 @@ export class GameRoom extends Room<RoomState> {
       if (now - player.lastActionMessageAt < MIN_ACTION_MESSAGE_INTERVAL_MS) return;
       player.lastActionMessageAt = now;
       const result = tryCast(player, message.angle, message.power, now);
-      // Gửi RIÊNG cho client này (không broadcast) — chỉ người vừa thả cần hụt cần biết vì sao.
+      // Send SPECIFICALLY to this client (do not broadcast) — only the player who failed the cast needs to know why.
       if (result === "too_far") {
         client.send("cast_rejected", { type: "cast_rejected", reason: "too_far_from_lake" });
       }
     });
 
-    // Client tự chạy minigame kéo cá rồi báo kết quả về (client-authoritative, giảm tải server —
-    // Vicent 2026-07-14). Server clamp + roll + cộng điểm trong resolveReel; gửi riêng cho client này.
+    // Client runs the fishing reel minigame themselves and reports the result back (client-authoritative, reduces server load —
+    // Vicent 2026-07-14). Server clamps + rolls + awards points in resolveReel; sends specifically to this client.
     this.onMessage("reel_result", (client, message: ClientMessage & { type: "reel_result" }) => {
       const player = this.state.players.get(client.sessionId);
       if (!player) return;
@@ -129,12 +129,12 @@ export class GameRoom extends Room<RoomState> {
     }
   }
 
-  /** Gửi 1 event tới ĐÚNG client của người chơi liên quan (không broadcast cả room). fish_bite và
-   * catch_result chỉ có ý nghĩa với chính người chơi đó — client bỏ qua event của người khác (xem
-   * frontend/src/main.ts) — nên broadcast toàn room là lãng phí băng thông O(số client) mỗi event.
-   * NPC (playerId dạng "npc_...") không có client tương ứng → tự động là no-op. clients array nhỏ
-   * (<= ROOM_MAX_PLAYERS) nên find tuyến tính ở đây không đáng kể (chỉ chạy khi có bite/catch, không
-   * phải mỗi tick/mỗi người). */
+  /** Sends an event specifically to the client of the relevant player (do not broadcast to the entire room). fish_bite and
+   * catch_result are only relevant to that specific player — other clients ignore events of other players (see
+   * frontend/src/main.ts) — so broadcasting to the entire room wastes bandwidth O(number of clients) per event.
+   * NPCs (playerId format "npc_...") have no corresponding client -> automatically a no-op. The clients array is small
+   * (<= ROOM_MAX_PLAYERS) so linear find here is negligible (only runs when there is a bite/catch, not
+   * every tick/every player). */
   private notifyPlayer(playerId: string, event: ServerEvent): void {
     const client = this.clients.find((c) => c.sessionId === playerId);
     client?.send(event.type, event);

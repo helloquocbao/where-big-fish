@@ -16,32 +16,31 @@ import type { ServerEvent } from "@bomio/shared";
 import type { PlayerSchema } from "../schema/State.js";
 import { clamp, randRange } from "./utils.js";
 
-/** Thời gian gia hạn (ms) sau reelDurationMs mà server chờ client báo kết quả kéo cá; quá hạn này
- * (client mất mạng/đóng tab) thì tự đưa về idle để không kẹt trạng thái reeling. */
+/** Grace period (ms) after reelDurationMs that the server waits for the client to report the fishing result;
+ * if this time is exceeded (client disconnects/closes tab), automatically reset to idle to avoid getting stuck in the reeling state. */
 const REEL_RESULT_GRACE_MS = 5000;
 
 export interface FishingContext {
   players: MapSchema<PlayerSchema>;
   now: number;
   deltaSeconds: number;
-  /** Gửi 1 event TỚI ĐÚNG người chơi liên quan (không broadcast cả room). fish_bite/catch_result
-   * chỉ có ý nghĩa với chính người chơi đó (client bỏ qua event của người khác — xem
-   * frontend/src/main.ts), nên fanout ra cả room là lãng phí băng thông theo O(số client). NPC
-   * không có client → notify là no-op (xem GameRoom.notifyPlayer). */
+  /** Send an event DIRECTLY to the relevant player (do not broadcast to the entire room). fish_bite/catch_result
+   * only makes sense for that specific player (the client ignores other players' events — see
+   * frontend/src/main.ts), so fanning out to the whole room is a waste of bandwidth at O(number of clients).
+   * NPCs do not have a client -> notify is a no-op (see GameRoom.notifyPlayer). */
   notify: (playerId: string, event: ServerEvent) => void;
 }
 
 export type CastResult = "ok" | "not_idle" | "too_far";
 
-/** Thả cần — chỉ có hiệu lực khi đang rảnh tay (fishState === "idle") VÀ đang đứng trong phạm vi
- * LAKE_CAST_RANGE của 1 hồ (xem shared/src/lakes.ts) — đứng giữa đồng trống xa hồ thì bị từ chối
- * hoàn toàn (không đổi state gì cả). Trả về CastResult để caller (GameRoom.ts) biết đường mà phản
- * hồi riêng cho người chơi khi bị từ chối vì quá xa hồ (xem ServerEvent "cast_rejected") — không
- * cần phản hồi gì khi "not_idle" (chỉ là 2 message chồng lấn vô hại, xem tryCast trong input.ts).
- * Cá được roll theo đúng tập cá riêng của hồ đó (pickRandomFishSpeciesForLake, khác hồ khác cá) và
- * lên lịch thời điểm cắn câu — người chơi/quan sát viên chưa biết loài gì cho tới khi móc câu thành
- * công (activeFishSpeciesId chỉ được set lúc đó), giữ đúng cảm giác hồi hộp "không biết mình vừa
- * câu được con gì". */
+/** Cast line — only valid when idle (fishState === "idle") AND standing within the LAKE_CAST_RANGE
+ * of a lake (see shared/src/lakes.ts) — standing in the middle of an open field far from the lake is rejected
+ * completely (no state change). Returns CastResult so the caller (GameRoom.ts) knows how to respond
+ * individually to the player when rejected for being too far from the lake (see ServerEvent "cast_rejected") — no
+ * response is needed for "not_idle" (just 2 harmless overlapping messages, see tryCast in input.ts).
+ * Fish is rolled according to the specific fish pool of that lake (pickRandomFishSpeciesForLake, different lakes have different fish)
+ * and schedules the bite time — the player/observer does not know the species until hooked
+ * successfully (activeFishSpeciesId is only set at that point), keeping the suspense of "not knowing what you just caught". */
 export function tryCast(player: PlayerSchema, angle: number, power: number, now: number): CastResult {
   if (player.fishState !== "idle") return "not_idle";
 
@@ -72,10 +71,10 @@ export function tryCast(player: PlayerSchema, angle: number, power: number, now:
     }
   }
 
-  // Fallback: nếu cả tia player→target không hề chạm nước (người chơi ngắm ra xa/lệch khỏi hồ) thì
-  // ĐẢM BẢO phao vẫn rơi TRONG nước (bug cũ: bám đỉnh polygon nằm ngay mép → phao "ra khỏi hồ",
-  // Vicent 2026-07-14). Cách làm: quét từ target về CENTROID (trung bình các đỉnh) — điểm này nằm
-  // trong hồ với cả hồ blob lẫn con sông uốn — lấy điểm-trong-nước đầu tiên gần phía đã ngắm nhất.
+  // Fallback: if the entire ray from player to target does not touch water (player aimed too far/off the lake) then
+  // ENSURE the bobber still falls INSIDE the water (old bug: snapping to polygon vertices right on the edge -> bobber "out of the lake",
+  // Vicent 2026-07-14). Method: scan from target to CENTROID (average of all vertices) — this point lies
+  // inside the lake for both blob lakes and winding rivers — take the first in-water point closest to the aimed direction.
   if (!found) {
     let cxSum = 0;
     let cySum = 0;
@@ -97,7 +96,7 @@ export function tryCast(player: PlayerSchema, angle: number, power: number, now:
       }
     }
     if (!found) {
-      // Cực hiếm (centroid rơi ngoài hồ lõm bất thường) — dùng thẳng centroid.
+      // Extremely rare (centroid falls outside an unusually concave lake) — use the centroid directly.
       bobberX = centroidX;
       bobberY = centroidY;
     }
@@ -131,9 +130,9 @@ function resetToIdle(player: PlayerSchema): void {
   player.reelTimeInZoneMs = 0;
 }
 
-/** Per-tick: khi tới giờ cá cắn (`biteAt`), TỰ ĐỘNG móc câu và vào thẳng minigame kéo cá — không
- * còn state "biting" + khung bấm-kịp-0.9s như trước (quyết định của Vicent: cá cắn là vào solo với
- * cá luôn, xem docs/progress.md). Call once per server tick over every player, both real and NPC
+/** Per-tick: when it's time for the fish to bite (`biteAt`), AUTOMATICALLY hook and enter the reel minigame directly — no
+ * more "biting" state + 0.9s reaction window as before (Vicent's decision: when fish bites, enter solo fight with the
+ * fish immediately, see docs/progress.md). Call once per server tick over every player, both real and NPC
  * (NPCs get pushed through the exact same state machine — see npcFishers.ts). */
 export function updateBiteScheduling(ctx: FishingContext): void {
   for (const [, player] of ctx.players) {
@@ -143,14 +142,14 @@ export function updateBiteScheduling(ctx: FishingContext): void {
       const species = getFishSpecies(player.activeFishSpeciesId);
       if (species) {
         player.activeFishWeight = Math.round(randRange(species.minWeight, species.maxWeight) * 100) / 100;
-        // Cá càng nặng, phiên kéo càng dài (yêu cầu Vicent 2026-07-14).
+        // The heavier the fish, the longer the reel duration (Vicent's request 2026-07-14).
         player.reelDurationMs = computeReelDurationMs(player.activeFishWeight, species.minWeight, species.maxWeight);
       } else {
         player.activeFishWeight = 0;
         player.reelDurationMs = REEL_DURATION_MS;
       }
       player.pendingSpeciesId = "";
-      // Bắt đầu 1 thanh mới: cá + vùng bắt đều xuất phát ở giữa thanh, phiên tính giờ từ đây.
+      // Start a new bar: both fish + catch zone start in the middle of the bar, session timer starts here.
       player.reelProgress = 0;
       player.reelFishY = 50;
       player.reelZoneY = 50;
@@ -164,34 +163,34 @@ export function updateBiteScheduling(ctx: FishingContext): void {
   }
 }
 
-/** Per-tick: advance the "1 thanh" reel minigame cho mọi người đang reeling (redesign theo yêu cầu
- * trực tiếp của Vicent, kèm 2 ảnh phác thảo tay — xem shared/src/constants.ts đầu mục Reel).
+/** Per-tick: advance the "1 bar" reel minigame for everyone who is reeling (redesign requested
+ * directly by Vicent, with 2 hand-drawn sketches — see shared/src/constants.ts under the Reel section).
  *
- * Cơ chế: "cá" (reelFishY) tự bơi lang thang thất thường kiểu Stardew Valley, chọn 1 điểm ngẫu
- * nhiên mới trên thanh mỗi REEL_FISH_RETARGET_MIN/MAX_MS rồi bơi thẳng tới đó với tốc độ
- * computeReelFishSpeed(reelDifficulty). "Vùng bắt" (reelZoneY, bề rộng computeReelZoneSize) do
- * người chơi điều khiển — giữ chuột (`reelPulling`) thì tăng tốc đẩy lên (REEL_ZONE_RISE_ACCEL),
- * thả ra thì rơi xuống theo trọng lực (REEL_ZONE_GRAVITY), vận tốc luôn bị chặn trần
- * REEL_ZONE_MAX_SPEED. Mỗi tick, nếu cá đang nằm trong vùng bắt thì cộng dồn vào
- * `reelTimeInZoneMs`. Không còn bất kỳ điều kiện thất bại/thành công TỨC THỜI nào (không còn đứt
- * dây/chùng dây) — người chơi luôn chơi đủ REEL_DURATION_MS, rồi ROLL XÁC SUẤT DUY NHẤT 1 LẦN dựa
- * trên % thời gian cá nằm trong vùng bắt suốt phiên đó để quyết định bắt được cá hay vuột mất. */
+ * Mechanics: "fish" (reelFishY) swims around erratically Stardew Valley style, picking a random
+ * new target point on the bar every REEL_FISH_RETARGET_MIN/MAX_MS then swims directly towards it with
+ * computeReelFishSpeed(reelDifficulty). "Catch zone" (reelZoneY, width computeReelZoneSize) is
+ * controlled by the player — holding down click (`reelPulling`) accelerates it upwards (REEL_ZONE_RISE_ACCEL),
+ * releasing makes it fall down due to gravity (REEL_ZONE_GRAVITY), speed is always capped at
+ * REEL_ZONE_MAX_SPEED. Each tick, if the fish is inside the catch zone, accumulate into
+ * `reelTimeInZoneMs`. There are no longer any INSTANT failure/success conditions (no line snap/slacks)
+ * — the player always plays for the full REEL_DURATION_MS, then ROLLS A SINGLE PROBABILITY
+ * based on the % of time the fish spent inside the catch zone during that session to decide if caught or lost. */
 export function updateReeling(ctx: FishingContext): void {
   for (const [, player] of ctx.players) {
     if (player.fishState !== "reeling") continue;
 
-    // NPC KHÔNG chạy minigame kéo cá thật: không client nào render reel-internals của NPC
-    // (reelFishY/reelZoneY/reelProgress chỉ dùng cho modal của CHÍNH người chơi local, xem
-    // frontend/src/main.ts), và NPC đã bị loại khỏi leaderboard (thuần cosmetic). Nếu để NPC chạy
-    // sim thì mỗi tick lại mutate 3 field synced × ~27 NPC/room → Colyseus broadcast delta cho mọi
-    // client mỗi 50ms, lãng phí băng thông cực lớn dưới tải cao. Thay vào đó NPC chỉ "giả vờ" kéo
-    // đủ REEL_DURATION_MS (nhìn từ ngoài vẫn thấy phao giật + trạng thái reeling) rồi quay về idle
-    // để cast tiếp — không đụng field synced nào trong suốt phiên, không phát event.
+    // NPCs DO NOT run the actual reel minigame: no client renders the reel-internals of NPCs
+    // (reelFishY/reelZoneY/reelProgress are only used for the modal of the local player, see
+    // frontend/src/main.ts), and NPCs have been excluded from the leaderboard (purely cosmetic). If NPCs ran
+    // the simulation, they would mutate 3 synced fields × ~27 NPCs/room every tick -> Colyseus broadcasts deltas to all
+    // clients every 50ms, wasting massive bandwidth under high load. Instead, NPCs just "pretend" to reel
+    // for the full REEL_DURATION_MS (from the outside you still see the bobber bobbing + reeling state) and then return to idle
+    // to cast again — touching zero synced fields during the session, and sending no events.
     if (player.isNpc) {
       if (ctx.now - player.reelStartedAtMs >= REEL_DURATION_MS) {
-        // NPC "câu" xong 1 phiên giả: roll xác suất đơn giản để thỉnh thoảng bắt được cá và tích
-        // điểm dần → lên leaderboard chung với người thật cho hồ sống động (Vicent 2026-07-14).
-        // KHÔNG mô phỏng minigame thật (xem lý do băng thông ở comment dưới), chỉ cộng điểm 1 lần.
+        // NPC finished a fake reel session: roll a simple probability to catch a fish occasionally and accumulate
+        // score gradually -> climb the leaderboard along with real players to make the lake feel alive (Vicent 2026-07-14).
+        // DO NOT simulate the real minigame (see bandwidth reasons in the comment above), just add score once.
         const npcSpecies = getFishSpecies(player.activeFishSpeciesId);
         if (npcSpecies && Math.random() < NPC_CATCH_CHANCE) {
           const w = Math.round(randRange(npcSpecies.minWeight, npcSpecies.maxWeight) * 100) / 100;
@@ -203,12 +202,12 @@ export function updateReeling(ctx: FishingContext): void {
       continue;
     }
 
-    // NGƯỜI CHƠI THẬT: minigame kéo cá giờ chạy HOÀN TOÀN trên client (client-authoritative để giảm
-    // tải server — Vicent 2026-07-14). Server KHÔNG mô phỏng vùng bắt/cá mỗi tick và KHÔNG bắn
-    // reel_state 20Hz nữa; client tự mô phỏng bằng cùng hằng số trong @bomio/shared rồi báo kết quả
-    // về qua message "reel_result" (xem GameRoom#onMessage + resolveReel). Ở đây chỉ còn 1 lưới an
-    // toàn: nếu client không báo kết quả (mất mạng, đóng tab...) sau khi đã quá hạn kha khá thì tự
-    // đưa về idle để không kẹt trạng thái reeling mãi.
+    // REAL PLAYERS: the reel minigame now runs ENTIRELY on the client (client-authoritative to reduce
+    // server load — Vicent 2026-07-14). The server DOES NOT simulate the catch zone/fish each tick and DOES NOT send
+    // reel_state at 20Hz anymore; the client simulates it locally using the same constants from @bomio/shared then reports the result
+    // back via the "reel_result" message (see GameRoom#onMessage + resolveReel). Here we only keep a safety net:
+    // if the client doesn't report the result (disconnected, tab closed...) after a significant grace period, automatically
+    // reset to idle so they don't get stuck in the reeling state forever.
     if (getFishSpecies(player.activeFishSpeciesId) == null ||
         ctx.now - player.reelStartedAtMs > player.reelDurationMs + REEL_RESULT_GRACE_MS) {
       resetToIdle(player);
@@ -216,9 +215,9 @@ export function updateReeling(ctx: FishingContext): void {
   }
 }
 
-/** Chốt kết quả 1 phiên kéo cá do client báo về (message "reel_result"). Server là bên quyết định
- * cuối: clamp `timeInZoneMs` trong [0, reelDurationMs] (chặn client khai khống), roll xác suất =
- * timeInZone/duration, rồi cộng điểm theo loài + cân nặng. Trả về event catch_result cho client. */
+/** Finalize the result of a reel session reported by the client (message "reel_result"). Server makes the final decision:
+ * clamp `timeInZoneMs` to [0, reelDurationMs] (prevent client spoofing), roll probability =
+ * timeInZone/duration, then add score based on species + weight. Returns catch_result event to client. */
 export function resolveReel(
   player: PlayerSchema,
   timeInZoneMs: number,
@@ -235,7 +234,7 @@ export function resolveReel(
   const success = Math.random() < catchChance;
   if (success) {
     const isFirstCatch = !player.collection.includes(species.id);
-    // Chốt cân nặng TRƯỚC resetToIdle (nó set activeFishWeight = 0) — nếu không weight về 0 (bug cũ).
+    // Finalize weight BEFORE resetToIdle (which sets activeFishWeight = 0) — otherwise weight becomes 0 (old bug).
     const caughtWeight = player.activeFishWeight;
     const catchScore = computeCatchScore(species.value, caughtWeight, species.minWeight, species.maxWeight);
     player.caughtCount += 1;

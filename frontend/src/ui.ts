@@ -24,9 +24,9 @@ import type { FishRarity } from "@bomio/shared";
 import { audioManager } from "./audio.ts";
 import { initAdSense, loadAdBanner } from "./ads.ts";
 
-// Icon loa vẽ bằng SVG thay vì emoji 🔊/🔇 hệ thống — emoji loa render méo/vỡ hình ở size nhỏ trên
-// nhiều máy (đặc biệt Windows, tuỳ font emoji cài sẵn), trong khi SVG dùng `currentColor` nên luôn
-// nét và tự khớp màu chữ của nút (var(--c-ink) trong .wood-button) ở mọi máy.
+// Speaker icon drawn using SVG instead of system emojis 🔊/🔇 — emoji speakers render distorted/broken at small sizes on
+// many machines (especially Windows, depending on the pre-installed emoji font), while SVG uses `currentColor` so it is always
+// sharp and automatically matches the button text color (var(--c-ink) in .wood-button) on all machines.
 const SPEAKER_ON_SVG = `<svg viewBox="0 0 24 24" width="60%" height="60%" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M4 9v6h3.6l5.4 4V5l-5.4 4H4z" fill="currentColor"/>
   <path d="M16 8.5a5 5 0 0 1 0 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -369,8 +369,8 @@ export class UI {
     this.caughtValue.textContent = String(Math.round(totalValue));
   }
 
-  /** Tên hồ lần gần nhất người chơi thả cần thành công (PlayerState.currentLakeId) — "" nếu chưa
-   * từng câu ở hồ nào phiên này. */
+  /** Name of the lake where the player last successfully cast their line (PlayerState.currentLakeId) — "" if they haven't
+   * fished in any lake this session yet. */
   updateCurrentLake(lakeId: string) {
     this.currentLakeValue.textContent = lakeId ? (getLakeById(lakeId)?.name ?? "—") : "—";
   }
@@ -410,20 +410,20 @@ export class UI {
     this.castMeterFill.style.width = `${Math.round(fraction * 100)}%`;
   }
 
-  /** Modal to, chiếm giữa màn hình cho minigame kéo cá — TỰ ĐỘNG mở ngay khi cá cắn câu (giờ cá
-   * cắn = vào thẳng reeling, không còn bước móc câu) và đóng lại tự nhiên khi có kết quả
-   * (fishState quay về "idle"). Khác hẳn `showCatchModal`/collection modal: đây KHÔNG phải dialog
-   * chờ người dùng đóng — GIỮ/THẢ chuột NGAY TRONG modal (xem `fishingModalInteractiveEl` +
-   * `InputController.bindAdditionalTarget` ở main.ts) chính là cách kéo cần, nên modal luôn có
-   * `pointer-events: auto` để bắt được thao tác đó.
+  /** Large modal, occupying the center of the screen for the reeling minigame — AUTOMATICALLY opens as soon as a fish bites (now fish
+   * biting = directly goes into reeling, no more hooking step) and closes naturally when there is a result
+   * (fishState goes back to "idle"). Very different from `showCatchModal`/collection modal: this is NOT a dialog
+   * waiting for the user to close — HOLDING/RELEASING the mouse DIRECTLY INSIDE the modal (see `fishingModalInteractiveEl` +
+   * `InputController.bindAdditionalTarget` in main.ts) is the way to reel, so the modal always has
+   * `pointer-events: auto` to capture that interaction.
    *
-   * Redesign "1 thanh": nội dung chỉ còn 1 thanh dọc duy nhất (`drawModalReelScene`) vẽ vị trí cá
-   * (`reelFishY`) + vùng bắt do người chơi điều khiển (`reelZoneY`), bề rộng vùng bắt tính lại tại
-   * chỗ từ `computeReelZoneSize(species.reelDifficulty)` (không cần đồng bộ riêng, chỉ cần biết
-   * đang kéo loài nào qua `speciesId`) — cùng công thức hệt backend, xem
-   * shared/src/constants.ts. `reelProgress` giờ là % thời gian cá đang nằm trong vùng bắt tính
-   * tới hiện tại, hiển thị luôn dưới dạng "Chance to catch" vì đó cũng chính là % sẽ dùng để roll
-   * xác suất lúc hết giờ (xem backend/src/systems/fishing.ts#updateReeling). */
+   * "1 bar" Redesign: the content is now only a single vertical bar (`drawModalReelScene`) drawing the fish position
+   * (`reelFishY`) + the catch zone controlled by the player (`reelZoneY`). The catch zone width is recalculated on the fly
+   * using `computeReelZoneSize(species.reelDifficulty)` (no separate synchronization needed, just need to know
+   * which species is being reeled via `speciesId`) — using the exact same formula as the backend, see
+   * shared/src/constants.ts. `reelProgress` is now the percentage of time the fish has stayed inside the catch zone
+   * up to the current moment, displayed as "Chance to catch" since it is also the percentage used to roll the probability
+   * when time runs out (see backend/src/systems/fishing.ts#updateReeling). */
   updateFishingModal(
     active: boolean,
     data: { reelProgress?: number; reelFishY?: number; reelZoneY?: number; speciesId?: string; activeFishWeight?: number; nowMs?: number } = {},
@@ -438,9 +438,9 @@ export class UI {
       ? computeActualDifficulty(species.reelDifficulty, data.activeFishWeight, species.minWeight, species.maxWeight)
       : (species ? species.reelDifficulty : 0.5);
     const zoneSize = species ? computeReelZoneSize(actualDifficulty) : 40;
-    // Trong lúc kéo KHÔNG lộ loài cá (Vicent 2026-07-14): vẽ 1 bóng cá tối vô danh (speciesId="" →
-    // hình generic, màu bóng), chỉ khi câu xong (catch modal) mới lộ đúng loài + màu. zoneSize vẫn
-    // tính theo loài thật để độ khó đúng, nhưng hình không tiết lộ đó là con gì.
+    // While reeling, do NOT reveal the fish species (Vicent 2026-07-14): draw a dark anonymous fish silhouette (speciesId="" →
+    // generic shape, silhouette color). Only when caught (catch modal) will the true species + color be revealed. zoneSize is
+    // still calculated using the real species so the difficulty is correct, but the shape doesn't reveal what it is.
     drawModalReelScene(
       this.fishingModalCanvasCtx,
       this.fishingModalCanvas.width,
@@ -448,25 +448,25 @@ export class UI {
       data.reelFishY ?? 50,
       data.reelZoneY ?? 50,
       zoneSize,
-      "#33404a", // màu bóng tối — cá bí ẩn
+      "#33404a", // dark shadow color — mysterious fish
       data.nowMs ?? 0,
       progressPct,
-      "", // ẩn loài: dùng hình silhouette generic
+      "", // hide species: use generic silhouette image
     );
   }
 
-  /** Vùng DOM bắt thao tác chuột trong lúc modal câu cá đang mở — main.ts gọi
-   * `InputController.bindAdditionalTarget` với phần tử này để mousedown/mouseup ngay trong modal
-   * cũng kích hoạt móc câu/kéo cần y hệt như bấm trên canvas. */
+  /** DOM region capturing mouse interactions while the fishing modal is open — main.ts calls
+   * `InputController.bindAdditionalTarget` with this element so that mousedown/mouseup inside the modal
+   * also triggers hook/reel exactly like clicking on the canvas. */
   get fishingModalInteractiveEl(): HTMLDivElement {
     return this.fishingModal;
   }
 
-  /** Modal ăn mừng khi LOCAL player tự mình câu được cá — hiện icon cá vẽ bằng canvas (màu theo
-   * loài), tên/độ hiếm/giá trị, tự đóng sau vài giây hoặc bấm × / bấm ra ngoài để đóng sớm.
-   * "Độ hoành tráng" (glow, tia sáng, pháo hoa hạt, rung màn hình) tăng dần theo độ hiếm — cố tình
-   * KHÔNG bung hết hiệu ứng ở mọi lần câu, để cảm giác "wow" thật sự dành riêng cho cá hiếm/huyền
-   * thoại thay vì bị pha loãng và gây mỏi mắt ở mọi lần câu cá thường. Xem `.rarity-*` trong
+  /** Celebration modal when the LOCAL player catches a fish — shows a fish icon drawn on canvas (color by
+   * species), name/rarity/value, and closes upon clicking × / clicking outside to close early.
+   * "Grandeur level" (glow, light rays, particle burst, screen shake) increases based on rarity — intentionally
+   * NOT triggering all effects for every catch, so the real "wow" feeling is reserved for rare/legendary
+   * fish instead of being diluted and causing eye strain on common catches. See `.rarity-*` in
    * style.css. */
   showCatchModal(speciesId: string, rarity: FishRarity | undefined, value: number, weight: number, isFirstCatch: boolean) {
     const species = getFishSpecies(speciesId);
@@ -496,15 +496,15 @@ export class UI {
 
     this.animateCatchValue(value);
 
-    // Không tự tắt nữa — modal đứng yên cho tới khi người chơi TỰ đóng (nút × hoặc bấm ra vùng nền,
-    // xem listener trong constructor). Vẫn clear timeout cũ phòng trường hợp còn sót từ bản trước.
+    // No longer auto-closes — modal stays until the player manually closes it (× button or clicking the background,
+    // see listener in constructor). Still clears the old timeout in case one remains from a previous version.
     window.clearTimeout(this.catchModalTimeout);
     this.catchModal.classList.remove("hidden");
   }
 
-  /** Đếm số điểm chạy từ 0 lên giá trị thật (ease-out, ~550ms) thay vì hiện thẳng con số cuối —
-   * thêm chút "juice" kiểu máy xèng cho khoảnh khắc ăn điểm. Huỷ lượt đếm dở nếu bắt được cá mới
-   * ngay trong lúc đang đếm (câu liên tiếp nhanh). */
+  /** Counts the score running from 0 to the actual value (ease-out, ~550ms) instead of directly displaying the final number —
+   * adding some slot machine "juice" to the scoring moment. Cancels ongoing counting if a new fish is caught
+   * while still counting (fast consecutive catches). */
   private animateCatchValue(target: number) {
     if (this.catchValueAnimFrame != null) cancelAnimationFrame(this.catchValueAnimFrame);
     const roundedTarget = Math.round(target);
@@ -524,8 +524,8 @@ export class UI {
     this.catchValueAnimFrame = requestAnimationFrame(tick);
   }
 
-  /** Bottom-right minimap: mỗi hồ vẽ theo đúng vị trí/hình dạng thật (thu nhỏ), mỗi người chơi 1
-   * chấm scale từ world space, local player highlight riêng. */
+  /** Bottom-right minimap: each lake is drawn with its actual shape/position (scaled down), each player has a
+   * dot scaled from world space, local player highlighted separately. */
   updateMinimap(players: PlayerState[], localPlayerId: string | null) {
     const ctx = this.minimapCtx;
     const size = this.minimapCanvas.width;

@@ -27,15 +27,15 @@ export class PlayerSchema extends Schema {
   @type("number") totalValue: number = 0;
   @type(["string"]) collection = new ArraySchema<string>();
 
-  /** id của hồ (LAKE_DEFINITIONS) vừa thả cần thành công lần gần nhất — "" nếu chưa từng câu ở hồ
-   * nào phiên này. Xem shared/src/types.ts#PlayerState. */
+  /** id of the lake (LAKE_DEFINITIONS) where the player successfully cast their line most recently — "" if they haven't fished in any
+   * lake yet this session. See shared/src/types.ts#PlayerState. */
   @type("string") currentLakeId: string = "";
 
   // ---- Server-internal bookkeeping, NOT part of the shared PlayerState wire shape ----
   /** Desired movement angle from the last "move" input — not synced (frontend doesn't need it,
    * only the resulting x/y/angle). */
   desiredAngle: number = 0;
-  /** Đang giữ phím di chuyển hay không (từ message "move") — không synced, xem movement.ts. */
+  /** Whether the player is currently holding a movement key (from "move" message) — not synced, see movement.ts. */
   desiredMoving: boolean = false;
   lastMoveMessageAt: number = 0;
   lastActionMessageAt: number = 0;
@@ -50,28 +50,28 @@ export class PlayerSchema extends Schema {
   /** Epoch ms for an NPC's next scripted action (cast / attempt hook) — unused for real players. */
   npcNextActionAt: number = 0;
 
-  // ---- Reel minigame "1 thanh" bookkeeping thuần server (không cần đồng bộ, xem
+  // ---- Server-only bookkeeping for the "1-bar" reel minigame (no synchronization needed, see
   // shared/src/types.ts#PlayerState + backend/src/systems/fishing.ts#updateReeling) ----
-  /** 0..100 — % thời gian cá nằm trong vùng bắt tính tới hiện tại của phiên đang kéo (dùng để roll
-   * xác suất lúc hết giờ). KHÔNG synced qua schema — gửi riêng cho chủ nhân qua event "reel_state". */
+  /** 0..100 — % of time the fish is inside the capture zone up to the current moment of the reeling session (used to roll
+   * probability when time is up). NOT synced via schema — sent specifically to the owner via "reel_state" event. */
   reelProgress: number = 0;
-  /** 0..100 — vị trí "cá" trên thanh (cá tự bơi thất thường). KHÔNG synced — xem reelProgress. */
+  /** 0..100 — position of the "fish" on the bar (the fish swims erratically on its own). NOT synced — see reelProgress. */
   reelFishY: number = 50;
-  /** 0..100 — tâm "vùng bắt" do người chơi điều khiển. KHÔNG synced — xem reelProgress. */
+  /** 0..100 — center of the "capture zone" controlled by the player. NOT synced — see reelProgress. */
   reelZoneY: number = 50;
-  /** Vận tốc hiện tại (units/s) của vùng bắt (reelZoneY) — tăng khi giữ chuột, giảm (rơi) khi thả. */
+  /** Current velocity (units/s) of the capture zone (reelZoneY) — increases when holding click, decreases (falls) when released. */
   reelZoneVelocity: number = 0;
-  /** Điểm ngẫu nhiên (0..100) mà "cá" (reelFishY) đang bơi hướng tới. */
+  /** Random point (0..100) that the "fish" (reelFishY) is currently swimming towards. */
   reelFishTargetY: number = 50;
-  /** Epoch ms lúc cá chọn điểm đích ngẫu nhiên KẾ TIẾP. */
+  /** Epoch ms when the fish chooses the NEXT random target destination. */
   reelFishNextRetargetAt: number = 0;
-  /** Epoch ms lúc phiên kéo cá hiện tại bắt đầu — dùng để tính elapsed vs reelDurationMs. */
+  /** Epoch ms when the current reeling session started — used to calculate elapsed vs reelDurationMs. */
   reelStartedAtMs: number = 0;
-  /** Thời lượng phiên kéo cá hiện tại (ms) — tính theo cân nặng con cá lúc cắn câu
-   * (computeReelDurationMs): cá nặng kéo lâu hơn. Mặc định = REEL_DURATION_MS phòng khi chưa set. */
+  /** Duration of the current reeling session (ms) — calculated based on the fish's weight when it bit
+   * (computeReelDurationMs): heavier fish take longer to reel. Default = REEL_DURATION_MS in case it's not set. */
   reelDurationMs: number = REEL_DURATION_MS;
-  /** Tổng cộng dồn (ms) thời gian cá nằm trong vùng bắt kể từ reelStartedAtMs — % của số này so với
-   * reelDurationMs chính là xác suất bắt được cá lúc hết giờ. */
+  /** Accumulated total time (ms) that the fish is inside the capture zone since reelStartedAtMs — the % of this compared to
+   * reelDurationMs is the probability of catching the fish when time is up. */
   reelTimeInZoneMs: number = 0;
 }
 

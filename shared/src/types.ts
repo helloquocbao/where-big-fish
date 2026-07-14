@@ -1,51 +1,51 @@
 /**
- * Schema dùng chung cho realtime state/messages giữa client-server.
- * Backend là authoritative source; frontend chỉ đọc state này để render + dự đoán UI.
+ * Shared schema for realtime state/messages between client and server.
+ * Backend is the authoritative source; frontend only reads this state to render + predict UI.
  *
- * PIVOT (2026-07-11): game câu cá nhiều hồ — xem constants.ts đầu file để biết lý do đổi từ
- * game PvP "nhảy đè/bomb" cũ.
+ * PIVOT (2026-07-11): multi-lake fishing game — see constants.ts at the beginning of the file to know the reason for changing from
+ * the old PvP "stomp/bomb" game.
  */
 
 import type { FishRarity } from "./constants.js";
 
-/** Không còn state "biting" — cá cắn câu là TỰ ĐỘNG móc, chuyển thẳng waiting -> reeling (quyết
- * định của Vicent: bỏ bước bấm-kịp-0.9s, đơn giản hoá core loop, xem docs/progress.md).
- * Cũng không có state "casting" riêng — server resolve cast đồng bộ (idle -> waiting trong 1 bước,
- * xem backend/src/systems/fishing.ts#tryCast), nên phao không có giai đoạn "đang bay" ở tầng state. */
+/** No more "biting" state — when a fish bites it is AUTOMATICALLY hooked, transitioning directly from waiting -> reeling (Vicent's
+ * decision: remove the click-in-time-within-0.9s step to simplify the core loop, see docs/progress.md).
+ * Also no separate "casting" state — server resolves cast synchronously (idle -> waiting in 1 step,
+ * see backend/src/systems/fishing.ts#tryCast), so the bobber has no "flying" phase at the state level. */
 export type FishingState = "idle" | "waiting" | "reeling";
 
 export interface PlayerState {
   id: string;
   name: string;
-  skinId: string; // xem SKIN_CATALOG trong constants.ts — thuần cosmetic
-  isNpc: boolean; // xem NPC_FISHER_TARGET_POPULATION — NPC lấp chỗ trống khi hồ ít người thật
+  skinId: string; // see SKIN_CATALOG in constants.ts — purely cosmetic
+  isNpc: boolean; // see NPC_FISHER_TARGET_POPULATION — NPC to fill slots when the lake has few real players
   x: number;
   y: number;
-  angle: number; // hướng đang đứng/nhìn (và hướng quăng cần lúc thả), radian
+  angle: number; // direction currently standing/looking (and direction of casting when releasing), radians
 
-  // ---- Trạng thái câu cá ----
+  // ---- Fishing state ----
   fishState: FishingState;
-  bobberX: number; // vị trí phao trên mặt hồ khi đang waiting/reeling
+  bobberX: number; // bobber position on the lake surface when waiting/reeling
   bobberY: number;
-  activeFishSpeciesId: string; // loài cá đang kéo (chỉ có khi fishState === "reeling"), "" nếu không có
-  activeFishWeight: number; // cân nặng của con cá đang kéo (kg)
-  // ---- Minigame kéo cá "1 thanh" ----
-  // reelProgress / reelFishY / reelZoneY CỐ TÌNH KHÔNG nằm trong state đồng bộ: chúng đổi mỗi tick
-  // (20Hz) và CHỈ có ý nghĩa với modal của CHÍNH người chơi đang kéo — không client nào render
-  // reel-internals của người khác. Trước đây sync qua schema thì Colyseus broadcast delta cho MỌI
-  // client trong room (lãng phí ~O(số người kéo × số client) mỗi 50ms). Giờ server gửi RIÊNG cho chủ
-  // nhân qua ServerEvent "reel_state" mỗi tick (xem backend/src/systems/fishing.ts#updateReeling +
-  // frontend/src/main.ts). Bề rộng vùng bắt frontend tự tính lại từ activeFishSpeciesId nên không
-  // cần đồng bộ.
+  activeFishSpeciesId: string; // the fish species being reeled (only when fishState === "reeling"), "" if none
+  activeFishWeight: number; // weight of the fish being reeled (kg)
+  // ---- "1-bar" reeling minigame ----
+  // reelProgress / reelFishY / reelZoneY INTENTIONALLY DO NOT reside in the synchronized state: they change every tick
+  // (20Hz) and ONLY make sense for the modal of the ACTUAL player reeling — no other client renders the
+  // reel-internals of others. Previously, syncing via schema meant Colyseus broadcasted deltas to EVERY
+  // client in the room (wasting ~O(number of reelers × number of clients) every 50ms). Now the server sends it PRIVATELY to the
+  // owner via ServerEvent "reel_state" every tick (see backend/src/systems/fishing.ts#updateReeling +
+  // frontend/src/main.ts). The catch zone width is recalculated by the frontend from activeFishSpeciesId so it does not
+  // need synchronization.
 
-  // ---- Thành tích ----
+  // ---- Achievements ----
   caughtCount: number;
   totalValue: number;
-  collection: string[]; // danh sách speciesId đã từng bắt được (không lặp) — sổ sưu tập cá nhân
+  collection: string[]; // list of speciesId ever caught (no duplicates) — personal collection book
 
-  /** id của hồ (xem shared/src/lakes.ts#LAKE_DEFINITIONS) vừa thả cần thành công lần gần nhất — ""
-   * nếu chưa từng câu ở hồ nào phiên này. Chỉ cập nhật lúc cast (tryCast), không phải "hồ đang đứng
-   * gần" theo thời gian thực khi đi bộ. */
+  /** id of the lake (see shared/src/lakes.ts#LAKE_DEFINITIONS) where the rod was successfully cast most recently — ""
+   * if the player has not fished in any lake this session. Only updated when casting (tryCast), not the "lake standing
+   * nearby" in real-time when walking. */
   currentLakeId: string;
 }
 
@@ -66,22 +66,22 @@ export interface LeaderboardEntry {
 
 export interface InputMoveMessage {
   type: "move";
-  angle: number; // hướng di chuyển mong muốn, radian (chỉ có ý nghĩa khi moving === true)
-  /** Đang giữ 1 phím di chuyển (WASD/mũi tên) hay không — trước đây nhân vật luôn đi liên tục theo
-   * hướng chuột, giờ tách bạch "đi bộ" (phím, có thể đứng yên) khỏi "nhắm/thả cần" (chuột). */
+  angle: number; // direction of desired movement, radians (only makes sense when moving === true)
+  /** Whether holding a movement key (WASD/arrows) or not — previously the character always walked continuously in
+   * the direction of the mouse, now "walking" (keys, can stand still) is separated from "aiming/casting" (mouse). */
   moving: boolean;
 }
 
-/** Thả cần — chỉ có hiệu lực khi fishState === "idle". `power` 0..1 (thời gian giữ chuột / CAST_MAX_CHARGE_MS). */
+/** Cast rod — only valid when fishState === "idle". `power` 0..1 (mouse hold duration / CAST_MAX_CHARGE_MS). */
 export interface InputCastMessage {
   type: "cast";
   angle: number;
   power: number;
 }
 
-/** Kết quả minigame kéo cá do CLIENT tự mô phỏng rồi báo về — client-authoritative để giảm tải
- * server (Vicent 2026-07-14): server không còn sim vùng bắt/cá mỗi tick, chỉ nhận tổng thời gian cá
- * nằm trong vùng bắt (ms) suốt phiên, clamp theo reelDurationMs rồi roll xác suất bắt được. */
+/** Reeling minigame result simulated by the CLIENT itself and reported back — client-authoritative to reduce server
+ * load (Vicent 2026-07-14): server no longer simulates the catch zone/fish every tick, it only receives the total time the fish
+ * was inside the catch zone (ms) throughout the session, clamps it by reelDurationMs, then rolls the probability to catch it. */
 export interface ReelResultMessage {
   type: "reel_result";
   timeInZoneMs: number;
@@ -89,13 +89,13 @@ export interface ReelResultMessage {
 
 export type ClientMessage = InputMoveMessage | InputCastMessage | ReelResultMessage;
 
-// ---- Server -> Client event messages (ngoài state sync định kỳ) ----
+// ---- Server -> Client event messages (in addition to periodic state sync) ----
 
 export type ServerEvent =
-  // Cá cắn câu (và TỰ ĐỘNG móc, vào thẳng reeling) — client hiện hiệu ứng/mở modal kéo cá.
+  // Fish bites (and AUTOMATICALLY hooked, goes straight to reeling) — client shows effect/opens reeling modal.
   | { type: "fish_bite"; playerId: string }
-  // (Đã bỏ "reel_state": client tự mô phỏng minigame kéo cá & báo kết quả về qua ReelResultMessage,
-  // server không còn bắn trạng thái thanh kéo 20Hz nữa — giảm tải server, Vicent 2026-07-14.)
+  // (Removed "reel_state": client simulates reeling minigame itself & reports result via ReelResultMessage,
+  // server no longer broadcasts reel bar state at 20Hz — reducing server load, Vicent 2026-07-14.)
   | {
       type: "catch_result";
       playerId: string;
@@ -103,11 +103,11 @@ export type ServerEvent =
       speciesId?: string;
       rarity?: FishRarity;
       value?: number;
-      weight?: number; // Cân nặng của con cá câu được (kg)
-      isFirstCatch?: boolean; // true nếu đây là lần đầu bắt được loài này (thêm vào sổ sưu tập)
-      reason?: "fish_escaped"; // hết REEL_DURATION_MS, roll xác suất theo % thời gian trong vùng bắt
-      // không trúng — cá thoát. Không còn "line_snapped" (đứt dây) sau khi bỏ cơ chế tension.
+      weight?: number; // Weight of the caught fish (kg)
+      isFirstCatch?: boolean; // true if this is the first time catching this species (added to collection book)
+      reason?: "fish_escaped"; // REEL_DURATION_MS exceeded, probability roll based on % of time in catch zone
+      // failed — fish escaped. No longer "line_snapped" (line snapped) after removing the tension mechanism.
     }
-  // Gửi RIÊNG cho người vừa thả cần hụt vì đứng ngoài LAKE_CAST_RANGE của mọi hồ (xem
-  // backend/src/systems/fishing.ts#tryCast) — không broadcast cho cả phòng, chỉ người đó cần biết.
+  // Sent PRIVATELY to the player who just failed to cast because they stood outside the LAKE_CAST_RANGE of all lakes (see
+  // backend/src/systems/fishing.ts#tryCast) — not broadcasted to the whole room, only that player needs to know.
   | { type: "cast_rejected"; reason: "too_far_from_lake" };

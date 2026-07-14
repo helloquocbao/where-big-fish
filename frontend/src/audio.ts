@@ -80,8 +80,8 @@ class AudioManager {
       this.masterVolume.gain.setValueAtTime(this.isMuted ? 0 : 0.8, this.ctx.currentTime);
       this.masterVolume.connect(this.ctx.destination);
 
-      // Setup BGM line — âm lượng mặc định đã giảm 2 lần theo yêu cầu Vicent: 0.35 -> 0.175 (-50%)
-      // -> 0.1225 (thêm -30% nữa).
+      // Setup BGM line — default volume was reduced twice per Vicent's request: 0.35 -> 0.175 (-50%)
+      // -> 0.1225 (another -30% off).
       this.bgmVolume = this.ctx.createGain();
       this.bgmVolume.gain.setValueAtTime(0.1225, this.ctx.currentTime);
       this.bgmVolume.connect(this.masterVolume);
@@ -141,16 +141,16 @@ class AudioManager {
 
   // --- Background Music Synthesizer Loop ---
   //
-  // Theme: "goofy circus polka", nhẹ nhàng & chậm lại theo yêu cầu trực tiếp của Vicent sau khi
-  // nghe thử bản đầu (132 BPM, âm lượng đầy — quá gắt/dồn dập). Vẫn giữ cấu trúc oom-pah + kazoo
-  // rung + "boioioing" thỉnh thoảng (đúng tinh thần "bựa bựa hài hài" ban đầu), chỉ hạ tempo và độ
-  // gắt của âm lượng/âm sắc để nghe thư giãn hơn, không còn cảm giác dồn dập như xiếc thật.
+  // Theme: "goofy circus polka", gentler & slowed down per Vicent's direct request after
+  // auditioning the first version (132 BPM, full volume — too harsh/hectic). Still keeps the oom-pah structure + vibrato
+  // kazoo + occasional "boioioing" (in the spirit of the original "goofy and comedic" feel), just lowers the tempo and
+  // intensity of volume/timbre to sound more relaxing, no longer feeling rushed like a real circus.
   private startBgmLoop() {
     if (this.isBgmPlaying || !this.ctx) return;
     this.isBgmPlaying = true;
     this.bgmBeatCount = 0;
 
-    // Chậm lại: 84 BPM (trước là 132) — vẫn có nhịp oom-pah nảy nhẹ nhưng thong thả hơn nhiều.
+    // Slowed down: 84 BPM (previously 132) — still has a slight bouncy oom-pah beat but much more leisurely.
     const beatDuration = 60 / 84;
 
     const playBeat = () => {
@@ -162,21 +162,21 @@ class AudioManager {
       const beatInChord = this.bgmBeatCount % 4;
       const chord = this.goofyChords[chordIndex];
 
-      // Oom-pah: nốt trầm ("oom") ở beat 0, hợp âm sáng dội ("pah") ở 3 beat còn lại.
+      // Oom-pah: bass note ("oom") at beat 0, bright chord stab ("pah") at the remaining 3 beats.
       if (beatInChord === 0) {
         this.playGoofyOom(chord.bass, time, beatDuration * 0.9);
       } else {
         this.playGoofyPah(chord.stab, time, beatDuration * 0.55);
       }
 
-      // Giai điệu nảy phía trên — giảm xác suất một chút cho thưa/nhẹ hơn thay vì rộn ràng liên tục.
+      // Bouncy melody on top — reduce probability a bit to make it sparser/lighter instead of constantly bustling.
       if (Math.random() < 0.5) {
         const freq = this.goofyScale[Math.floor(Math.random() * this.goofyScale.length)];
         this.playGoofyMelodyNote(freq, time);
       }
 
-      // "Boioioing" giờ hiếm hơn (mỗi 4 ô nhịp thay vì 2, xác suất cũng thấp hơn) — vẫn còn chút hài
-      // hước điểm xuyết nhưng không dồn dập.
+      // "Boioioing" is rarer now (every 4 bars instead of 2, lower probability as well) — still has some humor
+      // sprinkled in but not rushed.
       if (this.bgmBeatCount % 32 === 16 && Math.random() < 0.4) {
         this.playGoofyBoing(time);
       }
@@ -186,21 +186,21 @@ class AudioManager {
 
     // Run first beat
     playBeat();
-    // Schedule loop — dùng đúng beatDuration (trước đây hard-code 1000ms dù beatDuration khác 1.0
-    // vẫn chạy đúng vì tình cờ = 1.0; giờ BPM đổi nên phải nhân đúng theo beatDuration thật).
+    // Schedule loop — use correct beatDuration (previously hard-coded 1000ms although beatDuration was not 1.0,
+    // it ran correctly by chance = 1.0; now that BPM changed, it must be multiplied correctly by actual beatDuration).
     this.bgmIntervalId = setInterval(playBeat, beatDuration * 1000);
   }
 
-  /** "OOM" — nốt trầm ngắn, đanh (không phải pad ngân dài) để nhịp nghe nảy tưng tưng kiểu tuba
-   * trong ban nhạc xiếc thay vì êm dịu như trước. */
+  /** "OOM" — short, punchy bass note (not a long-ringing pad) to make the beat sound bouncy like a tuba
+   * in a circus band instead of soft as before. */
   private playGoofyOom(freq: number, startTime: number, duration: number) {
     if (!this.ctx || !this.bgmVolume) return;
 
     const osc = this.ctx.createOscillator();
     const gainNode = this.ctx.createGain();
 
-    // Sawtooth thay vì triangle — vẫn hơi "tuba/kazoo" nhưng lọc lowpass thấp hơn + âm lượng nhẹ
-    // hơn bản đầu để bớt gắt, nghe tròn/ấm hơn.
+    // Sawtooth instead of triangle — still slightly "tuba/kazoo" but with a lower lowpass filter + quieter volume
+    // than the first version to be less harsh, sounding rounder/warmer.
     osc.type = "sawtooth";
     osc.frequency.setValueAtTime(freq, startTime);
 
@@ -221,7 +221,7 @@ class AudioManager {
   }
 
   /** "PAH" — hợp âm sáng, ngắn (nhịp phách nhẹ của oom-pah), mỗi nốt lệch cao độ (detune) nhẹ +
-   * lọc bandpass cộng hưởng cao để nghe "kazoo" hơi mũi/hài hước thay vì hợp âm sạch êm dịu. */
+   * high-resonance bandpass filter to sound like a nasal/funny "kazoo" instead of a clean, soft chord. */
   private playGoofyPah(freqs: number[], startTime: number, duration: number) {
     if (!this.ctx || !this.bgmVolume) return;
 
@@ -254,8 +254,8 @@ class AudioManager {
   }
 
   /** Nốt giai điệu nảy có rung (vibrato ~7Hz qua 1 LFO điều biến detune) — sóng vuông + rung nhanh
-   * là công thức kinh điển cho tiếng "kèn kazoo lắc lư" nghe hài, khác hẳn tiếng sáo sine êm mượt
-   * trước đây. */
+   * is a classic formula for a funny-sounding "wobbly kazoo horn", completely different from the smooth sine flute
+   * from before. */
   private playGoofyMelodyNote(freq: number, startTime: number) {
     if (!this.ctx || !this.bgmVolume || !this.delayNode) return;
 
@@ -268,8 +268,8 @@ class AudioManager {
     const lfo = this.ctx.createOscillator();
     const lfoGain = this.ctx.createGain();
     lfo.type = "sine";
-    lfo.frequency.setValueAtTime(5, startTime); // chậm hơn (trước 7Hz) — rung nhẹ nhàng hơn
-    lfoGain.gain.setValueAtTime(14, startTime); // ± 14 cents (trước 25) — bớt "lắc" gắt
+    lfo.frequency.setValueAtTime(5, startTime); // slower (previously 7Hz) — gentler vibrato
+    lfoGain.gain.setValueAtTime(14, startTime); // ± 14 cents (previously 25) — less harsh wobble
     lfo.connect(lfoGain);
     lfoGain.connect(osc.detune);
 
@@ -287,8 +287,8 @@ class AudioManager {
     osc.stop(startTime + 0.42);
   }
 
-  /** Tiếng "boioioing" kiểu slide-whistle hoạt hình — lượn cao độ lên rồi xuống thật nhanh, chèn
-   * ngẫu nhiên vào loop BGM cho vui, không phải SFX do người chơi kích hoạt. */
+  /** Animated slide-whistle style "boioioing" — pitches up and down very quickly, randomly
+   * inserted into BGM loop for fun, not an SFX triggered by the player. */
   private playGoofyBoing(startTime: number) {
     if (!this.ctx || !this.bgmVolume) return;
 
@@ -297,7 +297,7 @@ class AudioManager {
 
     osc.type = "sine";
     osc.frequency.setValueAtTime(220, startTime);
-    osc.frequency.exponentialRampToValueAtTime(700, startTime + 0.16); // đỉnh thấp hơn (trước 880) — bớt chói
+    osc.frequency.exponentialRampToValueAtTime(700, startTime + 0.16); // lower peak (previously 880) — less bright
     osc.frequency.exponentialRampToValueAtTime(330, startTime + 0.4);
 
     gainNode.gain.setValueAtTime(0.0001, startTime);
@@ -355,16 +355,16 @@ class AudioManager {
   }
 
   /** Splash: Bobber hitting water — "ka-plunk" nghe như CỤC ĐÁ ném xuống nước (yêu cầu Vicent
-   * 2026-07-14): trầm, nặng, pitch CHÌM XUỐNG (ngược với bản giọt nước vút lên). 4 lớp: thân "gloop"
-   * chìm nhanh, sub-thump cực trầm cho trọng lượng vật rơi, 1 tiếng "tóc" contact lúc chạm mặt, và
-   * fizz nước bắn hơi to hơn tí vì đá đội nhiều nước. */
+   * 2026-07-14): low, heavy, pitch SINKING DOWN (opposite of the water droplet shooting up). 4 layers: fast-sinking
+   * "gloop" body, extremely low sub-thump for the falling weight, a contact "pop" sound when hitting the surface, and
+   * slightly louder water splash fizz because stones displace more water. */
   public playSplash() {
     this.init();
     if (!this.ctx || !this.sfxVolume) return;
 
     const time = this.ctx.currentTime;
 
-    // 1. Thân "gloop" — sine chìm nhanh từ 320→55Hz: cái tiếng đá chui vào hốc nước.
+    // 1. "gloop" body — sine sinking quickly from 320→55Hz: the sound of a stone sliding into a water cavity.
     const body = this.ctx.createOscillator();
     const bodyGain = this.ctx.createGain();
     body.type = "sine";
@@ -378,7 +378,7 @@ class AudioManager {
     body.start(time);
     body.stop(time + 0.26);
 
-    // 2. Sub-thump cực trầm (sine 95→42Hz) — sức nặng của vật rơi, để tai "cảm" hơn là "nghe".
+    // 2. Extremely low sub-thump (sine 95→42Hz) — the weight of the falling object, more felt than heard.
     const sub = this.ctx.createOscillator();
     const subGain = this.ctx.createGain();
     sub.type = "sine";
@@ -391,7 +391,7 @@ class AudioManager {
     sub.start(time);
     sub.stop(time + 0.3);
 
-    // 3. Tiếng "tóc" lúc chạm mặt nước — noise ngắn qua lowpass, cho cú va có điểm khởi đầu rõ.
+    // 3. "pop" sound when hitting the surface — short noise through lowpass, giving the impact a clear start.
     const knock = this.ctx.createBufferSource();
     knock.buffer = this.getNoiseBuffer();
     const knockFilter = this.ctx.createBiquadFilter();
@@ -406,7 +406,7 @@ class AudioManager {
     knock.start(time);
     knock.stop(time + 0.06);
 
-    // 4. Fizz nước bắn — noise bandpass ~550Hz, to hơn bản cũ tí (đá đội nhiều nước hơn phao).
+    // 4. Water splash fizz — bandpass noise ~550Hz, slightly louder than the old version (stones displace more water than a bobber).
     const noise = this.ctx.createBufferSource();
     noise.buffer = this.getNoiseBuffer();
     const filter = this.ctx.createBiquadFilter();

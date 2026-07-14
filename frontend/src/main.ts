@@ -46,9 +46,9 @@ const net = new Net({
       ui.hideStatusBanner();
     } else if (status === "error") {
       ui.setConnecting(false);
-      ui.showError(detail ?? "Không thể kết nối tới server.");
+      ui.showError(detail ?? "Unable to connect to the server.");
     } else if (status === "disconnected") {
-      ui.showStatusBanner(detail ?? "Mất kết nối. Đang quay lại màn hình chính...");
+      ui.showStatusBanner(detail ?? "Connection lost. Returning to main screen...");
       setTimeout(() => {
         ui.backToConnectScreen();
         ui.hideStatusBanner();
@@ -57,8 +57,8 @@ const net = new Net({
   },
   onGameEvent: (event) => {
     if (event.type === "catch_result") {
-      // Chỉ quan tâm catch_result của CHÍNH MÌNH — người chơi khác bắt được cá không còn hiện toast
-      // ambient nữa (trước đây có "Ai đó vừa câu được...", bỏ theo yêu cầu, đỡ nhiễu HUD).
+      // Only care about catch_result of MYSELF — other players catching fish no longer show ambient
+      // toast (previously there was "Someone just caught...", removed per request, reduces HUD noise).
       if (event.playerId !== net.sessionId) return;
       if (event.success && event.speciesId) {
         ui.showCatchModal(event.speciesId, event.rarity, event.value ?? 0, event.weight ?? 0, event.isFirstCatch ?? false);
@@ -90,25 +90,25 @@ const input = new InputController(
     return { x: localPlayer ? localPlayer.x : 0, y: localPlayer ? localPlayer.y : 0 };
   },
 );
-// Modal câu cá che phủ canvas lúc đang mở (biting/reeling) — bắt thêm mousedown/mouseup/mouseleave
-// ngay trên modal để móc câu/kéo cần hoạt động dù canvas bên dưới không còn nhận được sự kiện.
+// Fishing modal covers the canvas when open (biting/reeling) — capture additional mousedown/mouseup/mouseleave
+// directly on the modal so hooking/reeling works even if the canvas underneath no longer receives events.
 input.bindAdditionalTarget(ui.fishingModalInteractiveEl);
 
 // Where the local player is actually drawn on screen this frame — mutated in frame() below.
 let localPlayerScreenOrigin = { x: canvas.width / 2, y: canvas.height / 2 };
-// Trạng thái câu cá hiện tại của local player — mutated in frame() below, đọc bởi InputController
-// để quyết định chuột trái đang làm gì (cast/hook/reel).
+// Current fishing state of the local player — mutated in frame() below, read by InputController
+// to decide what left click is doing (cast/hook/reel).
 let latestLocalFishState: FishingState = "idle";
 let lastFishState: FishingState = "idle";
 let lastWalkX = 0;
 let lastWalkY = 0;
 let lastStepTime = 0;
 let lastReelClickTime = 0;
-// Minigame kéo cá giờ chạy HOÀN TOÀN phía client (client-authoritative, giảm tải server — Vicent
-// 2026-07-14): server không sim mỗi tick / không bắn reel_state nữa. Ta tự mô phỏng ở 60fps (mượt +
-// phản hồi tức thì), hết giờ báo timeInZoneMs về server để clamp + roll (xem reelSim.ts + backend
-// fishing.ts#resolveReel). lastReelFrameMs để tính delta thời gian frame; reelResultSent chặn gửi
-// kết quả nhiều lần trong 1 phiên.
+// Reeling minigame now runs ENTIRELY on the client side (client-authoritative, reduces server load — Vicent
+// 2026-07-14): server doesn't simulate every tick / doesn't send reel_state anymore. We simulate it ourselves at 60fps (smooth +
+// instant feedback), when time is up, report timeInZoneMs to the server for clamping + rolling (see reelSim.ts + backend
+// fishing.ts#resolveReel). lastReelFrameMs is used to calculate frame time delta; reelResultSent prevents sending
+// result multiple times in one session.
 const reelSim = new ReelSim();
 let lastReelFrameMs = 0;
 let reelResultSent = false;
@@ -127,9 +127,9 @@ ui.onPlay(async (name, skinId) => {
   }
 });
 
-// Hệ số zoom map: camera nhìn vùng world rộng gấp MAP_ZOOM lần số pixel canvas rồi thu nhỏ cả cảnh
-// lại cho vừa màn hình → thấy nhiều map hơn (Vicent 2026-07-14: "zoom sát quá, nhỏ map lại"). Tăng
-// số này = nhìn xa hơn nữa. Chỉ ảnh hưởng hiển thị, không đụng logic/aim (input dùng atan2).
+// Map zoom factor: camera looks at a world area MAP_ZOOM times larger than canvas pixels then shrinks the whole scene
+// to fit the screen → see more of the map (Vicent 2026-07-14: "zoomed in too close, make map smaller"). Increasing
+// this number = look even further. Only affects rendering, doesn't touch logic/aiming (input uses atan2).
 const MAP_ZOOM = 1.4;
 
 // World is centered on the origin — camera starts at (0,0) before a player connects and
@@ -148,7 +148,7 @@ function clampCameraAxis(center: number, worldSize: number, viewportSize: number
 
 function frame() {
   const nowMs = Date.now();
-  // Virtual viewport = canvas × MAP_ZOOM; scale = tỉ lệ thu nhỏ về pixel thật (render.ts áp 1 lần).
+  // Virtual viewport = canvas × MAP_ZOOM; scale = shrink ratio to real pixels (render.ts applies once).
   camera.width = canvas.width * MAP_ZOOM;
   camera.height = canvas.height * MAP_ZOOM;
   camera.scale = canvas.width / camera.width;
@@ -167,7 +167,7 @@ function frame() {
   camera.x = clampCameraAxis(camera.x, WORLD_WIDTH, camera.width);
   camera.y = clampCameraAxis(camera.y, WORLD_HEIGHT, camera.height);
 
-  // Gốc ngắm phải ở PIXEL THẬT (chuột là pixel thật) — nhân với camera.scale vì cảnh đã bị thu nhỏ.
+  // Aiming origin must be in REAL PIXELS (mouse is real pixels) — multiply by camera.scale because the scene has been shrunk.
   const camScale = camera.scale ?? 1;
   localPlayerScreenOrigin = localPlayer
     ? {
@@ -183,16 +183,16 @@ function frame() {
     
     // 1. Detect fishing state transitions.
     // Server resolves a cast synchronously — idle -> waiting in one step, no separate "casting"
-    // state is ever actually set (xem backend/src/systems/fishing.ts#tryCast) — nên nhánh cũ chờ
-    // fishState === "casting" không bao giờ chạy, và tiếng "tõm" phao rơi xuống nước (playSplash)
-    // theo đó cũng không bao giờ phát. Fix: bắt đúng chuyển trạng thái idle -> waiting, phát tiếng
-    // quăng cần ngay lập tức rồi tiếng phao rơi nước sau 1 khoảng trễ ngắn (giả lập thời gian phao
-    // bay trong không trung) thay vì dựa vào 1 state không có thật.
+    // state is ever actually set (see backend/src/systems/fishing.ts#tryCast) — so the old branch waiting
+    // for fishState === "casting" never runs, and the splash sound of the bobber falling into the water (playSplash)
+    // is never played. Fix: correctly capture the transition idle -> waiting, play casting sound
+    // immediately and splash sound after a short delay (simulating flight time of the bobber
+    // in mid-air) instead of relying on a non-existent state.
     if (currentFishState !== lastFishState) {
       if (currentFishState === "waiting" && lastFishState === "idle") {
         audioManager.playCast();
-        // Phao rơi xuống nước sau ~180ms bay trong không trung: đồng bộ tiếng splash + hiệu ứng
-        // bắn nước tại đúng vị trí phao (vòng sóng lan + giọt nước văng, xem render.ts).
+        // Bobber falls into water after ~180ms flying in mid-air: sync splash sound + water splash effect
+        // at the exact bobber position (expanding waves + water drops, see render.ts).
         const bx = localPlayer.bobberX;
         const by = localPlayer.bobberY;
         window.setTimeout(() => {
@@ -200,13 +200,13 @@ function frame() {
           spawnCastSplash(bx, by, Date.now());
         }, 180);
       }
-      // Bắt đầu phiên kéo mới: khởi động sim client (start lười ở dưới nếu species chưa kịp sync).
+      // Start new reeling session: start client simulation (lazy start below if species is not synced yet).
       if (currentFishState === "reeling") {
         reelResultSent = false;
         lastReelFrameMs = 0;
         reelSim.stop();
       } else if (lastFishState === "reeling") {
-        // Rời reeling (đã có kết quả): dừng sim.
+        // Exit reeling (result received): stop simulation.
         reelSim.stop();
         reelResultSent = false;
       }
@@ -228,7 +228,7 @@ function frame() {
       lastWalkY = localPlayer.y;
     }
 
-    // 3. Reeling clicks (giữ chuột đẩy vùng bắt lên trong minigame "1 thanh")
+    // 3. Reeling clicks (hold mouse to push the catching bar up in the "1-bar" minigame)
     if (currentFishState === "reeling" && input.isReelHeld) {
       if (nowMs - lastReelClickTime > 90) {
         audioManager.playReelClick();
@@ -236,7 +236,7 @@ function frame() {
       }
     }
 
-    // 4. Mô phỏng minigame kéo cá phía client (mượt 60fps). Start lười khi đã có loài cá sync về.
+    // 4. Simulate reeling minigame on client side (smooth 60fps). Lazy start when species info is synced.
     if (currentFishState === "reeling") {
       if (!reelSim.active && localPlayer.activeFishSpeciesId) {
         reelSim.start(localPlayer.activeFishSpeciesId, localPlayer.activeFishWeight);
@@ -244,7 +244,7 @@ function frame() {
       if (reelSim.active) {
         const dtMs = lastReelFrameMs > 0 ? Math.min(100, nowMs - lastReelFrameMs) : 0;
         reelSim.update(dtMs, input.isReelHeld);
-        // Hết giờ: báo tổng thời gian cá trong vùng bắt về server (1 lần) để clamp + roll xác suất.
+        // Time out: report total time of the fish in the catching zone to server (once) to clamp + roll probability.
         if (reelSim.done && !reelResultSent) {
           net.send({ type: "reel_result", timeInZoneMs: reelSim.timeInZoneMs });
           reelResultSent = true;
@@ -267,8 +267,8 @@ function frame() {
   });
 
   ui.updateLeaderboard(snapshot.leaderboard, localPlayerId);
-  // Thanh tích lực quăng cần chỉ có ý nghĩa lúc đang rảnh tay (idle) — lúc đang câu, giữ chuột lại
-  // mang nghĩa khác hẳn (móc câu/kéo cần), không phải đang tích lực quăng.
+  // Cast power bar is only meaningful when idle — during fishing, holding the mouse
+  // means something else entirely (hooking/reeling), not charging cast power.
   ui.updateCastMeter(net.status === "connected" && latestLocalFishState === "idle" ? input.castChargeFraction : null);
 
   if (localPlayer) {
@@ -276,8 +276,8 @@ function frame() {
     ui.updateCurrentLake(localPlayer.currentLakeId);
     ui.updateCollection(localPlayer.collection);
 
-    // Vẽ modal thẳng từ sim client (chạy 60fps ở mục 4 phía trên) — mượt tuyệt đối, không còn phụ
-    // thuộc nhịp mạng nên không cần nội suy như trước.
+    // Render the modal directly from client simulation (running at 60fps in section 4 above) — absolutely smooth,
+    // no longer dependent on network rhythm, so interpolation is no longer needed.
     ui.updateFishingModal(localPlayer.fishState === "reeling", {
       reelProgress: reelSim.progress,
       reelFishY: reelSim.fishY,
