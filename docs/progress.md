@@ -1,5 +1,13 @@
 # Progress Log
 
+## 2026-07-14 - Integrated Google AdSense Banners
+
+Integrated real Google AdSense advertisements, replacing static lobby, HUD, and collection panel placeholders.
+
+- `frontend/.env.example`, `frontend/.env.production`: Documented and set up environment variables for the Publisher ID (`VITE_ADSENSE_CLIENT_ID`) and specific slot IDs (`VITE_ADSENSE_SLOT_CONNECT`, `VITE_ADSENSE_SLOT_HUD`, `VITE_ADSENSE_SLOT_COLLECTION`).
+- `frontend/src/ads.ts`: Created helper functions to inject the Google AdSense client script dynamically into the document `<head>` and load specific ad slots by targeting container IDs.
+- `frontend/src/ui.ts`: Integrated the ad helpers to initialize AdSense on boot, load the lobby banner, load the in-game HUD banner when entering the game, load the collection modal banner when opened, and reload the lobby banner when returning to the lobby.
+
 ## 2026-07-13 - Added BGM and SFX Synthesizer (Web Audio API)
 
 Created a fully synthesized audio system in the browser using the native Web Audio API, matching the cozy Stardew Valley theme with zero static asset dependencies.

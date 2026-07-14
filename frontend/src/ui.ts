@@ -21,6 +21,7 @@ import {
 import { drawSkinPreview, drawFishIcon, drawModalReelScene } from "./render.ts";
 import type { FishRarity } from "@bomio/shared";
 import { audioManager } from "./audio.ts";
+import { initAdSense, loadAdBanner } from "./ads.ts";
 
 // Icon loa vẽ bằng SVG thay vì emoji 🔊/🔇 hệ thống — emoji loa render méo/vỡ hình ở size nhỏ trên
 // nhiều máy (đặc biệt Windows, tuỳ font emoji cài sẵn), trong khi SVG dùng `currentColor` nên luôn
@@ -83,6 +84,7 @@ export class UI {
   private catchValueAnimFrame: number | undefined;
 
   constructor(container: HTMLElement) {
+    initAdSense();
     this.root = document.createElement("div");
     this.root.className = "game-ui";
     container.appendChild(this.root);
@@ -118,6 +120,7 @@ export class UI {
       </div>
     `;
     this.root.appendChild(this.connectScreen);
+    loadAdBanner("connect-ad-banner", import.meta.env.VITE_ADSENSE_SLOT_CONNECT);
     this.nameInput = this.connectScreen.querySelector(".name-input")!;
     this.playButton = this.connectScreen.querySelector(".play-button")!;
     this.errorText = this.connectScreen.querySelector(".error-text")!;
@@ -246,7 +249,10 @@ export class UI {
     this.collectionCount = this.hud.querySelector<HTMLSpanElement>(".collection-count")!;
     this.collectionModal = this.hud.querySelector<HTMLDivElement>(".collection-modal")!;
     this.collectionList = this.hud.querySelector<HTMLDivElement>(".collection-list")!;
-    this.collectionButton.addEventListener("click", () => this.collectionModal.classList.remove("hidden"));
+    this.collectionButton.addEventListener("click", () => {
+      this.collectionModal.classList.remove("hidden");
+      loadAdBanner("collection-ad-banner", import.meta.env.VITE_ADSENSE_SLOT_COLLECTION);
+    });
     this.collectionModal.querySelector(".collection-close")!.addEventListener("click", () => this.collectionModal.classList.add("hidden"));
     this.renderCollectionList([]);
 
@@ -338,12 +344,14 @@ export class UI {
   enterGame() {
     this.connectScreen.classList.add("hidden");
     this.hud.classList.remove("hidden");
+    loadAdBanner("hud-ad-banner", import.meta.env.VITE_ADSENSE_SLOT_HUD);
   }
 
   backToConnectScreen() {
     this.connectScreen.classList.remove("hidden");
     this.hud.classList.add("hidden");
     this.setConnecting(false);
+    loadAdBanner("connect-ad-banner", import.meta.env.VITE_ADSENSE_SLOT_CONNECT);
   }
 
   updateLeaderboard(entries: LeaderboardEntry[], localPlayerId: string | null) {
