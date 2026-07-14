@@ -630,13 +630,58 @@ body {
 }
 
 .fishing-modal-card {
-  width: 70%;
-  max-width: 820px;
-  min-width: 480px;
   box-sizing: border-box;
-  padding: 32px 40px;
+  padding: 16px 20px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
   animation: fishing-modal-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fishing-modal-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--c-berry);
+  text-shadow: 1.5px 1.5px 0 rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.05em;
+  margin: 0;
+  animation: title-beat 1.2s ease-in-out infinite;
+}
+
+@keyframes title-beat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+.fishing-modal-subtitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-ink-dim);
+  max-width: 220px;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.fishing-modal-chance {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--c-ink);
+  margin: 4px 0 0 0;
+  background: var(--c-parchment-deep);
+  padding: 4px 14px;
+  border-radius: 20px;
+  border: 2.5px solid var(--c-outline);
+  box-shadow: 0 2px 0 var(--c-wood-shadow);
+}
+
+.fishing-modal-chance-value {
+  color: var(--c-berry);
+  font-size: 16px;
+  text-shadow: 1px 1px 0 #fff;
 }
 
 @keyframes fishing-modal-pop {
@@ -653,41 +698,11 @@ body {
   }
 }
 
-.fishing-modal-title {
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--c-berry);
-  text-shadow: 2px 2px 0 rgba(255, 238, 201, 0.8);
-  animation: fishing-modal-shake 0.5s ease-in-out infinite;
-}
-
-@keyframes fishing-modal-shake {
-  0%,
-  100% {
-    transform: translateX(0) scale(1);
-  }
-  25% {
-    transform: translateX(-3px) scale(1.02);
-  }
-  75% {
-    transform: translateX(3px) scale(1.02);
-  }
-}
-
-.fishing-modal-subtitle {
-  margin-top: 6px;
-  font-weight: 700;
-  font-size: 13px;
-  color: var(--c-ink-dim);
-}
-
 .fishing-modal-game-container {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  margin-top: 20px;
 }
 
 .fishing-modal-canvas {
@@ -699,27 +714,6 @@ body {
   width: auto;
   height: 340px;
   max-height: 60vh;
-}
-
-.fishing-modal-chance {
-  margin-top: 14px;
-  text-align: center;
-  font-weight: 800;
-  font-size: 15px;
-  color: var(--c-ink);
-}
-
-.fishing-modal-chance-value {
-  color: var(--c-berry);
-  transition: color 0.15s ease;
-}
-
-.fishing-modal-chance-value.warning {
-  color: var(--c-amber);
-}
-
-.fishing-modal-chance-value.good {
-  color: var(--c-leaf);
 }
 
 /* ---------- Fish collection modal ---------- */
@@ -777,12 +771,37 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding-right: 8px;
+  /* Firefox: thanh cuộn mảnh, màu gỗ/amber khớp theme cozy thay vì xám thô. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-wood) transparent;
+}
+
+/* WebKit (Chrome/Safari/Edge): thanh cuộn bo tròn, thumb màu gỗ có viền sáng, rãnh trong suốt. */
+.collection-list::-webkit-scrollbar {
+  width: 10px;
+}
+
+.collection-list::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 4px 0;
+}
+
+.collection-list::-webkit-scrollbar-thumb {
+  background: var(--c-wood);
+  border: 2px solid var(--c-parchment);
+  border-radius: 999px;
+}
+
+.collection-list::-webkit-scrollbar-thumb:hover {
+  background: var(--c-wood-shadow);
 }
 
 .collection-item {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
   padding: 8px 12px;
   background: rgba(176, 121, 63, 0.08);
   border-radius: 8px;
@@ -792,6 +811,21 @@ body {
 .collection-item.caught {
   background: rgba(255, 238, 201, 0.4);
   border: 2px solid var(--c-outline);
+}
+
+.collection-item-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.collection-item-desc {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--c-ink-dim);
+  padding-left: 22px;
+  line-height: 1.35;
 }
 
 .collection-item-dot {
@@ -984,12 +1018,13 @@ body {
 
 .catch-modal-card {
   --rarity-color: #b8c4cc;
-  width: 280px;
-  padding: 24px;
+  width: 520px;
+  max-width: calc(100vw - 32px);
+  padding: 22px 31px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   position: relative;
   animation: catch-modal-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -1098,6 +1133,16 @@ body {
   font-weight: 800;
   color: var(--c-ink-dim);
   cursor: pointer;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  line-height: 1;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.catch-modal-close:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--c-ink);
 }
 
 .catch-modal-new {
@@ -1127,19 +1172,8 @@ body {
 }
 
 .catch-modal-canvas {
-  background: rgba(176, 121, 63, 0.1);
-  border: 2px solid var(--c-outline);
-  border-radius: 8px;
-  transition: box-shadow 0.2s;
-}
-
-.catch-modal-card.rarity-uncommon .catch-modal-canvas {
-  box-shadow: 0 0 14px 2px var(--rarity-color);
-}
-
-.catch-modal-card.rarity-rare .catch-modal-canvas,
-.catch-modal-card.rarity-legendary .catch-modal-canvas {
-  box-shadow: 0 0 22px 4px var(--rarity-color);
+  background: transparent;
+  border: none;
 }
 
 .catch-modal-name {
@@ -1147,6 +1181,14 @@ body {
   font-size: 22px;
   font-weight: 800;
   color: #8a4a2a;
+}
+
+.catch-modal-weight {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--c-ink);
+  margin-top: -4px;
 }
 
 .catch-modal-rarity {
