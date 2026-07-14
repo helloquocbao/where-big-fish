@@ -5,7 +5,11 @@
  * with a readable reason instead of an uncaught exception).
  */
 
-import { Client, Room } from "colyseus.js";
+// Type-only import — erased at compile time, so this alone does NOT pull colyseus.js's actual code
+// into the bundle. The runtime `Client` class is loaded lazily inside `connect()` via dynamic
+// `import()` instead (see below), so its ~code-eval cost is deferred until the player actually
+// presses Play instead of sitting on the initial connect-screen's critical path.
+import type { Client, Room } from "colyseus.js";
 import type { ClientMessage, RoomSnapshot, ServerEvent } from "@bomio/shared";
 import { ROOM_NAME, SERVER_URL } from "./config.ts";
 import { readSnapshot } from "./state.ts";
@@ -21,7 +25,7 @@ export interface NetEvents {
 }
 
 export class Net {
-  private client = new Client(SERVER_URL);
+  private client: Client | null = null;
   private room: Room | null = null;
   private events: NetEvents;
   status: ConnectionStatus = "idle";
@@ -42,6 +46,12 @@ export class Net {
   async connect(name: string, skinId: string): Promise<void> {
     this.setStatus("connecting");
     try {
+      if (!this.client) {
+        // Code-split chunk: colyseus.js is only fetched/parsed the first time someone actually
+        // tries to connect (Play button), not bundled into the initial page load.
+        const { Client } = await import("colyseus.js");
+        this.client = new Client(SERVER_URL);
+      }
       const room = await this.client.joinOrCreate(ROOM_NAME, { name, skinId });
       this.room = room;
       this.setStatus("connected");

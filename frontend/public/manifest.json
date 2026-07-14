@@ -1,0 +1,17 @@
+{
+  "name": "Where Big Fish",
+  "short_name": "Big Fish",
+  "description": "Real-time multiplayer fishing game — cast your line, reel in fish of every rarity, and climb the leaderboard.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#bfe685",
+  "theme_color": "#e79b2e",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

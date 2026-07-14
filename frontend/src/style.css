@@ -257,6 +257,49 @@ body {
   box-shadow: 0 5px 0 var(--c-wood-shadow);
 }
 
+.connect-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.connect-actions .play-button {
+  flex: 1;
+  height: 58px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connect-actions .audio-toggle-button {
+  width: 58px;
+  height: 58px;
+  box-sizing: border-box;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--c-gold), var(--c-amber));
+  border: 3px solid var(--c-outline);
+  box-shadow: 0 5px 0 var(--c-wood-shadow);
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.08s;
+  pointer-events: auto;
+}
+
+.connect-actions .audio-toggle-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 var(--c-wood-shadow);
+}
+
+.connect-actions .audio-toggle-button:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--c-wood-shadow);
+}
+
 .error-text {
   min-height: 18px;
   margin: 0;
@@ -369,6 +412,61 @@ body {
   font-weight: 800;
   font-size: 17px;
   color: #8a4a2a;
+}
+
+.stats-actions {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* `.stats-panel > div` (bên trên) áp align-items:baseline cho MỌI div con trực tiếp — đúng ý cho
+   các hàng text đơn giản (label + số liệu canh theo baseline chữ) nhưng vô tình dính cả vào hàng
+   nút này (.stats-actions cũng là 1 div con trực tiếp của .stats-panel), khiến 2 nút bị lệch nhau
+   theo baseline chữ/icon thay vì canh giữa theo chiều dọc. Selector 2 lớp bên dưới có độ ưu tiên
+   cao hơn `.stats-panel > div` (2 class > 1 class + 1 thẻ) nên đè lại đúng ý muốn cho riêng hàng nút. */
+.stats-panel .stats-actions {
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.stats-actions .collection-button {
+  margin-top: 0;
+  flex: 1;
+  height: 32px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stats-actions .audio-toggle-button {
+  width: 32px;
+  height: 32px;
+  box-sizing: border-box;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--c-gold), var(--c-amber));
+  border: 2px solid var(--c-outline);
+  box-shadow: 0 3px 0 var(--c-wood-shadow);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+
+.stats-actions .audio-toggle-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 var(--c-wood-shadow);
+}
+
+.stats-actions .audio-toggle-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--c-wood-shadow);
 }
 
 .collection-button {
@@ -587,84 +685,41 @@ body {
 .fishing-modal-game-container {
   display: flex;
   flex-direction: row;
-  align-items: stretch;
+  align-items: center;
   justify-content: center;
-  gap: 24px;
   margin-top: 20px;
 }
 
 .fishing-modal-canvas {
-  flex: 1;
   display: block;
   margin: 0;
   border-radius: 10px;
   border: 3px solid var(--c-outline);
   box-shadow: inset 0 0 0 2px var(--c-wood-light);
-  width: 100%;
-  height: auto;
-  max-height: 270px;
+  width: auto;
+  height: 340px;
+  max-height: 60vh;
 }
 
-.fishing-modal-bars-container {
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-  align-items: stretch;
-  width: 110px;
-}
-
-.fishing-modal-vertical-bar-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  flex: 1;
-}
-
-.fishing-modal-vertical-bar-label {
-  font-size: 11px;
+.fishing-modal-chance {
+  margin-top: 14px;
+  text-align: center;
   font-weight: 800;
+  font-size: 15px;
   color: var(--c-ink);
-  white-space: nowrap;
 }
 
-.fishing-modal-vertical-bar-track {
-  width: 100%;
-  max-width: 28px;
-  flex-grow: 1;
-  border-radius: 8px;
-  background: rgba(176, 121, 63, 0.3);
-  border: 2px solid var(--c-outline);
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+.fishing-modal-chance-value {
+  color: var(--c-berry);
+  transition: color 0.15s ease;
 }
 
-.fishing-modal-vertical-bar-fill {
-  width: 100%;
-  height: 0%;
-  transition: height 0.05s linear;
+.fishing-modal-chance-value.warning {
+  color: var(--c-amber);
 }
 
-.fishing-modal-vertical-bar-fill.progress {
-  background: linear-gradient(180deg, #7fc4f5, var(--c-sky));
-}
-
-.fishing-modal-vertical-bar-fill.tension {
-  background: var(--c-leaf);
-  transition:
-    height 0.05s linear,
-    background-color 0.15s ease;
-}
-
-.fishing-modal-vertical-bar-fill.tension.warning {
-  background: var(--c-amber);
-}
-
-.fishing-modal-vertical-bar-fill.tension.danger {
-  background: var(--c-berry);
+.fishing-modal-chance-value.good {
+  color: var(--c-leaf);
 }
 
 /* ---------- Fish collection modal ---------- */
@@ -761,7 +816,11 @@ body {
   font-weight: 800;
 }
 
-/* ---------- Celebration Catch Modal ---------- */
+/* ---------- Celebration Catch Modal ----------
+   "Độ hoành tráng" (glow quanh khung, tia nắng xoay, pháo hoa hạt bắn ra, rung màn hình) tăng dần
+   theo độ hiếm của cá (xem RARITY_COLOR trong shared + ui.ts#showCatchModal set `--rarity-color`
+   và class `.rarity-common|uncommon|rare|legendary`). Cố tình KHÔNG bung hết hiệu ứng ở cá thường —
+   càng hiếm càng "wow" thì mới thực sự đáng nhớ, bung hết cỡ ở MỌI lần câu sẽ mỏi mắt và vô nghĩa. */
 
 .catch-modal {
   position: absolute;
@@ -772,13 +831,159 @@ body {
   background: rgba(63, 40, 18, 0.45);
   z-index: 40;
   pointer-events: auto;
+  overflow: hidden;
 }
 
 .catch-modal.hidden {
   display: none;
 }
 
+/* Chớp sáng toàn màn hình — chỉ bắn cho cá legendary (ui.ts thêm class .legendary-flash lên
+   .catch-modal), bán cảm giác "trúng độc đắc" trước khi lắng lại về lớp phủ mờ bình thường. */
+.catch-modal-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 45%, rgba(255, 246, 200, 0.95), rgba(255, 201, 60, 0.3) 45%, transparent 75%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.catch-modal.legendary-flash .catch-modal-flash {
+  animation: catch-flash-pulse 0.7s ease-out 1;
+}
+
+@keyframes catch-flash-pulse {
+  0% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Tia nắng xoay chậm phía sau khung — ẩn ở cá thường, mờ nhạt ở cá hiếm, rực ở huyền thoại. */
+.catch-modal-rays {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 480px;
+  height: 480px;
+  margin: -240px 0 0 -240px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(var(--rarity-color) 0deg 6deg, transparent 6deg 24deg);
+  opacity: 0;
+  z-index: -1;
+  pointer-events: none;
+  animation: catch-rays-spin 12s linear infinite;
+}
+
+@keyframes catch-rays-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.catch-modal-card.rarity-rare .catch-modal-rays {
+  opacity: 0.18;
+}
+
+.catch-modal-card.rarity-legendary .catch-modal-rays {
+  opacity: 0.32;
+}
+
+/* Pháo hoa hạt — 12 chấm bắn toả ra từ tâm lúc modal xuất hiện, góc bắn set sẵn qua nth-child nên
+   không cần JS/inline style riêng cho từng hạt. Chỉ bắn ở cá hiếm/huyền thoại. */
+.catch-modal-burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.catch-modal-burst span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--rarity-color);
+  box-shadow: 0 0 6px 1px var(--rarity-color);
+  opacity: 0;
+}
+
+.catch-modal-card.rarity-rare .catch-modal-burst span,
+.catch-modal-card.rarity-legendary .catch-modal-burst span {
+  animation: catch-burst-fly 0.75s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+@keyframes catch-burst-fly {
+  0% {
+    transform: translate(-50%, -50%) rotate(var(--burst-angle, 0deg)) translateX(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(var(--burst-angle, 0deg)) translateX(130px) scale(0.2);
+    opacity: 0;
+  }
+}
+
+.catch-modal-burst span:nth-child(1) {
+  --burst-angle: 0deg;
+  animation-delay: 0.05s;
+}
+.catch-modal-burst span:nth-child(2) {
+  --burst-angle: 30deg;
+  animation-delay: 0.08s;
+}
+.catch-modal-burst span:nth-child(3) {
+  --burst-angle: 60deg;
+  animation-delay: 0.02s;
+}
+.catch-modal-burst span:nth-child(4) {
+  --burst-angle: 90deg;
+  animation-delay: 0.1s;
+}
+.catch-modal-burst span:nth-child(5) {
+  --burst-angle: 120deg;
+  animation-delay: 0.04s;
+}
+.catch-modal-burst span:nth-child(6) {
+  --burst-angle: 150deg;
+  animation-delay: 0.09s;
+}
+.catch-modal-burst span:nth-child(7) {
+  --burst-angle: 180deg;
+  animation-delay: 0.03s;
+}
+.catch-modal-burst span:nth-child(8) {
+  --burst-angle: 210deg;
+  animation-delay: 0.07s;
+}
+.catch-modal-burst span:nth-child(9) {
+  --burst-angle: 240deg;
+  animation-delay: 0.01s;
+}
+.catch-modal-burst span:nth-child(10) {
+  --burst-angle: 270deg;
+  animation-delay: 0.06s;
+}
+.catch-modal-burst span:nth-child(11) {
+  --burst-angle: 300deg;
+  animation-delay: 0.1s;
+}
+.catch-modal-burst span:nth-child(12) {
+  --burst-angle: 330deg;
+  animation-delay: 0.03s;
+}
+
 .catch-modal-card {
+  --rarity-color: #b8c4cc;
   width: 280px;
   padding: 24px;
   display: flex;
@@ -786,6 +991,101 @@ body {
   align-items: center;
   gap: 12px;
   position: relative;
+  animation: catch-modal-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes catch-modal-pop {
+  0% {
+    transform: scale(0.5) rotate(-6deg);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.08) rotate(2deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes catch-modal-pop-legendary {
+  0% {
+    transform: scale(0.3) rotate(-10deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(3deg);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(0.94) rotate(-1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes catch-modal-shake {
+  0%,
+  100% {
+    margin-left: 0;
+  }
+  20% {
+    margin-left: -6px;
+  }
+  40% {
+    margin-left: 5px;
+  }
+  60% {
+    margin-left: -4px;
+  }
+  80% {
+    margin-left: 3px;
+  }
+}
+
+@keyframes catch-modal-glow-pulse {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 0 0 4px var(--c-wood-light),
+      inset 0 0 0 8px var(--c-wood),
+      0 8px 0 var(--c-wood-shadow),
+      0 24px 50px rgba(63, 40, 18, 0.35),
+      0 0 0 3px var(--rarity-color),
+      0 0 18px 2px var(--rarity-color);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 4px var(--c-wood-light),
+      inset 0 0 0 8px var(--c-wood),
+      0 8px 0 var(--c-wood-shadow),
+      0 24px 50px rgba(63, 40, 18, 0.35),
+      0 0 0 4px var(--rarity-color),
+      0 0 34px 8px var(--rarity-color);
+  }
+}
+
+/* Cá thường: giữ nguyên khung gỗ gốc, chỉ có animation pop-in (không glow, không tia, không pháo
+   hoa) — độ hiếm thấp nhất nên KHÔNG ăn theo hiệu ứng, để phần thưởng thị giác dồn cho cá hiếm. */
+
+.catch-modal-card.rarity-uncommon {
+  animation:
+    catch-modal-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    catch-modal-glow-pulse 1.8s ease-in-out infinite 0.4s;
+}
+
+.catch-modal-card.rarity-rare {
+  animation:
+    catch-modal-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    catch-modal-glow-pulse 1.6s ease-in-out infinite 0.4s;
+}
+
+.catch-modal-card.rarity-legendary {
+  animation:
+    catch-modal-pop-legendary 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
+    catch-modal-shake 0.5s ease-in-out 0.08s 1,
+    catch-modal-glow-pulse 1.3s ease-in-out infinite 0.6s;
 }
 
 .catch-modal-close {
@@ -809,16 +1109,37 @@ body {
   border: 2px solid var(--c-outline);
   border-radius: 999px;
   padding: 3px 10px;
+  animation: catch-new-pulse 1s ease-in-out infinite;
 }
 
 .catch-modal-new.hidden {
   display: none;
 }
 
+@keyframes catch-new-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
 .catch-modal-canvas {
   background: rgba(176, 121, 63, 0.1);
   border: 2px solid var(--c-outline);
   border-radius: 8px;
+  transition: box-shadow 0.2s;
+}
+
+.catch-modal-card.rarity-uncommon .catch-modal-canvas {
+  box-shadow: 0 0 14px 2px var(--rarity-color);
+}
+
+.catch-modal-card.rarity-rare .catch-modal-canvas,
+.catch-modal-card.rarity-legendary .catch-modal-canvas {
+  box-shadow: 0 0 22px 4px var(--rarity-color);
 }
 
 .catch-modal-name {
@@ -832,6 +1153,7 @@ body {
   font-size: 11px;
   font-weight: 800;
   margin-top: -6px;
+  text-shadow: 0 0 8px currentColor;
 }
 
 .catch-modal-value {
@@ -931,5 +1253,4 @@ body {
   flex-direction: column;
   margin-top: auto;
 }
-
 

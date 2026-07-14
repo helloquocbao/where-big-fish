@@ -26,9 +26,15 @@ export interface PlayerState {
   bobberX: number; // vị trí phao trên mặt hồ khi đang waiting/reeling
   bobberY: number;
   activeFishSpeciesId: string; // loài cá đang kéo (chỉ có khi fishState === "reeling"), "" nếu không có
-  reelProgress: number; // 0..100 — đã "kéo được" bao nhiêu, xem REEL_PROGRESS_* trong constants.ts
-  reelTension: number; // 0..100 — độ căng dây câu, giữ chuột kéo liên tục sẽ tăng, thả ra sẽ giảm;
-  // chạm REEL_TENSION_MAX thì đứt dây (mất cá) — xem REEL_TENSION_* trong constants.ts
+  // ---- Minigame kéo cá "1 thanh" (xem constants.ts đầu mục Reel) ----
+  reelProgress: number; // 0..100 — % thời gian cá nằm trong vùng bắt TÍNH TỚI THỜI ĐIỂM HIỆN TẠI của
+  // phiên kéo đang diễn ra (timeInZoneMs / elapsedMs); đây cũng chính là % sẽ dùng để roll xác suất
+  // bắt được cá lúc hết REEL_DURATION_MS, xem backend/src/systems/fishing.ts#updateReeling
+  reelFishY: number; // 0..100 — vị trí hiện tại của "cá" trên thanh (0 = đáy, 100 = đỉnh), cá tự bơi
+  // lang thang thất thường, KHÔNG chịu điều khiển bởi người chơi
+  reelZoneY: number; // 0..100 — tâm của "vùng bắt" do người chơi điều khiển: giữ chuột đẩy lên, thả
+  // ra rơi xuống theo trọng lực; bề rộng vùng bắt xem computeReelZoneSize (phụ thuộc reelDifficulty
+  // của loài đang kéo, không đồng bộ riêng vì frontend tự tính lại được từ activeFishSpeciesId)
 
   // ---- Thành tích ----
   caughtCount: number;
@@ -92,8 +98,8 @@ export type ServerEvent =
       rarity?: FishRarity;
       value?: number;
       isFirstCatch?: boolean; // true nếu đây là lần đầu bắt được loài này (thêm vào sổ sưu tập)
-      reason?: "fish_escaped" | "line_snapped"; // line_snapped: giữ chuột kéo liên tục không thả
-      // ra, độ căng dây chạm REEL_TENSION_MAX — đứt dây, mất cá
+      reason?: "fish_escaped"; // hết REEL_DURATION_MS, roll xác suất theo % thời gian trong vùng bắt
+      // không trúng — cá thoát. Không còn "line_snapped" (đứt dây) sau khi bỏ cơ chế tension.
     }
   // Gửi RIÊNG cho người vừa thả cần hụt vì đứng ngoài LAKE_CAST_RANGE của mọi hồ (xem
   // backend/src/systems/fishing.ts#tryCast) — không broadcast cho cả phòng, chỉ người đó cần biết.

@@ -21,7 +21,8 @@ export class PlayerSchema extends Schema {
   @type("number") bobberY: number = 0;
   @type("string") activeFishSpeciesId: string = "";
   @type("number") reelProgress: number = 0;
-  @type("number") reelTension: number = 0;
+  @type("number") reelFishY: number = 50;
+  @type("number") reelZoneY: number = 50;
 
   @type("number") caughtCount: number = 0;
   @type("number") totalValue: number = 0;
@@ -49,6 +50,20 @@ export class PlayerSchema extends Schema {
   reelPulling: boolean = false;
   /** Epoch ms for an NPC's next scripted action (cast / attempt hook) — unused for real players. */
   npcNextActionAt: number = 0;
+
+  // ---- Reel minigame "1 thanh" bookkeeping thuần server (không cần đồng bộ, xem
+  // shared/src/types.ts#PlayerState + backend/src/systems/fishing.ts#updateReeling) ----
+  /** Vận tốc hiện tại (units/s) của vùng bắt (reelZoneY) — tăng khi giữ chuột, giảm (rơi) khi thả. */
+  reelZoneVelocity: number = 0;
+  /** Điểm ngẫu nhiên (0..100) mà "cá" (reelFishY) đang bơi hướng tới. */
+  reelFishTargetY: number = 50;
+  /** Epoch ms lúc cá chọn điểm đích ngẫu nhiên KẾ TIẾP. */
+  reelFishNextRetargetAt: number = 0;
+  /** Epoch ms lúc phiên kéo cá hiện tại bắt đầu — dùng để tính elapsed vs REEL_DURATION_MS. */
+  reelStartedAtMs: number = 0;
+  /** Tổng cộng dồn (ms) thời gian cá nằm trong vùng bắt kể từ reelStartedAtMs — % của số này so với
+   * REEL_DURATION_MS chính là xác suất bắt được cá lúc hết giờ. */
+  reelTimeInZoneMs: number = 0;
 }
 
 export class LeaderboardEntrySchema extends Schema {

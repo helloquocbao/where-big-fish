@@ -16,9 +16,25 @@ import {
   getFishSpecies,
   LAKE_DEFINITIONS,
   getLakeById,
+  computeReelZoneSize,
 } from "@bomio/shared";
 import { drawSkinPreview, drawFishIcon, drawModalReelScene } from "./render.ts";
 import type { FishRarity } from "@bomio/shared";
+import { audioManager } from "./audio.ts";
+
+// Icon loa vẽ bằng SVG thay vì emoji 🔊/🔇 hệ thống — emoji loa render méo/vỡ hình ở size nhỏ trên
+// nhiều máy (đặc biệt Windows, tuỳ font emoji cài sẵn), trong khi SVG dùng `currentColor` nên luôn
+// nét và tự khớp màu chữ của nút (var(--c-ink) trong .wood-button) ở mọi máy.
+const SPEAKER_ON_SVG = `<svg viewBox="0 0 24 24" width="60%" height="60%" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M4 9v6h3.6l5.4 4V5l-5.4 4H4z" fill="currentColor"/>
+  <path d="M16 8.5a5 5 0 0 1 0 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <path d="M18.6 6a9 9 0 0 1 0 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+</svg>`;
+
+const SPEAKER_OFF_SVG = `<svg viewBox="0 0 24 24" width="60%" height="60%" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M4 9v6h3.6l5.4 4V5l-5.4 4H4z" fill="currentColor"/>
+  <path d="M16 9l5.5 6M21.5 9 16 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+</svg>`;
 
 export class UI {
   readonly root: HTMLDivElement;
@@ -48,8 +64,7 @@ export class UI {
   private fishingModal: HTMLDivElement;
   private fishingModalCanvas: HTMLCanvasElement;
   private fishingModalCanvasCtx: CanvasRenderingContext2D;
-  private fishingModalProgressFill: HTMLDivElement;
-  private fishingModalTensionFill: HTMLDivElement;
+  private fishingModalChanceValue: HTMLSpanElement;
 
   private collectionButton: HTMLButtonElement;
   private collectionCount: HTMLSpanElement;
@@ -57,6 +72,7 @@ export class UI {
   private collectionList: HTMLDivElement;
 
   private catchModal: HTMLDivElement;
+  private catchModalCard: HTMLDivElement;
   private catchModalCanvas: HTMLCanvasElement;
   private catchModalCtx: CanvasRenderingContext2D;
   private catchModalName: HTMLDivElement;
@@ -64,6 +80,7 @@ export class UI {
   private catchModalValue: HTMLDivElement;
   private catchModalNew: HTMLDivElement;
   private catchModalTimeout: number | undefined;
+  private catchValueAnimFrame: number | undefined;
 
   constructor(container: HTMLElement) {
     this.root = document.createElement("div");
@@ -76,14 +93,17 @@ export class UI {
     this.connectScreen.innerHTML = `
       <div class="connect-card-wrapper">
         <div class="connect-card">
-          <h1>Where I Go Fish</h1>
+          <h1>Where Big Fish</h1>
           <p class="tagline">Multiple lakes, many fishers — cast your line and see what you catch.</p>
           <div class="skin-picker">
             <canvas class="skin-preview" width="90" height="110"></canvas>
             <div class="skin-swatches"></div>
           </div>
           <input type="text" maxlength="16" placeholder="Your name" class="name-input" />
-          <button class="play-button" type="button">Play</button>
+          <div class="connect-actions">
+            <button class="play-button" type="button">Play</button>
+            <button class="audio-toggle-button wood-button" type="button" title="Mute/Unmute Sound"></button>
+          </div>
           <p class="error-text"></p>
         </div>
         <div class="ad-banner panel-cut">
@@ -149,7 +169,10 @@ export class UI {
         <div>🎣 Fishing in <span class="stats-current-lake">—</span></div>
         <div>Fish caught <span class="stats-caught-count">0</span></div>
         <div>Total score <span class="stats-caught-value">0</span></div>
-        <button type="button" class="collection-button">🐟 Fish Index (<span class="collection-count">0</span>/${FISH_CATALOG.length})</button>
+        <div class="stats-actions">
+          <button type="button" class="collection-button">🐟 Fish Index (<span class="collection-count">0</span>/${FISH_CATALOG.length})</button>
+          <button type="button" class="audio-toggle-button wood-button" title="Mute/Unmute Sound"></button>
+        </div>
       </div>
       <div class="minimap-frame panel-cut">
         <canvas class="minimap" width="140" height="140"></canvas>
@@ -160,25 +183,12 @@ export class UI {
       </div>
       <div class="fishing-modal hidden">
         <div class="fishing-modal-card panel-cut">
-          <div class="fishing-modal-title">FISH HOOKED!</div>
-          <div class="fishing-modal-subtitle">Hold mouse to reel — release periodically to prevent tension snap!</div>
+          <div class="fishing-modal-title">FISH ON THE LINE!</div>
+          <div class="fishing-modal-subtitle">Hold mouse to lift the zone — keep the fish inside it!</div>
           <div class="fishing-modal-game-container">
-            <canvas class="fishing-modal-canvas" width="580" height="270"></canvas>
-            <div class="fishing-modal-bars-container">
-              <div class="fishing-modal-vertical-bar-wrapper">
-                <div class="fishing-modal-vertical-bar-track">
-                  <div class="fishing-modal-vertical-bar-fill progress fishing-modal-progress-fill"></div>
-                </div>
-                <div class="fishing-modal-vertical-bar-label">Progress</div>
-              </div>
-              <div class="fishing-modal-vertical-bar-wrapper">
-                <div class="fishing-modal-vertical-bar-track">
-                  <div class="fishing-modal-vertical-bar-fill tension fishing-modal-tension-fill"></div>
-                </div>
-                <div class="fishing-modal-vertical-bar-label">Tension</div>
-              </div>
-            </div>
+            <canvas class="fishing-modal-canvas" width="200" height="360"></canvas>
           </div>
+          <div class="fishing-modal-chance">Chance to catch: <span class="fishing-modal-chance-value">0%</span></div>
         </div>
       </div>
       <div class="collection-modal hidden">
@@ -200,7 +210,13 @@ export class UI {
         </div>
       </div>
       <div class="catch-modal hidden">
+        <div class="catch-modal-flash"></div>
         <div class="catch-modal-card panel-cut">
+          <div class="catch-modal-rays"></div>
+          <div class="catch-modal-burst">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
           <button type="button" class="catch-modal-close">×</button>
           <div class="catch-modal-new hidden">New species caught!</div>
           <canvas class="catch-modal-canvas" width="140" height="100"></canvas>
@@ -224,8 +240,7 @@ export class UI {
     this.fishingModal = this.hud.querySelector<HTMLDivElement>(".fishing-modal")!;
     this.fishingModalCanvas = this.hud.querySelector<HTMLCanvasElement>(".fishing-modal-canvas")!;
     this.fishingModalCanvasCtx = this.fishingModalCanvas.getContext("2d")!;
-    this.fishingModalProgressFill = this.hud.querySelector<HTMLDivElement>(".fishing-modal-progress-fill")!;
-    this.fishingModalTensionFill = this.hud.querySelector<HTMLDivElement>(".fishing-modal-tension-fill")!;
+    this.fishingModalChanceValue = this.hud.querySelector<HTMLSpanElement>(".fishing-modal-chance-value")!;
 
     this.collectionButton = this.hud.querySelector<HTMLButtonElement>(".collection-button")!;
     this.collectionCount = this.hud.querySelector<HTMLSpanElement>(".collection-count")!;
@@ -236,6 +251,7 @@ export class UI {
     this.renderCollectionList([]);
 
     this.catchModal = this.hud.querySelector<HTMLDivElement>(".catch-modal")!;
+    this.catchModalCard = this.hud.querySelector<HTMLDivElement>(".catch-modal-card")!;
     this.catchModalCanvas = this.hud.querySelector<HTMLCanvasElement>(".catch-modal-canvas")!;
     this.catchModalCtx = this.catchModalCanvas.getContext("2d")!;
     this.catchModalName = this.hud.querySelector<HTMLDivElement>(".catch-modal-name")!;
@@ -258,6 +274,25 @@ export class UI {
     this.toast = document.createElement("div");
     this.toast.className = "event-toast hidden";
     this.root.appendChild(this.toast);
+
+    // Audio setup and icon syncing
+    const updateAudioButtons = () => {
+      const isMuted = audioManager.getMuteState();
+      const buttons = this.root.querySelectorAll(".audio-toggle-button");
+      buttons.forEach((btn) => {
+        btn.innerHTML = isMuted ? SPEAKER_OFF_SVG : SPEAKER_ON_SVG;
+      });
+    };
+    updateAudioButtons();
+
+    this.root.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest(".audio-toggle-button");
+      if (btn) {
+        audioManager.init(); // Initialize/resume context
+        audioManager.toggleMute();
+        updateAudioButtons();
+      }
+    });
   }
 
   /** Shows a short-lived toast (e.g. a catch result). `variant` only changes the accent color. */
@@ -370,29 +405,36 @@ export class UI {
    * (fishState quay về "idle"). Khác hẳn `showCatchModal`/collection modal: đây KHÔNG phải dialog
    * chờ người dùng đóng — GIỮ/THẢ chuột NGAY TRONG modal (xem `fishingModalInteractiveEl` +
    * `InputController.bindAdditionalTarget` ở main.ts) chính là cách kéo cần, nên modal luôn có
-   * `pointer-events: auto` để bắt được thao tác đó. Nội dung: cảnh cần cong + cá vùng vẫy
-   * (`drawModalReelScene`, màu theo `speciesId` đang kéo) + 2 thanh tiến độ (`reelProgress`) và độ
-   * căng dây (`reelTension`, đổi màu xanh lá -> vàng -> đỏ theo mức nguy hiểm đứt dây). */
+   * `pointer-events: auto` để bắt được thao tác đó.
+   *
+   * Redesign "1 thanh": nội dung chỉ còn 1 thanh dọc duy nhất (`drawModalReelScene`) vẽ vị trí cá
+   * (`reelFishY`) + vùng bắt do người chơi điều khiển (`reelZoneY`), bề rộng vùng bắt tính lại tại
+   * chỗ từ `computeReelZoneSize(species.reelDifficulty)` (không cần đồng bộ riêng, chỉ cần biết
+   * đang kéo loài nào qua `speciesId`) — cùng công thức hệt backend, xem
+   * shared/src/constants.ts. `reelProgress` giờ là % thời gian cá đang nằm trong vùng bắt tính
+   * tới hiện tại, hiển thị luôn dưới dạng "Chance to catch" vì đó cũng chính là % sẽ dùng để roll
+   * xác suất lúc hết giờ (xem backend/src/systems/fishing.ts#updateReeling). */
   updateFishingModal(
     active: boolean,
-    data: { reelProgress?: number; reelTension?: number; speciesId?: string; nowMs?: number } = {},
+    data: { reelProgress?: number; reelFishY?: number; reelZoneY?: number; speciesId?: string; nowMs?: number } = {},
   ) {
     this.fishingModal.classList.toggle("hidden", !active);
     if (!active) return;
 
-    const progressPct = Math.max(0, Math.min(100, data.reelProgress ?? 0));
-    const tensionPct = Math.max(0, Math.min(100, data.reelTension ?? 0));
-    this.fishingModalProgressFill.style.height = `${progressPct}%`;
-    this.fishingModalTensionFill.style.height = `${tensionPct}%`;
-    this.fishingModalTensionFill.classList.toggle("warning", tensionPct >= 55 && tensionPct < 80);
-    this.fishingModalTensionFill.classList.toggle("danger", tensionPct >= 80);
+    const chancePct = Math.max(0, Math.min(100, data.reelProgress ?? 0));
+    this.fishingModalChanceValue.textContent = `${Math.round(chancePct)}%`;
+    this.fishingModalChanceValue.classList.toggle("warning", chancePct >= 35 && chancePct < 65);
+    this.fishingModalChanceValue.classList.toggle("good", chancePct >= 65);
 
     const species = getFishSpecies(data.speciesId);
+    const zoneSize = species ? computeReelZoneSize(species.reelDifficulty) : 40;
     drawModalReelScene(
       this.fishingModalCanvasCtx,
       this.fishingModalCanvas.width,
       this.fishingModalCanvas.height,
-      tensionPct,
+      data.reelFishY ?? 50,
+      data.reelZoneY ?? 50,
+      zoneSize,
       species?.color ?? "#7fa8d9",
       data.nowMs ?? 0,
     );
@@ -406,7 +448,11 @@ export class UI {
   }
 
   /** Modal ăn mừng khi LOCAL player tự mình câu được cá — hiện icon cá vẽ bằng canvas (màu theo
-   * loài), tên/độ hiếm/giá trị, tự đóng sau vài giây hoặc bấm × / bấm ra ngoài để đóng sớm. */
+   * loài), tên/độ hiếm/giá trị, tự đóng sau vài giây hoặc bấm × / bấm ra ngoài để đóng sớm.
+   * "Độ hoành tráng" (glow, tia sáng, pháo hoa hạt, rung màn hình) tăng dần theo độ hiếm — cố tình
+   * KHÔNG bung hết hiệu ứng ở mọi lần câu, để cảm giác "wow" thật sự dành riêng cho cá hiếm/huyền
+   * thoại thay vì bị pha loãng và gây mỏi mắt ở mọi lần câu cá thường. Xem `.rarity-*` trong
+   * style.css. */
   showCatchModal(speciesId: string, rarity: FishRarity | undefined, value: number, isFirstCatch: boolean) {
     const species = getFishSpecies(speciesId);
     if (!species) return;
@@ -417,14 +463,50 @@ export class UI {
     this.catchModalName.textContent = species.name;
     this.catchModalRarity.textContent = rarity ? RARITY_LABEL[rarity] : "";
     this.catchModalRarity.style.color = rarity ? RARITY_COLOR[rarity] : "";
-    this.catchModalValue.textContent = `+${Math.round(value)}`;
     this.catchModalNew.classList.toggle("hidden", !isFirstCatch);
+
+    const rarityKey = rarity ?? "common";
+    this.catchModalCard.style.setProperty("--rarity-color", RARITY_COLOR[rarityKey]);
+
+    // Force every CSS entrance/glow/burst animation to replay from frame 0 even if a previous catch
+    // modal is still mid-animation (rapid consecutive catches) — remove the rarity/flash classes,
+    // force a reflow, then re-add. Without the reflow, re-adding an already-present class is a no-op
+    // and @keyframes just keep running from wherever they were.
+    this.catchModalCard.classList.remove("rarity-common", "rarity-uncommon", "rarity-rare", "rarity-legendary");
+    this.catchModal.classList.remove("legendary-flash");
+    void this.catchModalCard.offsetWidth; // force reflow
+    this.catchModalCard.classList.add(`rarity-${rarityKey}`);
+    if (rarityKey === "legendary") this.catchModal.classList.add("legendary-flash");
+
+    this.animateCatchValue(value);
 
     window.clearTimeout(this.catchModalTimeout);
     this.catchModal.classList.remove("hidden");
     this.catchModalTimeout = window.setTimeout(() => {
       this.catchModal.classList.add("hidden");
     }, 3200);
+  }
+
+  /** Đếm số điểm chạy từ 0 lên giá trị thật (ease-out, ~550ms) thay vì hiện thẳng con số cuối —
+   * thêm chút "juice" kiểu máy xèng cho khoảnh khắc ăn điểm. Huỷ lượt đếm dở nếu bắt được cá mới
+   * ngay trong lúc đang đếm (câu liên tiếp nhanh). */
+  private animateCatchValue(target: number) {
+    if (this.catchValueAnimFrame != null) cancelAnimationFrame(this.catchValueAnimFrame);
+    const roundedTarget = Math.round(target);
+    const start = performance.now();
+    const durationMs = 550;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / durationMs);
+      const eased = 1 - Math.pow(1 - t, 3);
+      this.catchModalValue.textContent = `+${Math.round(roundedTarget * eased)}`;
+      if (t < 1) {
+        this.catchValueAnimFrame = requestAnimationFrame(tick);
+      } else {
+        this.catchModalValue.textContent = `+${roundedTarget}`;
+        this.catchValueAnimFrame = undefined;
+      }
+    };
+    this.catchValueAnimFrame = requestAnimationFrame(tick);
   }
 
   /** Bottom-right minimap: mỗi hồ vẽ theo đúng vị trí/hình dạng thật (thu nhỏ), mỗi người chơi 1

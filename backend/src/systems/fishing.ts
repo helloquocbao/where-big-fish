@@ -2,12 +2,15 @@ import type { MapSchema } from "@colyseus/schema";
 import {
   CAST_MIN_RANGE,
   CAST_MAX_RANGE,
-  REEL_PROGRESS_START,
-  REEL_PROGRESS_FILL_RATE,
-  REEL_TENSION_MAX,
-  REEL_TENSION_FALL_RATE,
-  computeTensionRiseRate,
-  computeReelResistance,
+  REEL_DURATION_MS,
+  REEL_ZONE_RISE_ACCEL,
+  REEL_ZONE_GRAVITY,
+  REEL_ZONE_MAX_SPEED,
+  REEL_FISH_RETARGET_MIN_MS,
+  REEL_FISH_RETARGET_MAX_MS,
+  REEL_FISH_TARGET_MARGIN,
+  computeReelZoneSize,
+  computeReelFishSpeed,
   getFishSpecies,
   findNearestLake,
   isInsideLake,
@@ -99,8 +102,14 @@ function resetToIdle(player: PlayerSchema): void {
   player.activeFishSpeciesId = "";
   player.pendingSpeciesId = "";
   player.reelProgress = 0;
-  player.reelTension = 0;
+  player.reelFishY = 50;
+  player.reelZoneY = 50;
   player.reelPulling = false;
+  player.reelZoneVelocity = 0;
+  player.reelFishTargetY = 50;
+  player.reelFishNextRetargetAt = 0;
+  player.reelStartedAtMs = 0;
+  player.reelTimeInZoneMs = 0;
 }
 
 /** Per-tick: khi tới giờ cá cắn (`biteAt`), TỰ ĐỘNG móc câu và vào thẳng minigame kéo cá — không
@@ -113,19 +122,32 @@ export function updateBiteScheduling(ctx: FishingContext): void {
       player.fishState = "reeling";
       player.activeFishSpeciesId = player.pendingSpeciesId;
       player.pendingSpeciesId = "";
-      player.reelProgress = REEL_PROGRESS_START;
-      player.reelTension = 0;
+      // Bắt đầu 1 thanh mới: cá + vùng bắt đều xuất phát ở giữa thanh, phiên tính giờ từ đây.
+      player.reelProgress = 0;
+      player.reelFishY = 50;
+      player.reelZoneY = 50;
+      player.reelZoneVelocity = 0;
+      player.reelFishTargetY = 50;
+      player.reelFishNextRetargetAt = ctx.now;
+      player.reelStartedAtMs = ctx.now;
+      player.reelTimeInZoneMs = 0;
       ctx.broadcast({ type: "fish_bite", playerId: player.id });
     }
   }
 }
 
-/** Per-tick: advance the reel minigame for anyone currently reeling — giữ chuột kéo
- * (`reelPulling`) thì reelProgress tăng NHƯNG reelTension (độ căng dây) cũng tăng theo, càng khó
- * (`reelDifficulty` cao) căng càng nhanh; thả chuột ra thì reelTension giảm nhưng cá giằng lại khiến
- * reelProgress tụt (mạnh hơn ở loài khó) — buộc người chơi phải xen kẽ kéo/thả thay vì chỉ giữ
- * chuột suốt. reelTension chạm `REEL_TENSION_MAX` = đứt dây (mất cá) bất kể reelProgress đang bao
- * nhiêu; reelProgress chạm 100 = bắt được cá, chạm 0 = cá thoát (như cũ). */
+/** Per-tick: advance the "1 thanh" reel minigame cho mọi người đang reeling (redesign theo yêu cầu
+ * trực tiếp của Vicent, kèm 2 ảnh phác thảo tay — xem shared/src/constants.ts đầu mục Reel).
+ *
+ * Cơ chế: "cá" (reelFishY) tự bơi lang thang thất thường kiểu Stardew Valley, chọn 1 điểm ngẫu
+ * nhiên mới trên thanh mỗi REEL_FISH_RETARGET_MIN/MAX_MS rồi bơi thẳng tới đó với tốc độ
+ * computeReelFishSpeed(reelDifficulty). "Vùng bắt" (reelZoneY, bề rộng computeReelZoneSize) do
+ * người chơi điều khiển — giữ chuột (`reelPulling`) thì tăng tốc đẩy lên (REEL_ZONE_RISE_ACCEL),
+ * thả ra thì rơi xuống theo trọng lực (REEL_ZONE_GRAVITY), vận tốc luôn bị chặn trần
+ * REEL_ZONE_MAX_SPEED. Mỗi tick, nếu cá đang nằm trong vùng bắt thì cộng dồn vào
+ * `reelTimeInZoneMs`. Không còn bất kỳ điều kiện thất bại/thành công TỨC THỜI nào (không còn đứt
+ * dây/chùng dây) — người chơi luôn chơi đủ REEL_DURATION_MS, rồi ROLL XÁC SUẤT DUY NHẤT 1 LẦN dựa
+ * trên % thời gian cá nằm trong vùng bắt suốt phiên đó để quyết định bắt được cá hay vuột mất. */
 export function updateReeling(ctx: FishingContext): void {
   for (const [, player] of ctx.players) {
     if (player.fishState !== "reeling") continue;
@@ -136,46 +158,66 @@ export function updateReeling(ctx: FishingContext): void {
       continue;
     }
 
-    if (player.reelPulling) {
-      player.reelProgress = clamp(player.reelProgress + REEL_PROGRESS_FILL_RATE * ctx.deltaSeconds, 0, 100);
-      player.reelTension = clamp(
-        player.reelTension + computeTensionRiseRate(species.reelDifficulty) * ctx.deltaSeconds,
-        0,
-        REEL_TENSION_MAX,
-      );
+    const zoneSize = computeReelZoneSize(species.reelDifficulty);
+    const halfZone = zoneSize / 2;
+    const fishSpeed = computeReelFishSpeed(species.reelDifficulty);
+
+    // 1) Cá bơi lang thang: tới giờ thì chọn điểm đích ngẫu nhiên mới, luôn bơi thẳng tới điểm đích
+    // hiện tại với tốc độ cố định theo loài.
+    if (ctx.now >= player.reelFishNextRetargetAt) {
+      player.reelFishTargetY = randRange(REEL_FISH_TARGET_MARGIN, 100 - REEL_FISH_TARGET_MARGIN);
+      player.reelFishNextRetargetAt = ctx.now + randRange(REEL_FISH_RETARGET_MIN_MS, REEL_FISH_RETARGET_MAX_MS);
+    }
+    const fishDiff = player.reelFishTargetY - player.reelFishY;
+    const fishStep = fishSpeed * ctx.deltaSeconds;
+    if (Math.abs(fishDiff) <= fishStep) {
+      player.reelFishY = player.reelFishTargetY;
     } else {
-      player.reelProgress = clamp(
-        player.reelProgress - computeReelResistance(species.reelDifficulty) * ctx.deltaSeconds,
-        0,
-        100,
-      );
-      player.reelTension = clamp(player.reelTension - REEL_TENSION_FALL_RATE * ctx.deltaSeconds, 0, REEL_TENSION_MAX);
+      player.reelFishY += Math.sign(fishDiff) * fishStep;
     }
 
-    if (player.reelTension >= REEL_TENSION_MAX) {
-      resetToIdle(player);
-      ctx.broadcast({ type: "catch_result", playerId: player.id, success: false, reason: "line_snapped" });
-      continue;
+    // 2) Vùng bắt: đẩy lên khi giữ chuột, rơi xuống theo trọng lực khi thả ra.
+    if (player.reelPulling) {
+      player.reelZoneVelocity = Math.min(REEL_ZONE_MAX_SPEED, player.reelZoneVelocity + REEL_ZONE_RISE_ACCEL * ctx.deltaSeconds);
+    } else {
+      player.reelZoneVelocity = Math.max(-REEL_ZONE_MAX_SPEED, player.reelZoneVelocity - REEL_ZONE_GRAVITY * ctx.deltaSeconds);
     }
+    const nextZoneY = clamp(player.reelZoneY + player.reelZoneVelocity * ctx.deltaSeconds, halfZone, 100 - halfZone);
+    // Chạm biên trên/dưới thanh thì dừng vận tốc lại (đỡ dội ngược trông giả).
+    if (nextZoneY <= halfZone || nextZoneY >= 100 - halfZone) player.reelZoneVelocity = 0;
+    player.reelZoneY = nextZoneY;
 
-    if (player.reelProgress >= 100) {
-      const isFirstCatch = !player.collection.includes(species.id);
-      player.caughtCount += 1;
-      player.totalValue += species.value;
-      if (isFirstCatch) player.collection.push(species.id);
-      resetToIdle(player);
-      ctx.broadcast({
-        type: "catch_result",
-        playerId: player.id,
-        success: true,
-        speciesId: species.id,
-        rarity: species.rarity,
-        value: species.value,
-        isFirstCatch,
-      });
-    } else if (player.reelProgress <= 0) {
-      resetToIdle(player);
-      ctx.broadcast({ type: "catch_result", playerId: player.id, success: false, reason: "fish_escaped" });
+    // 3) Cộng dồn thời gian cá nằm trong vùng bắt + cập nhật % hiện tại (hiển thị UI + dùng để roll
+    // lúc hết giờ).
+    const elapsedMs = ctx.now - player.reelStartedAtMs;
+    const isInZone = Math.abs(player.reelFishY - player.reelZoneY) <= halfZone;
+    if (isInZone) player.reelTimeInZoneMs += ctx.deltaSeconds * 1000;
+    player.reelProgress = elapsedMs > 0 ? clamp((player.reelTimeInZoneMs / elapsedMs) * 100, 0, 100) : 0;
+
+    // 4) Hết giờ cố định (REEL_DURATION_MS) — roll xác suất DUY NHẤT 1 LẦN dựa trên % thời gian
+    // trong vùng bắt suốt cả phiên, quyết định thành/bại ngay lập tức.
+    if (elapsedMs >= REEL_DURATION_MS) {
+      const catchChance = clamp(player.reelTimeInZoneMs / REEL_DURATION_MS, 0, 1);
+      const success = Math.random() < catchChance;
+      if (success) {
+        const isFirstCatch = !player.collection.includes(species.id);
+        player.caughtCount += 1;
+        player.totalValue += species.value;
+        if (isFirstCatch) player.collection.push(species.id);
+        resetToIdle(player);
+        ctx.broadcast({
+          type: "catch_result",
+          playerId: player.id,
+          success: true,
+          speciesId: species.id,
+          rarity: species.rarity,
+          value: species.value,
+          isFirstCatch,
+        });
+      } else {
+        resetToIdle(player);
+        ctx.broadcast({ type: "catch_result", playerId: player.id, success: false, reason: "fish_escaped" });
+      }
     }
   }
 }

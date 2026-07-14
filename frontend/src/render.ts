@@ -974,106 +974,81 @@ export function drawFishIcon(
   ctx.restore();
 }
 
-/** Cần câu cong theo độ căng dây — cầm gần vai nhân vật, ngọn cần càng cong xuống khi reelTension
- * càng cao (đúng cảm giác "cần câu bị kéo cong" khi cá giằng mạnh). Trả về toạ độ ngọn cần để dây
- * câu vẽ tiếp từ đó thay vì từ thân nhân vật. */
-function drawBentRod(ctx: CanvasRenderingContext2D, sx: number, sy: number, size: number, tensionFrac: number, mirrored = false) {
-  const gripX = sx + (mirrored ? -size * 0.18 : size * 0.18);
-  const gripY = sy - size * 0.3;
-  const reach = size * 0.85;
-  const bend = size * 0.35 * tensionFrac;
-  const tipX = gripX + (mirrored ? -reach * 0.55 : reach * 0.55);
-  const tipY = gripY - reach * 0.85 + bend;
-
-  ctx.save();
-  ctx.strokeStyle = "#7a5233";
-  ctx.lineWidth = Math.max(2, size * 0.07);
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.moveTo(gripX, gripY);
-  ctx.quadraticCurveTo(gripX + (mirrored ? -reach * 0.3 : reach * 0.3), gripY - reach * 0.55 + bend * 0.4, tipX, tipY);
-  ctx.stroke();
-  ctx.restore();
-
-  return { x: tipX, y: tipY };
-}
-
-/** Cảnh cần câu cong + cá vùng vẫy vẽ trên 1 canvas độc lập ĐẶT NGAY TRONG modal câu cá (xem
- * ui.ts#updateFishingModal) — không neo theo world/camera như trước, chỉ có 1 "người câu" (ngọn
- * cần góc dưới-trái) và 1 "con cá" (góc phải) cố định trong khung canvas riêng của modal. Cá vẫy
- * mạnh/nhanh hơn theo `reelTension` — càng gần đứt dây càng thấy cá vùng vẫy dữ dội. */
+/** Minigame kéo cá "1 thanh dọc duy nhất" (redesign theo yêu cầu trực tiếp của Vicent + 2 ảnh phác
+ * thảo tay — xem shared/src/constants.ts đầu mục Reel): vẽ 1 thanh dọc (0 = đáy, 100 = đỉnh), 1 dải
+ * màu là "vùng bắt" (`zoneY` ± `zoneSize`/2, do người chơi điều khiển — giữ chuột đẩy lên, thả ra
+ * rơi xuống) và 1 biểu tượng cá (`fishY`) tự bơi lang thang thất thường kiểu Stardew Valley. Dải
+ * bắt đổi màu xanh lá khi cá đang nằm trong, vàng khi cá ở ngoài — phản hồi tức thời cho người chơi
+ * biết có đang "trúng" hay không mà không cần đọc số. Không còn cần câu cong hay hồ nước — chỉ 1
+ * thanh đúng như ảnh phác thảo, đơn giản và rõ ràng hơn hẳn cảnh cũ. */
 export function drawModalReelScene(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
-  reelTension: number,
+  fishY: number, // 0..100, 0 = đáy thanh, 100 = đỉnh thanh
+  zoneY: number, // 0..100, tâm dải bắt
+  zoneSize: number, // 0..100, bề rộng dải bắt
   fishColor: string,
   nowMs: number,
 ) {
   ctx.clearRect(0, 0, width, height);
 
-  const leftX = width * 0.08;
-  const rightX = width * 0.72;
-  const bottomY = height * 0.9;
-  const topY = height * 0.12;
+  const barTop = height * 0.05;
+  const barBottom = height * 0.95;
+  const barHeight = barBottom - barTop;
+  const barCenterX = width / 2;
+  const barWidth = Math.min(width * 0.4, 70);
 
-  // Draw the blue water dome/pond
+  const toPixelY = (v: number) => barBottom - (Math.max(0, Math.min(100, v)) / 100) * barHeight;
+
+  // Khung thanh (nền gỗ nhạt, khớp theme chung).
   ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(leftX + 10, bottomY);
-  // Left wall curving up
-  ctx.bezierCurveTo(leftX - 15, bottomY - 20, leftX - 15, topY + 25, leftX + 10, topY + 15);
-  // Top arch
-  ctx.bezierCurveTo(width * 0.25, topY - 10, width * 0.55, topY - 10, rightX - 10, topY + 15);
-  // Right wall curving down
-  ctx.bezierCurveTo(rightX + 15, topY + 25, rightX + 15, bottomY - 20, rightX - 10, bottomY);
-  ctx.closePath();
-
-  const waterGrad = ctx.createLinearGradient(0, topY, 0, bottomY);
-  waterGrad.addColorStop(0, "#76c4eb");
-  waterGrad.addColorStop(1, "#3c92c4");
-  ctx.fillStyle = waterGrad;
-  ctx.fill();
-
-  ctx.strokeStyle = "#27688c";
+  ctx.fillStyle = "rgba(60, 42, 26, 0.16)";
+  ctx.fillRect(barCenterX - barWidth / 2, barTop, barWidth, barHeight);
+  ctx.strokeStyle = "#7a5233";
   ctx.lineWidth = 3;
-  ctx.stroke();
+  ctx.strokeRect(barCenterX - barWidth / 2, barTop, barWidth, barHeight);
   ctx.restore();
 
-  const tensionFrac = Math.max(0, Math.min(1, reelTension / 100));
-
-  // Mirrored Rod placement (starts on the right, curves left)
-  const rodOriginX = rightX - width * 0.05;
-  const rodOriginY = bottomY - height * 0.05;
-  const rodSize = height * 0.62;
-  const rodTip = drawBentRod(ctx, rodOriginX, rodOriginY, rodSize, tensionFrac, true);
-
-  // Mirrored Fish placement (on the left)
-  const fishX = leftX + width * 0.12;
-  const fishY = bottomY - height * 0.35;
-
-  const slack = (1 - tensionFrac) * 12;
-  const jitter = tensionFrac > 0.6 ? (Math.random() - 0.5) * tensionFrac * 6 : 0;
+  // Vạch chia nhỏ dọc thanh cho có cảm giác "đo lường" giống ảnh phác thảo.
   ctx.save();
-  ctx.strokeStyle = "rgba(60, 50, 40, 0.8)";
-  ctx.lineWidth = 1.6;
-  ctx.beginPath();
-  ctx.moveTo(rodTip.x, rodTip.y);
-  ctx.quadraticCurveTo((rodTip.x + fishX) / 2 + jitter, (rodTip.y + fishY) / 2 + slack, fishX, fishY);
-  ctx.stroke();
+  ctx.strokeStyle = "rgba(122, 82, 51, 0.35)";
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 10; i++) {
+    const ty = barTop + (barHeight * i) / 10;
+    ctx.beginPath();
+    ctx.moveTo(barCenterX - barWidth / 2, ty);
+    ctx.lineTo(barCenterX - barWidth / 2 + 6, ty);
+    ctx.moveTo(barCenterX + barWidth / 2 - 6, ty);
+    ctx.lineTo(barCenterX + barWidth / 2, ty);
+    ctx.stroke();
+  }
   ctx.restore();
 
-  const wiggleSpeed = 6 + tensionFrac * 22;
-  const wiggle = Math.sin(nowMs / (1000 / wiggleSpeed)) * (0.35 + tensionFrac * 0.55);
-  // Fish faces right (direction 1) towards the rod tip
-  drawFishIcon(ctx, fishX, fishY, rodSize * 0.6, fishColor, wiggle, 1);
+  // Dải bắt (catch zone) — xanh lá khi cá đang ở trong, vàng khi cá ở ngoài.
+  const isInZone = Math.abs(fishY - zoneY) <= zoneSize / 2;
+  const zoneTopPx = toPixelY(zoneY + zoneSize / 2);
+  const zoneBottomPx = toPixelY(zoneY - zoneSize / 2);
+  ctx.save();
+  ctx.fillStyle = isInZone ? "rgba(122, 200, 99, 0.55)" : "rgba(255, 201, 92, 0.4)";
+  ctx.fillRect(barCenterX - barWidth / 2 + 3, zoneTopPx, barWidth - 6, zoneBottomPx - zoneTopPx);
+  ctx.strokeStyle = isInZone ? "#4f8f2f" : "#c9960a";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(barCenterX - barWidth / 2 + 3, zoneTopPx, barWidth - 6, zoneBottomPx - zoneTopPx);
+  ctx.restore();
+
+  // Cá — vẫy đuôi nhẹ nhàng liên tục, không cần lật hướng vì cá chỉ di chuyển lên/xuống.
+  const fishPixelY = toPixelY(fishY);
+  const wiggle = Math.sin(nowMs / 130) * 0.5;
+  drawFishIcon(ctx, barCenterX, fishPixelY, barWidth * 0.85, fishColor, wiggle, 1);
 }
 
 /** Fishing line + bobber, drawn from wherever the character stands out to their bobber's world
  * position — visible any time fishState isn't "idle". The bobber bobs gently while waiting and
  * jerks rapidly while reeling (someone's fighting a fish over there!) — the actual reel minigame
- * (bent rod, fish, progress/tension) is drawn inside the fishing modal (xem `drawModalReelScene` +
- * ui.ts#updateFishingModal), full-screen and in focus, not competing with this small world icon. */
+ * (single vertical bar + catch zone + fish, xem `drawModalReelScene`) is drawn inside the fishing
+ * modal (xem ui.ts#updateFishingModal), full-screen and in focus, not competing with this small
+ * world icon. */
 function drawFishingLineAndBobber(
   ctx: CanvasRenderingContext2D,
   camera: Camera,

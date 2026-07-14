@@ -1,5 +1,5 @@
 ---
-title: Concept Brief — "Where I Go Fish" (whereigfish.com)
+title: Concept Brief — "Where Big Fish" (wherebigfish.com)
 author: BA Draft (qua trao đổi với Vicent)
 date: 2026-07-05
 status: MVP câu cá đã prototype xong, đang chơi thử để tinh chỉnh con số
@@ -17,7 +17,7 @@ updated: 2026-07-11 — Bỏ bước "móc câu" (mục 2, core loop 4 bước -
   giấy da). Xem docs/progress.md.
 ---
 
-# Game câu cá multiplayer nhiều hồ — "Where I Go Fish"
+# Game câu cá multiplayer nhiều hồ — "Where Big Fish"
 
 **TL;DR**: Người chơi đứng quanh 1 hồ (room realtime, thấy người khác câu cùng lúc), thả cần ->
 chờ cá cắn câu -> cá cắn là tự vào minigame kéo cá kỹ năng -> bắt được cá theo độ hiếm,
@@ -27,7 +27,7 @@ giành giật trực tiếp với người khác.
 
 ## Situation
 
-- Domain `whereigfish.com` đã có sẵn, muốn build game câu cá thay vì tiếp tục hướng .io PvP cũ
+- Domain `wherebigfish.com` đã có sẵn, muốn build game câu cá thay vì tiếp tục hướng .io PvP cũ
   (xem lịch sử ở docs/progress.md — concept gốc là game kiểu slither.io/agar.io với cơ chế "nhảy
   đè").
 - Hạ tầng kỹ thuật đã có (Colyseus realtime room-based server, Vite + Canvas client) — tái sử dụng

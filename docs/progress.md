@@ -1,5 +1,15 @@
 # Progress Log
 
+## 2026-07-13 - Added BGM and SFX Synthesizer (Web Audio API)
+
+Created a fully synthesized audio system in the browser using the native Web Audio API, matching the cozy Stardew Valley theme with zero static asset dependencies.
+
+- `frontend/src/audio.ts`: Created `AudioManager` synthesizing cozy ambient chord progressions (Cmaj9 - Fmaj7 - Am7 - G6), dreamy delay effects, pentatonic melodies, and game SFXs (casting sweeps, splash plops, fish bite alerts, walking footsteps, mechanical reel ticks, tension alarms, snap/escape cues, detuned buzzer rejections, and custom rarity fanfares).
+- `frontend/src/ui.ts`: Inserted speaker icon buttons (🔊/🔇) to the connection card and stats panel to support master mute toggles.
+- `frontend/src/main.ts`: Setup user interaction initializers for AudioContext (satisfying browser autoplay policy), integrated audio triggers in network callbacks, and tracked frame loop states for movement, reeling, and tension.
+- `frontend/src/input.ts`: Exposed a public `isReelHeld` getter.
+- `frontend/src/style.css`: Added styles for audio action controls matching the wood/parchment color schemes.
+
 ## 2026-07-06 - Character redesigned again: bean/droplet blob -> round Kirby-style ball
 
 Direct feedback from Vicent: the bean/droplet blob shape (previous redesign) "looks gross" - most
@@ -1274,3 +1284,71 @@ trước đã làm modal câu cá + màn connect screen).
    cần bấm gì để "móc câu" trước), hiện đúng cảnh cần cong + cá + 2 thanh trạng thái theo đúng theme
    mới, và sau khi kéo xong quay lại trạng thái rảnh tay với chỉ số "Đã câu được"/"Tổng giá trị" cập
    nhật đúng. Không lỗi console trong suốt quá trình test.
+
+## 2026-07-13 - Minigame kéo cá gộp về "1 thanh duy nhất" kiểu Stardew Valley (roll xác suất cuối phiên)
+
+Vicent gửi 2 ảnh phác thảo tay (1 thanh dọc có 1 "khoảng cho phép" — ảnh 1 khoảng rộng, ảnh 2 khoảng
+hẹp gần đỉnh) kèm yêu cầu: gộp 2 thanh progress/tension cũ thành 1 thanh, có 1 "vùng bắt" mà người
+chơi chỉ cần giữ chuột sao cho "mực yêu cầu" (con cá) nằm trong đó; cá càng dễ vùng bắt càng rộng, cá
+càng hiếm/khó vùng bắt càng hẹp; sau 1 khoảng thời gian cố định, thời gian nằm trong vùng đó nhiều
+hay ít quyết định TỶ LỆ bắt được cá. Làm rõ qua AskUserQuestion: cá di chuyển kiểu Stardew Valley (tự
+bơi lang thang thất thường, người chơi chỉ điều khiển vùng bắt — giữ chuột đẩy lên, thả ra rơi xuống
+theo trọng lực); kết quả là XÁC SUẤT — hết thời gian cố định mới roll 1 lần duy nhất dựa trên % thời
+gian đã ở trong vùng bắt, KHÔNG phải kiểu đổ đầy 100% là thắng ngay.
+
+Bỏ hẳn khái niệm "độ căng dây câu" (tension)/đứt dây/chùng dây — không còn điều kiện thất bại tức
+thời nào cả, người chơi luôn chơi đủ hết `REEL_DURATION_MS` rồi mới biết kết quả.
+
+- `shared/src/constants.ts`: xoá `REEL_PROGRESS_FILL_RATE/DRAIN_RATE/START`, `REEL_TENSION_MAX`,
+  `REEL_TENSION_FALL_RATE`, `REEL_DIFFICULTY_MULTIPLIER`, `computeTensionRiseRate`,
+  `computeReelResistance`. Thêm `REEL_DURATION_MS` (8000ms, cố định mọi loài), `REEL_ZONE_MAX_SIZE`
+  (62, cho loài dễ nhất) / `REEL_ZONE_MIN_SIZE` (16, cho loài khó/hiếm nhất) + `computeReelZoneSize`
+  (nội suy tuyến tính theo `reelDifficulty`), `REEL_ZONE_RISE_ACCEL`/`GRAVITY`/`MAX_SPEED` (vật lý
+  vùng bắt), `REEL_FISH_BASE_SPEED`/`DIFFICULTY_SPEED_BONUS` + `computeReelFishSpeed` (tốc độ cá bơi
+  lang thang), `REEL_FISH_RETARGET_MIN/MAX_MS` + `REEL_FISH_TARGET_MARGIN` (nhịp chọn điểm đích ngẫu
+  nhiên mới, tạo cảm giác "thất thường").
+- `shared/src/types.ts`: `PlayerState` bỏ `reelTension`, thêm `reelFishY`/`reelZoneY` (0..100, vị trí
+  cá / tâm vùng bắt). `reelProgress` đổi ý nghĩa: giờ là % thời gian cá nằm trong vùng bắt TÍNH TỚI
+  HIỆN TẠI của phiên đang diễn ra (cũng là % sẽ dùng để roll xác suất lúc hết giờ). `ServerEvent`'s
+  `catch_result` bỏ `reason: "line_snapped"` (không còn đứt dây), chỉ còn `"fish_escaped"` (roll
+  không trúng lúc hết giờ).
+- `backend/src/schema/State.ts`: `PlayerSchema` bỏ `@type reelTension`, thêm `@type
+  reelFishY`/`reelZoneY`. Thêm bookkeeping thuần server (không đồng bộ, giống pattern
+  `desiredAngle`/`biteAt`): `reelZoneVelocity`, `reelFishTargetY`, `reelFishNextRetargetAt`,
+  `reelStartedAtMs`, `reelTimeInZoneMs`.
+- `backend/src/systems/fishing.ts`: xoá hẳn WeakMap `reelSlackState`/`ReelSlackState` (không còn cần
+  — không còn luật chùng dây). Viết lại `updateReeling()`: (1) cá bơi lang thang — tới giờ thì chọn
+  điểm đích ngẫu nhiên mới (`reelFishNextRetargetAt`), luôn bơi thẳng tới đó với tốc độ
+  `computeReelFishSpeed`; (2) vùng bắt — giữ chuột thì tăng vận tốc đẩy lên
+  (`REEL_ZONE_RISE_ACCEL`), thả ra thì rơi theo trọng lực (`REEL_ZONE_GRAVITY`), vận tốc luôn chặn
+  trần `REEL_ZONE_MAX_SPEED`; (3) mỗi tick cộng dồn `reelTimeInZoneMs` nếu cá đang nằm trong vùng bắt
+  (`computeReelZoneSize`), cập nhật `reelProgress` = % thời gian trong vùng tính tới hiện tại; (4) hết
+  `REEL_DURATION_MS` thì roll xác suất DUY NHẤT 1 LẦN = `reelTimeInZoneMs / REEL_DURATION_MS`, quyết
+  định thành/bại ngay. `resetToIdle`/`updateBiteScheduling` cập nhật theo field mới (cá và vùng bắt
+  đều bắt đầu ở giữa thanh, `reelStartedAtMs`/`reelTimeInZoneMs` reset về 0/`now`).
+- `backend/src/systems/npcFishers.ts`: bỏ hysteresis theo tension
+  (`NPC_REEL_RELEASE/RESUME_TENSION`), thay bằng AI đuổi theo vị trí cá: cá ở trên vùng bắt quá
+  ngưỡng đệm (`NPC_REEL_TOLERANCE = 4`) thì giữ chuột, ở dưới quá ngưỡng thì thả ra.
+- `frontend/src/render.ts`: xoá hẳn `drawBentRod` + cảnh cần cong/hồ nước cũ trong
+  `drawModalReelScene`. Viết lại thành vẽ 1 thanh dọc duy nhất (khung gỗ, có vạch chia nhỏ giống ảnh
+  phác thảo), 1 dải màu là vùng bắt (xanh lá khi cá đang trong, vàng khi cá ở ngoài), và biểu tượng
+  cá (`drawFishIcon`, tái sử dụng) tại vị trí `fishY` — không còn cần câu/hồ nước nào trong cảnh này.
+- `frontend/src/ui.ts`: bỏ hẳn 2 thanh DOM progress/tension
+  (`.fishing-modal-vertical-bar-wrapper`), canvas đổi sang khổ dọc (200x360) khớp cảnh mới, thêm
+  dòng chữ "Chance to catch: NN%" (đổi màu xanh lá/vàng/đỏ theo mức) đọc thẳng từ `reelProgress`.
+  `updateFishingModal` đổi chữ ký: nhận `reelFishY`/`reelZoneY` thay vì `reelTension`, tự tính lại
+  bề rộng vùng bắt qua `computeReelZoneSize(species.reelDifficulty)` (import từ `@bomio/shared`,
+  không cần đồng bộ riêng).
+- `frontend/src/style.css`: xoá toàn bộ `.fishing-modal-vertical-bar-*`, `.fishing-modal-canvas` đổi
+  bố cục sang khổ dọc, thêm `.fishing-modal-chance(-value)` với 3 màu trạng thái.
+- `frontend/src/main.ts`: bỏ hẳn nhánh cảnh báo "tension cao" (biến `lastTensionAlarmTime`,
+  `audioManager.playTensionAlarm()`) và toast/`playSnap()` cho `reason === "line_snapped"` (không
+  còn tình huống này). Cập nhật lời gọi `ui.updateFishingModal()` truyền `reelFishY`/`reelZoneY`
+  thay vì `reelTension`. Giữ nguyên tiếng "click" khi giữ chuột kéo (`playReelClick`).
+  `audio.ts`'s `playSnap()`/`playTensionAlarm()` cố tình GIỮ NGUYÊN định nghĩa (không xoá) dù không
+  còn call site nào — vô hại, đỡ phải động vào audio.ts không cần thiết.
+
+### Verification performed
+
+`npm run typecheck` sạch cả 3 workspace (shared build + backend/frontend `tsc --noEmit`), không lỗi
+nào sau khi rewrite toàn bộ chuỗi shared -> backend schema/systems -> frontend render/ui/main.

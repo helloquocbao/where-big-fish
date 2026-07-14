@@ -6,6 +6,7 @@ import { InputController } from "./input.ts";
 import { render, computePlayerVisualPosition, type Camera } from "./render.ts";
 import { PlayerAnimator } from "./animation.ts";
 import { WORLD_WIDTH, WORLD_HEIGHT } from "./config.ts";
+import { audioManager } from "./audio.ts";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 app.innerHTML = "";
@@ -15,6 +16,13 @@ canvas.className = "game-canvas";
 app.appendChild(canvas);
 
 const ctx = canvas.getContext("2d")!;
+
+// Initialize/resume AudioContext on first user gesture
+const initAudio = () => {
+  audioManager.init();
+};
+window.addEventListener("click", initAudio, { once: true, capture: true });
+window.addEventListener("keydown", initAudio, { once: true, capture: true });
 
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -53,13 +61,16 @@ const net = new Net({
       if (event.playerId !== net.sessionId) return;
       if (event.success && event.speciesId) {
         ui.showCatchModal(event.speciesId, event.rarity, event.value ?? 0, event.isFirstCatch ?? false);
+        audioManager.playCatch(event.rarity ?? "common");
       } else if (event.reason === "fish_escaped") {
         ui.showToast("The fish got away... try again!", "danger");
-      } else if (event.reason === "line_snapped") {
-        ui.showToast("Line snapped! You reeled for too long — release the mouse periodically to ease tension.", "danger");
+        audioManager.playEscape();
       }
     } else if (event.type === "cast_rejected" && event.reason === "too_far_from_lake") {
       ui.showToast("Stand closer to a lake or river shore to cast!", "warning");
+      audioManager.playReject();
+    } else if (event.type === "fish_bite" && event.playerId === net.sessionId) {
+      audioManager.playBite();
     }
     // "fish_bite" is purely visual (see render.ts's drawBiteIndicator, driven straight off
     // fishState/biteExpiresAt in the synced snapshot) — no extra toast needed, it would just be
@@ -82,8 +93,14 @@ let localPlayerScreenOrigin = { x: canvas.width / 2, y: canvas.height / 2 };
 // Trạng thái câu cá hiện tại của local player — mutated in frame() below, đọc bởi InputController
 // để quyết định chuột trái đang làm gì (cast/hook/reel).
 let latestLocalFishState: FishingState = "idle";
+let lastFishState: FishingState = "idle";
+let lastWalkX = 0;
+let lastWalkY = 0;
+let lastStepTime = 0;
+let lastReelClickTime = 0;
 
 ui.onPlay(async (name, skinId) => {
+  audioManager.init();
   if (net.status === "connected") {
     ui.enterGame();
     return;
@@ -137,6 +154,49 @@ function frame() {
     : { x: camera.width / 2, y: camera.height / 2 };
   latestLocalFishState = localPlayer?.fishState ?? "idle";
 
+  // Audio system checks and dynamic SFX triggers
+  if (localPlayer) {
+    const currentFishState = localPlayer.fishState;
+    
+    // 1. Detect fishing state transitions.
+    // Server resolves a cast synchronously — idle -> waiting in one step, no separate "casting"
+    // state is ever actually set (xem backend/src/systems/fishing.ts#tryCast) — nên nhánh cũ chờ
+    // fishState === "casting" không bao giờ chạy, và tiếng "tõm" phao rơi xuống nước (playSplash)
+    // theo đó cũng không bao giờ phát. Fix: bắt đúng chuyển trạng thái idle -> waiting, phát tiếng
+    // quăng cần ngay lập tức rồi tiếng phao rơi nước sau 1 khoảng trễ ngắn (giả lập thời gian phao
+    // bay trong không trung) thay vì dựa vào 1 state không có thật.
+    if (currentFishState !== lastFishState) {
+      if (currentFishState === "waiting" && lastFishState === "idle") {
+        audioManager.playCast();
+        window.setTimeout(() => audioManager.playSplash(), 180);
+      }
+      lastFishState = currentFishState;
+    }
+
+    // 2. Walk footsteps
+    if (currentFishState === "idle") {
+      const dx = localPlayer.x - lastWalkX;
+      const dy = localPlayer.y - lastWalkY;
+      const distMoved = Math.sqrt(dx * dx + dy * dy);
+      if (distMoved > 0.05) {
+        if (nowMs - lastStepTime > 280) {
+          audioManager.playFootstep();
+          lastStepTime = nowMs;
+        }
+      }
+      lastWalkX = localPlayer.x;
+      lastWalkY = localPlayer.y;
+    }
+
+    // 3. Reeling clicks (giữ chuột đẩy vùng bắt lên trong minigame "1 thanh")
+    if (currentFishState === "reeling" && input.isReelHeld) {
+      if (nowMs - lastReelClickTime > 90) {
+        audioManager.playReelClick();
+        lastReelClickTime = nowMs;
+      }
+    }
+  }
+
   if (net.status === "connected") {
     input.tick(nowMs);
   }
@@ -161,7 +221,8 @@ function frame() {
 
     ui.updateFishingModal(localPlayer.fishState === "reeling", {
       reelProgress: localPlayer.reelProgress,
-      reelTension: localPlayer.reelTension,
+      reelFishY: localPlayer.reelFishY,
+      reelZoneY: localPlayer.reelZoneY,
       speciesId: localPlayer.activeFishSpeciesId,
       nowMs,
     });

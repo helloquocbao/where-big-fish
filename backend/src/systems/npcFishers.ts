@@ -15,10 +15,11 @@ const NPC_NAME_POOL = [
   "Zola", "Nico", "Elin", "Anya", "Lukas", "Kai", "Mika", "Noor", "Théo", "Freya",
 ];
 
-// Ngưỡng hysteresis cho AI kéo cá của NPC (xem updateNpcFishers) — kéo tới khi căng dây chạm mức
-// cao rồi thả ra, thả tới khi căng dây tụt về mức thấp mới kéo lại.
-const NPC_REEL_RELEASE_TENSION = 75;
-const NPC_REEL_RESUME_TENSION = 20;
+// Vùng đệm (deadzone, cùng thang 0..100 với reelFishY/reelZoneY) cho AI kéo cá của NPC (xem
+// updateNpcFishers) — cá ở TRÊN tâm vùng bắt quá ngưỡng này thì giữ chuột (đẩy vùng bắt lên đuổi
+// theo), ở DƯỚI quá ngưỡng thì thả ra (rơi xuống đuổi theo); nằm trong khoảng đệm thì giữ nguyên
+// trạng thái đang có để khỏi giật liên tục qua lại mỗi tick.
+const NPC_REEL_TOLERANCE = 4;
 
 function generateNpcName(): string {
   const base = pickRandom(NPC_NAME_POOL) ?? "Player";
@@ -108,10 +109,11 @@ export function updateNpcFishers(players: MapSchema<PlayerSchema>, now: number):
         npc.npcNextActionAt = now + randRange(1500, 4000);
       }
     } else if (npc.fishState === "reeling") {
-      // Kéo cho tới khi căng dây khá cao rồi thả ra cho tới khi căng gần hết hẳn mới kéo lại
-      // (hysteresis) - mô phỏng người chơi biết xen kẽ kéo/thả để không đứt dây, thay vì giữ suốt.
-      if (npc.reelPulling && npc.reelTension >= NPC_REEL_RELEASE_TENSION) npc.reelPulling = false;
-      else if (!npc.reelPulling && npc.reelTension <= NPC_REEL_RESUME_TENSION) npc.reelPulling = true;
+      // Đuổi theo vị trí cá: cá ở trên vùng bắt thì giữ chuột đẩy lên, ở dưới thì thả ra cho rơi
+      // xuống — mô phỏng người chơi biết bám theo cá thay vì giữ/thả ngẫu nhiên.
+      const diff = npc.reelFishY - npc.reelZoneY;
+      if (diff > NPC_REEL_TOLERANCE) npc.reelPulling = true;
+      else if (diff < -NPC_REEL_TOLERANCE) npc.reelPulling = false;
     }
   }
 }

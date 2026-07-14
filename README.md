@@ -1,4 +1,4 @@
-# Where I Go Fish (whereigfish.com)
+# Where Big Fish (wherebigfish.com)
 
 Game câu cá multiplayer web — nhiều người cùng đứng câu quanh 1 hồ theo thời gian thực. Spec đầy
 đủ: `docs/concept_brief.md`. Quy tắc phối hợp code: `AGENTS.md`. Lịch sử quyết định/pivot:
@@ -21,9 +21,10 @@ npm run dev:frontend # chạy client tại http://localhost:5173 (xem log Vite �
 
 Mở trình duyệt tới địa chỉ Vite in ra, nhập tên, bấm Play để vào hồ.
 
-**Cách chơi**: giữ chuột trái để tích lực rồi thả ra để quăng cần theo hướng con trỏ. Chờ phao
-giật (cá cắn câu), bấm **Space** trong ~1 giây để móc câu, rồi giữ **Space** để kéo cần trong
-minigame kéo cá — giữ vùng bắt (màu xanh) trùng vị trí cá cho tới khi thanh tiến độ đầy.
+**Cách chơi**: WASD/mũi tên để di chuyển quanh hồ, giữ chuột trái để tích lực rồi thả ra để quăng
+cần theo hướng con trỏ. Cá cắn câu là TỰ ĐỘNG vào minigame kéo cá (không còn bước móc câu bằng
+Space) — modal kéo cá mở ra ngay, giữ chuột để kéo dây, thả định kỳ để hạ độ căng dây tránh đứt,
+kéo tới khi thanh tiến độ đầy.
 
 ## Trạng thái hiện tại (MVP)
 

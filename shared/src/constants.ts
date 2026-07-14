@@ -149,38 +149,76 @@ export function getFishSpecies(id: string | null | undefined): FishSpecies | und
 // ---- Minigame kéo cá (Reel) ----
 // (Không còn bước "móc câu" thủ công — cá cắn là tự động móc, vào thẳng minigame kéo cá; hằng số
 // HOOK_WINDOW_MS cũ đã xoá cùng state "biting", xem docs/progress.md.)
-/** Tốc độ đầy của thanh reelProgress (units/s) khi đang giữ chuột kéo. */
-export const REEL_PROGRESS_FILL_RATE = 20;
+//
+// REDESIGN (theo yêu cầu trực tiếp của Vicent, kèm 2 ảnh phác thảo tay): gộp 2 thanh
+// progress/tension cũ thành 1 thanh dọc DUY NHẤT (thang 0..100, 0 = đáy, 100 = đỉnh). Trên thanh đó
+// có "cá" (reelFishY) tự bơi lang thang thất thường kiểu Stardew Valley, và "vùng bắt" (reelZoneY,
+// bề rộng = computeReelZoneSize) do người chơi điều khiển — giữ chuột đẩy vùng bắt lên, thả ra thì
+// rơi xuống theo trọng lực. Cá càng dễ (reelDifficulty thấp) thì vùng bắt càng RỘNG (dễ giữ cá bên
+// trong), cá càng hiếm/khó thì vùng bắt càng HẸP (đúng ảnh 2). Không còn khái niệm "đứt dây"/"chùng
+// dây" hay thất bại tức thời nào cả — người chơi luôn chơi đủ REEL_DURATION_MS, sau đó % thời gian
+// cá nằm trong vùng bắt trong suốt phiên đó chính là XÁC SUẤT bắt được cá, roll 1 lần duy nhất lúc
+// hết giờ (xem backend/src/systems/fishing.ts#updateReeling).
 
-/** Tốc độ tụt của thanh reelProgress (units/s) khi KHÔNG giữ chuột — cá bơi ngược lại, giằng dây
- * ra. Càng khó (reelDifficulty cao) thì giằng càng mạnh, xem computeReelResistance. */
-export const REEL_PROGRESS_DRAIN_RATE = 10;
+/** Tổng thời lượng cố định (ms) của 1 phiên kéo cá — hết giờ là roll xác suất ngay, bất kể đang làm
+ * tốt hay tệ tới đâu. Không đổi theo độ khó loài cá — độ khó nằm ở bề rộng vùng bắt + tốc độ cá bơi,
+ * không phải ở thời lượng thử thách. */
+export const REEL_DURATION_MS = 8000;
 
-/** Điểm khởi đầu của reelProgress khi vừa móc câu thành công — không bắt đầu từ 0 để cú móc câu
- * không lập tức có nguy cơ thất bại ngay khung hình đầu tiên. */
-export const REEL_PROGRESS_START = 35;
+/** Bề rộng vùng bắt (thang 0..100, cùng đơn vị với reelFishY/reelZoneY) cho loài DỄ NHẤT
+ * (reelDifficulty = 0) — rộng rãi, gần như chỉ cần đứng yên giữa thanh là trúng, đúng ảnh 1. */
+export const REEL_ZONE_MAX_SIZE = 62;
 
-// ---- Độ căng dây câu (Tension) ----
-/** Thang đo 0..100 cho độ căng dây — giữ chuột kéo liên tục mà không thả ra sẽ khiến độ căng leo
- * tới mốc này và ĐỨT DÂY (mất cá), buộc người chơi phải xen kẽ kéo/thả thay vì chỉ giữ chuột suốt. */
-export const REEL_TENSION_MAX = 100;
+/** Bề rộng vùng bắt cho loài KHÓ/HIẾM NHẤT (reelDifficulty = 1) — hẹp lại nhiều, đòi hỏi bám sát
+ * cá liên tục, đúng ảnh 2. */
+export const REEL_ZONE_MIN_SIZE = 16;
 
-/** Tốc độ giảm căng dây (units/s) khi thả chuột ra — cố định, không đổi theo độ khó loài cá (độ khó
- * nằm ở tốc độ TĂNG căng khi kéo, không phải tốc độ hồi khi thả, để loài nào cũng "gỡ căng" được
- * nếu thả kịp lúc). */
-export const REEL_TENSION_FALL_RATE = 90;
-
-/** Tốc độ tăng căng dây (units/s) khi đang giữ chuột kéo — loài khó (reelDifficulty cao) tăng căng
- * nhanh hơn nhiều, buộc phải thả tay thường xuyên hơn khi câu cá hiếm/huyền thoại. */
-export function computeTensionRiseRate(reelDifficulty: number): number {
-  return 20 + reelDifficulty * 30;
+/** Nội suy tuyến tính giữa MAX_SIZE (dễ) và MIN_SIZE (khó) theo reelDifficulty (0..1) của loài cá
+ * đang kéo — dùng chung ở cả backend (tính vùng bắt thật) lẫn frontend (vẽ minigame + hiển thị dự
+ * đoán), đúng nguyên tắc "1 nguồn chân lý duy nhất" ở đầu file. */
+export function computeReelZoneSize(reelDifficulty: number): number {
+  const clamped = Math.max(0, Math.min(1, reelDifficulty));
+  return REEL_ZONE_MAX_SIZE - (REEL_ZONE_MAX_SIZE - REEL_ZONE_MIN_SIZE) * clamped;
 }
 
-/** Tốc độ cá giằng dây kéo reelProgress tụt xuống khi KHÔNG giữ chuột — loài khó giằng mạnh hơn,
- * nên thả tay lâu (để gỡ căng) cũng phải trả giá bằng tiến độ mất nhiều hơn. */
-export function computeReelResistance(reelDifficulty: number): number {
-  return REEL_PROGRESS_DRAIN_RATE * (1 + reelDifficulty);
+/** Gia tốc đẩy vùng bắt LÊN (units/s²) khi đang giữ chuột — cố định, không đổi theo độ khó loài cá
+ * (độ khó của cần thủ nằm ở việc phải bám theo 1 con cá bơi thất thường + hẹp vùng bắt, không nằm ở
+ * việc tay có "nặng" hay không). */
+export const REEL_ZONE_RISE_ACCEL = 260;
+
+/** Gia tốc rơi XUỐNG (units/s²) của vùng bắt khi thả chuột ra — trọng lực, luôn kéo vùng bắt về
+ * đáy thanh nếu không giữ chuột liên tục. */
+export const REEL_ZONE_GRAVITY = 220;
+
+/** Vận tốc tối đa (units/s, cả 2 chiều) của vùng bắt — chặn trần để không văng quá nhanh qua khỏi
+ * cá dù giữ/thả chuột liên tục nhiều khung hình liền. */
+export const REEL_ZONE_MAX_SPEED = 150;
+
+/** Tốc độ bơi (units/s) của cá hướng về điểm ngẫu nhiên kế tiếp (reelFishTargetY) cho loài DỄ NHẤT
+ * (reelDifficulty = 0) — bơi khá chậm, dễ bám theo. */
+export const REEL_FISH_BASE_SPEED = 26;
+
+/** Cộng thêm vào tốc độ bơi cho loài KHÓ/HIẾM NHẤT (reelDifficulty = 1) — bơi nhanh hơn hẳn, khó bám
+ * theo hơn nhiều, kết hợp với vùng bắt hẹp (computeReelZoneSize) tạo ra độ khó tổng thể leo theo
+ * đúng reelDifficulty của từng loài. */
+export const REEL_FISH_DIFFICULTY_SPEED_BONUS = 70;
+
+/** Nội suy tuyến tính tốc độ bơi của cá theo reelDifficulty (0..1) — dùng chung backend/frontend
+ * giống computeReelZoneSize. */
+export function computeReelFishSpeed(reelDifficulty: number): number {
+  const clamped = Math.max(0, Math.min(1, reelDifficulty));
+  return REEL_FISH_BASE_SPEED + REEL_FISH_DIFFICULTY_SPEED_BONUS * clamped;
 }
+
+/** Sau khi tới nơi (hoặc mỗi khoảng này), cá lại chọn 1 điểm ngẫu nhiên mới trên thanh để bơi tới —
+ * khoảng thời gian ngẫu nhiên giữa 2 mốc giúp việc bơi trông "thất thường" (erratic) kiểu Stardew
+ * Valley thay vì đều đặn máy móc. */
+export const REEL_FISH_RETARGET_MIN_MS = 450;
+export const REEL_FISH_RETARGET_MAX_MS = 1500;
+
+/** Lề an toàn (thang 0..100) mà điểm đích ngẫu nhiên của cá không được vượt qua — tránh cá cứ nhắm
+ * sát mép trên/dưới thanh liên tục trông thiếu tự nhiên. */
+export const REEL_FISH_TARGET_MARGIN = 8;
 
 // ---- Leaderboard ----
 /** Số lượng vị trí hiển thị trên bảng xếp hạng mỗi hồ — xếp theo tổng giá trị cá đã bắt được. */

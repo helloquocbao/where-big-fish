@@ -42,5 +42,5 @@ gameServer.define("game", GameRoom);
 
 const port = Number(process.env.PORT ?? 2567);
 httpServer.listen(port, "0.0.0.0", () => {
-  console.log(`Where I Go Fish backend listening on :${port} (lake capacity: ${ROOM_MAX_PLAYERS})`);
+  console.log(`Where Big Fish backend listening on :${port} (lake capacity: ${ROOM_MAX_PLAYERS})`);
 });
