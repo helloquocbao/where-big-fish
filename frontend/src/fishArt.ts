@@ -361,11 +361,13 @@ const drawBabyShark: FishDrawer = (ctx, size, color, wiggle) => {
 // ---------------------------------------------------------------- Silver Carp (thân bạc, vảy, đuôi chẻ)
 const drawSilverCarp: FishDrawer = (ctx, size, color, wiggle) => {
   forkedTail(ctx, size, shade(color, 0.9), wiggle, size * 0.4, 0.28);
-  ctx.fillStyle = color;
+  ctx.fillStyle = bodyGrad(ctx, color, size * 0.27);
   ctx.beginPath();
   ctx.ellipse(0, 0, size * 0.42, size * 0.27, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
+
+  highlight(ctx, -size * 0.05, -size * 0.1, size * 0.22, size * 0.06, -0.05);
   scales(ctx, size, color);
   ctx.fillStyle = shade(color, 0.9);
   ctx.beginPath();
@@ -380,11 +382,13 @@ const drawSilverCarp: FishDrawer = (ctx, size, color, wiggle) => {
 // ---------------------------------------------------------------- Minnow (bé xíu, mắt to)
 const drawMinnow: FishDrawer = (ctx, size, color, wiggle) => {
   forkedTail(ctx, size, color, wiggle, size * 0.34, 0.22);
-  ctx.fillStyle = color;
+  ctx.fillStyle = bodyGrad(ctx, color, size * 0.16);
   ctx.beginPath();
   ctx.ellipse(0, 0, size * 0.36, size * 0.16, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
+
+  highlight(ctx, -size * 0.05, -size * 0.05, size * 0.18, size * 0.04, -0.05);
   // Sọc bên mảnh.
   ctx.strokeStyle = shade(color, 0.7);
   ctx.lineWidth = Math.max(1, size * 0.02);
@@ -400,11 +404,13 @@ const drawMinnow: FishDrawer = (ctx, size, color, wiggle) => {
 // ---------------------------------------------------------------- Tilapia (thân cao, vây lưng gai)
 const drawTilapia: FishDrawer = (ctx, size, color, wiggle) => {
   forkedTail(ctx, size, shade(color, 0.95), wiggle, size * 0.36, 0.24);
-  ctx.fillStyle = color;
+  ctx.fillStyle = bodyGrad(ctx, color, size * 0.32);
   ctx.beginPath();
   ctx.ellipse(0, 0, size * 0.38, size * 0.32, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
+
+  highlight(ctx, -size * 0.05, -size * 0.1, size * 0.2, size * 0.07, -0.05);
   // Bands dọc mờ.
   ctx.strokeStyle = shade(color, 0.78);
   ctx.lineWidth = Math.max(1, size * 0.025);
@@ -437,11 +443,13 @@ const drawSnakehead: FishDrawer = (ctx, size, color, wiggle) => {
   const dark = shade(color, 0.65);
   roundTail(ctx, size, color, wiggle, size * 0.44, 0.22);
   // Thân dài thuôn.
-  ctx.fillStyle = color;
+  ctx.fillStyle = bodyGrad(ctx, color, size * 0.19);
   ctx.beginPath();
   ctx.ellipse(0, 0, size * 0.46, size * 0.19, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
+
+  highlight(ctx, -size * 0.05, -size * 0.06, size * 0.25, size * 0.04, -0.02);
   // Vây lưng thấp chạy gần hết lưng.
   ctx.fillStyle = shade(color, 0.85);
   ctx.beginPath();
@@ -465,11 +473,13 @@ const drawSnakehead: FishDrawer = (ctx, size, color, wiggle) => {
 // ---------------------------------------------------------------- Giant Barb (chép khổng lồ, thân sâu)
 const drawGiantBarb: FishDrawer = (ctx, size, color, wiggle) => {
   roundTail(ctx, size, shade(color, 0.92), wiggle, size * 0.38, 0.34);
-  ctx.fillStyle = color;
+  ctx.fillStyle = bodyGrad(ctx, color, size * 0.34);
   ctx.beginPath();
   ctx.ellipse(0, 0, size * 0.4, size * 0.34, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
+
+  highlight(ctx, -size * 0.05, -size * 0.12, size * 0.2, size * 0.08, -0.05);
   scales(ctx, size, color);
   // Vây lưng lớn.
   ctx.fillStyle = shade(color, 0.88);
