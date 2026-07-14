@@ -25,6 +25,23 @@ function shade(hex: string, factor: number): string {
   return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
 }
 
+function bodyGrad(ctx: CanvasRenderingContext2D, color: string, halfHeight: number, yOffset = 0): CanvasGradient {
+  const grad = ctx.createLinearGradient(0, -halfHeight + yOffset, 0, halfHeight + yOffset);
+  grad.addColorStop(0, shade(color, 0.72)); // darker back
+  grad.addColorStop(0.35, color);
+  grad.addColorStop(1, shade(color, 1.25));  // lighter belly
+  return grad;
+}
+
+function highlight(ctx: CanvasRenderingContext2D, cx: number, cy: number, rx: number, ry: number, angle = 0): void {
+  ctx.save();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx, ry, angle, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
 // ---------------------------------------------------------------- primitives
 function eye(ctx: CanvasRenderingContext2D, x: number, y: number, r: number): void {
   ctx.fillStyle = "#fffaf0";
@@ -135,11 +152,15 @@ function backStripes(ctx: CanvasRenderingContext2D, size: number, color: string,
 // ---------------------------------------------------------------- generic (fallback = hình cũ)
 const drawGenericFish: FishDrawer = (ctx, size, color, wiggle) => {
   triTail(ctx, size, color, wiggle, size * 0.42, 0.28);
-  ctx.fillStyle = color;
+  ctx.fillStyle = bodyGrad(ctx, color, size * 0.26);
   ctx.beginPath();
   ctx.ellipse(0, 0, size * 0.42, size * 0.26, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
+
+  highlight(ctx, -size * 0.05, -size * 0.1, size * 0.22, size * 0.06, -0.05);
+
+  ctx.fillStyle = shade(color, 0.95);
   ctx.beginPath();
   ctx.moveTo(size * 0.02, -size * 0.2);
   ctx.quadraticCurveTo(size * 0.12, -size * 0.44, size * 0.22, -size * 0.18);
@@ -166,11 +187,14 @@ const drawCatfish: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.stroke();
   ctx.restore();
   // Thân dài, đầu bẹt to phía trước.
-  ctx.fillStyle = color;
+  ctx.fillStyle = bodyGrad(ctx, color, size * 0.23);
   ctx.beginPath();
   ctx.ellipse(0, 0, size * 0.44, size * 0.23, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
+
+  highlight(ctx, -size * 0.05, -size * 0.08, size * 0.25, size * 0.05, -0.02);
+
   // Vây lưng thấp dài.
   ctx.fillStyle = dark;
   ctx.beginPath();
@@ -216,11 +240,13 @@ const drawKoi: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.stroke();
   ctx.restore();
   // Thân tròn mập.
-  ctx.fillStyle = color;
+  ctx.fillStyle = bodyGrad(ctx, color, size * 0.28);
   ctx.beginPath();
   ctx.ellipse(0, 0, size * 0.4, size * 0.28, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
+
+  highlight(ctx, -size * 0.05, -size * 0.1, size * 0.2, size * 0.06, -0.05);
   // Mảng trắng đặc trưng koi.
   ctx.fillStyle = white;
   ctx.beginPath();
@@ -481,11 +507,14 @@ const drawGoldenArowana: FishDrawer = (ctx, size, color, wiggle) => {
   ctx.stroke();
   ctx.restore();
   // Thân ribbon dài.
-  ctx.fillStyle = color;
+  ctx.fillStyle = bodyGrad(ctx, color, size * 0.17);
   ctx.beginPath();
   ctx.ellipse(0, 0, size * 0.46, size * 0.17, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
+
+  highlight(ctx, -size * 0.05, -size * 0.06, size * 0.25, size * 0.04, -0.01);
+
   // Vảy to xếp lớp.
   ctx.strokeStyle = edge;
   ctx.lineWidth = Math.max(1, size * 0.025);
@@ -513,11 +542,13 @@ const drawGoldenArowana: FishDrawer = (ctx, size, color, wiggle) => {
 // ---------------------------------------------------------------- Butterfish (nhỏ, tròn mập, mượt)
 const drawButterfish: FishDrawer = (ctx, size, color, wiggle) => {
   forkedTail(ctx, size, shade(color, 0.95), wiggle, size * 0.34, 0.2);
-  ctx.fillStyle = color;
+  ctx.fillStyle = bodyGrad(ctx, color, size * 0.27);
   ctx.beginPath();
   ctx.ellipse(0, 0, size * 0.36, size * 0.27, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
+
+  highlight(ctx, -size * 0.05, -size * 0.1, size * 0.18, size * 0.06, -0.05);
   // Ánh bơ: mảng sáng trên lưng.
   ctx.fillStyle = shade(color, 1.25);
   ctx.beginPath();

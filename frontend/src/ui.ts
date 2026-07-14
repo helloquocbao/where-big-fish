@@ -473,7 +473,7 @@ export class UI {
     if (!species) return;
 
     this.catchModalCtx.clearRect(0, 0, this.catchModalCanvas.width, this.catchModalCanvas.height);
-    drawFishIcon(this.catchModalCtx, this.catchModalCanvas.width / 2, this.catchModalCanvas.height / 2, 180, species.id, species.color);
+    drawFishIcon(this.catchModalCtx, this.catchModalCanvas.width / 2, this.catchModalCanvas.height / 2, 130, species.id, species.color);
 
     this.catchModalName.textContent = species.name;
     this.catchModalWeight.textContent = `Weight: ${weight.toFixed(2)} kg`;
