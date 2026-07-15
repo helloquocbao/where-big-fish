@@ -64,6 +64,10 @@ body {
   z-index: -1;
 }
 
+body.is-mobile .seo-content {
+  display: none !important;
+}
+
 .game-canvas {
   position: absolute;
   inset: 0;
@@ -1314,5 +1318,416 @@ body {
   flex-direction: column;
   align-items: center;
   margin: 12px auto 0 auto;
+}
+
+/* ---------- Mobile Landscape & Portrait Adjustments ---------- */
+
+/* Rotate Device Overlay (shown in portrait on mobile) */
+#rotate-device-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--c-wood-shadow);
+  z-index: 99999;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.rotate-card {
+  text-align: center;
+  background: linear-gradient(180deg, var(--c-parchment), var(--c-parchment-deep));
+  border: 4px solid var(--c-outline);
+  border-radius: 16px;
+  padding: 30px 24px;
+  max-width: 320px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.4);
+  font-family: var(--font-display);
+}
+
+.rotate-card h2 {
+  color: #8a4a2a;
+  margin: 0 0 10px;
+  font-size: 26px;
+}
+
+.rotate-card p {
+  color: var(--c-ink);
+  font-size: 14px;
+  margin: 0 0 15px;
+  line-height: 1.4;
+}
+
+.rotate-phone-icon {
+  font-size: 54px;
+  display: inline-block;
+  animation: rotatePhone 2.5s ease-in-out infinite;
+}
+
+@keyframes rotatePhone {
+  0% { transform: rotate(0deg); }
+  45% { transform: rotate(-90deg); }
+  55% { transform: rotate(-90deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+  body.is-mobile #rotate-device-overlay {
+    display: flex;
+  }
+}
+
+/* Mobile Controls Overlay */
+.mobile-controls-container {
+  display: none;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 25;
+}
+
+body.is-mobile .mobile-controls-container {
+  display: block;
+}
+
+/* Virtual Joystick */
+.mobile-joystick {
+  position: absolute;
+  bottom: 25px;
+  left: 35px;
+  width: 100px;
+  height: 100px;
+  pointer-events: auto;
+}
+
+.joystick-base {
+  width: 100%;
+  height: 100%;
+  background: rgba(91, 58, 30, 0.35);
+  border: 3.5px solid var(--c-outline);
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.joystick-handle {
+  width: 46px;
+  height: 46px;
+  background: linear-gradient(180deg, var(--c-wood-light), var(--c-wood));
+  border: 3px solid var(--c-outline);
+  border-radius: 50%;
+  box-shadow: 0 4px 0 var(--c-wood-shadow);
+  transition: transform 0.05s ease-out;
+}
+
+/* Action Button */
+.mobile-action-btn {
+  position: absolute;
+  bottom: 25px;
+  right: 35px;
+  width: 95px;
+  height: 95px;
+  border-radius: 50% !important;
+  font-size: 20px !important;
+  pointer-events: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 30;
+  box-shadow: 0 6px 0 var(--c-wood-shadow) !important;
+}
+
+.mobile-action-btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 var(--c-wood-shadow) !important;
+}
+
+.mobile-action-btn.danger {
+  background: linear-gradient(180deg, #e57373, var(--c-berry)) !important;
+  box-shadow: 0 6px 0 #b71c1c !important;
+  border-color: var(--c-outline) !important;
+  color: #fff !important;
+}
+
+.mobile-action-btn.danger:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #b71c1c !important;
+}
+
+/* Mobile Landscape UI Optimization overrides */
+@media (max-height: 480px) {
+  /* Hide heavy top ad banner to free vertical space */
+  body.is-mobile .hud-banner {
+    display: none !important;
+  }
+  
+  /* Reposition and scale Stats Panel */
+  body.is-mobile .stats-panel {
+    top: 10px !important;
+    left: 10px !important;
+    bottom: auto !important;
+    padding: 6px 10px !important;
+    width: auto !important;
+    max-width: 200px !important;
+    font-size: 10px !important;
+    pointer-events: auto !important;
+    gap: 2px !important;
+  }
+  body.is-mobile .stats-panel > div {
+    margin-bottom: 0px !important;
+    white-space: nowrap !important;
+  }
+  body.is-mobile .stats-panel .stats-actions {
+    margin-top: 2px !important;
+    display: flex !important;
+    gap: 4px !important;
+  }
+  body.is-mobile .collection-button {
+    font-size: 9px !important;
+    padding: 1px 4px !important;
+  }
+  body.is-mobile .stats-panel .audio-toggle-button {
+    display: none !important; /* Hide to save space */
+  }
+  
+  /* Reposition and scale Leaderboard */
+  body.is-mobile .leaderboard {
+    top: 10px !important;
+    right: 10px !important;
+    width: 130px !important;
+    padding: 6px 10px !important;
+    transition: height 0.2s ease-out, padding 0.2s ease-out !important;
+    overflow: hidden !important;
+    max-height: 140px !important;
+  }
+  body.is-mobile .leaderboard.collapsed {
+    height: 32px !important;
+    padding: 4px 10px !important;
+  }
+  body.is-mobile .leaderboard.collapsed h2 {
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 10px !important;
+    text-align: center !important;
+  }
+  body.is-mobile .leaderboard h2::after {
+    content: " ▾";
+    font-size: 9px;
+    vertical-align: middle;
+  }
+  body.is-mobile .leaderboard:not(.collapsed) h2::after {
+    content: " ▴";
+  }
+  body.is-mobile .leaderboard.collapsed .leaderboard-list {
+    display: none !important;
+  }
+  body.is-mobile .leaderboard h2 {
+    font-size: 11px !important;
+    margin-bottom: 2px !important;
+  }
+  body.is-mobile .leaderboard-list li {
+    font-size: 9px !important;
+    padding: 1px 0 !important;
+  }
+  
+  /* Reposition and scale Minimap next to Leaderboard */
+  body.is-mobile .minimap-frame {
+    display: block !important;
+    top: 10px !important;
+    right: 150px !important;
+    bottom: auto !important;
+    left: auto !important;
+    padding: 2px !important;
+    pointer-events: auto !important;
+  }
+  body.is-mobile .minimap {
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 8px !important;
+  }
+
+  /* Shrink & Restructure connect card into 2 Columns for landscape mobile screens */
+  body.is-mobile .connect-card {
+    display: grid !important;
+    grid-template-columns: 1.2fr 1fr !important;
+    grid-template-rows: auto auto auto !important;
+    width: 92vw !important;
+    max-width: 520px !important;
+    max-height: 92vh !important;
+    padding: 14px 18px !important;
+    gap: 10px !important;
+    overflow: visible !important;
+    align-items: center;
+  }
+  body.is-mobile .connect-card h1 {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    font-size: 24px !important;
+    margin: 0 !important;
+    text-align: left !important;
+  }
+  body.is-mobile .connect-card .tagline {
+    display: none !important; /* Hide description on mobile to save vertical space */
+  }
+  body.is-mobile .connect-card .name-input {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    margin: 0 !important;
+    height: 38px !important;
+    font-size: 14px !important;
+  }
+  body.is-mobile .connect-card .connect-actions {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+    margin: 0 !important;
+    display: flex !important;
+    gap: 8px !important;
+  }
+  body.is-mobile .connect-card .connect-actions .play-button {
+    flex: 1 !important;
+    height: 38px !important;
+    font-size: 16px !important;
+  }
+  body.is-mobile .connect-card .connect-actions .audio-toggle-button {
+    width: 38px !important;
+    height: 38px !important;
+  }
+  body.is-mobile .connect-card .error-text {
+    grid-column: 1 !important;
+    grid-row: 4 !important;
+    margin: 0 !important;
+    font-size: 11px !important;
+    text-align: left !important;
+  }
+  body.is-mobile .connect-card .skin-picker {
+    grid-column: 2 !important;
+    grid-row: 1 / span 3 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100% !important;
+    padding: 6px !important;
+    gap: 6px !important;
+    background: rgba(176, 121, 63, 0.1) !important;
+  }
+  body.is-mobile .connect-card .skin-preview {
+    width: 60px !important;
+    height: 70px !important;
+  }
+  body.is-mobile .connect-card .skin-swatches {
+    gap: 4px !important;
+  }
+  body.is-mobile .connect-card .skin-swatch {
+    width: 20px !important;
+    height: 20px !important;
+  }
+  
+  /* Reeling minigame modal scaling */
+  body.is-mobile .fishing-modal-card {
+    padding: 8px 16px !important;
+    max-width: 90vw !important;
+  }
+  body.is-mobile .fishing-modal-canvas {
+    height: 48vh !important;
+    width: 70px !important;
+  }
+  body.is-mobile .fishing-modal-title {
+    font-size: 16px !important;
+  }
+  
+  /* Collection card scaling & layout */
+  body.is-mobile .collection-modal-card {
+    width: 90vw !important;
+    height: 90vh !important;
+    padding: 12px 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  body.is-mobile .collection-list {
+    overflow-y: auto !important;
+    flex: 1 !important;
+    padding-right: 4px !important;
+  }
+  body.is-mobile .collection-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)) !important;
+    gap: 8px !important;
+  }
+  body.is-mobile .collection-card {
+    padding: 8px 4px !important;
+    font-size: 11px !important;
+  }
+  body.is-mobile .collection-card-icon {
+    font-size: 24px !important;
+    height: 32px !important;
+  }
+  
+  /* Catch jingle modal horizontal layout for mobile landscape */
+  body.is-mobile .catch-modal-card {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: auto auto auto auto !important;
+    width: 90vw !important;
+    max-width: 500px !important;
+    max-height: 92vh !important;
+    padding: 12px 24px !important;
+    gap: 16px !important;
+    align-items: center !important;
+    overflow: visible !important;
+  }
+  body.is-mobile .catch-modal-close {
+    top: 6px !important;
+    right: 10px !important;
+    font-size: 22px !important;
+  }
+  body.is-mobile .catch-modal-new {
+    grid-column: 1 / span 2 !important;
+    grid-row: 1 !important;
+    font-size: 11px !important;
+    position: static !important;
+    width: fit-content !important;
+    margin: 0 auto !important;
+  }
+  body.is-mobile .catch-modal-canvas {
+    grid-column: 1 !important;
+    grid-row: 2 / span 3 !important;
+    width: 140px !important;
+    height: 95px !important;
+    margin: 0 auto !important;
+  }
+  body.is-mobile .catch-modal-name {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    font-size: 16px !important;
+    text-align: left !important;
+    margin: 0 !important;
+  }
+  body.is-mobile .catch-modal-rarity {
+    grid-column: 2 !important;
+    grid-row: 3 !important;
+    font-size: 10px !important;
+    padding: 2px 6px !important;
+    width: fit-content !important;
+    margin: 0 !important;
+  }
+  body.is-mobile .catch-modal-weight {
+    grid-column: 2 !important;
+    grid-row: 4 !important;
+    font-size: 11px !important;
+    text-align: left !important;
+    margin: 0 !important;
+  }
+  body.is-mobile .catch-modal-value {
+    grid-column: 2 !important;
+    grid-row: 5 !important;
+    font-size: 11px !important;
+    text-align: left !important;
+    margin: 0 !important;
+  }
 }
 

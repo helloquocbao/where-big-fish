@@ -18,6 +18,13 @@ app.appendChild(canvas);
 
 const ctx = canvas.getContext("2d")!;
 
+// Logical (CSS) viewport size — all camera/aim math below works in these units (mouse events are also in CSS
+// pixels). The canvas BACKING STORE is sized up by devicePixelRatio so rendering is crisp on HiDPI/Retina
+// screens instead of being upscaled and blurry; render() applies the dpr scale to the drawing context.
+let viewportW = window.innerWidth;
+let viewportH = window.innerHeight;
+let devicePixelRatioValue = window.devicePixelRatio || 1;
+
 // Initialize/resume AudioContext on first user gesture
 const initAudio = () => {
   audioManager.init();
@@ -26,13 +33,23 @@ window.addEventListener("click", initAudio, { once: true, capture: true });
 window.addEventListener("keydown", initAudio, { once: true, capture: true });
 
 function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  viewportW = window.innerWidth;
+  viewportH = window.innerHeight;
+  devicePixelRatioValue = window.devicePixelRatio || 1;
+  canvas.width = Math.round(viewportW * devicePixelRatioValue);
+  canvas.height = Math.round(viewportH * devicePixelRatioValue);
+  canvas.style.width = `${viewportW}px`;
+  canvas.style.height = `${viewportH}px`;
 }
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
 const ui = new UI(app);
+
+const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+if (isMobile) {
+  document.body.classList.add("is-mobile");
+}
 
 const net = new Net({
   onStatusChange: (status, detail) => {
@@ -95,7 +112,7 @@ const input = new InputController(
 input.bindAdditionalTarget(ui.fishingModalInteractiveEl);
 
 // Where the local player is actually drawn on screen this frame — mutated in frame() below.
-let localPlayerScreenOrigin = { x: canvas.width / 2, y: canvas.height / 2 };
+let localPlayerScreenOrigin = { x: viewportW / 2, y: viewportH / 2 };
 // Current fishing state of the local player — mutated in frame() below, read by InputController
 // to decide what left click is doing (cast/hook/reel).
 let latestLocalFishState: FishingState = "idle";
@@ -134,7 +151,7 @@ const MAP_ZOOM = 1.4;
 
 // World is centered on the origin — camera starts at (0,0) before a player connects and
 // immediately re-centers on the local player once joined (see frame() below).
-const camera: Camera = { x: 0, y: 0, width: canvas.width * MAP_ZOOM, height: canvas.height * MAP_ZOOM, scale: 1 / MAP_ZOOM };
+const camera: Camera = { x: 0, y: 0, width: viewportW * MAP_ZOOM, height: viewportH * MAP_ZOOM, scale: 1 / MAP_ZOOM };
 const animator = new PlayerAnimator();
 
 /** Keeps the camera's view rectangle fully inside the world — otherwise players near an edge
@@ -148,10 +165,11 @@ function clampCameraAxis(center: number, worldSize: number, viewportSize: number
 
 function frame() {
   const nowMs = Date.now();
-  // Virtual viewport = canvas × MAP_ZOOM; scale = shrink ratio to real pixels (render.ts applies once).
-  camera.width = canvas.width * MAP_ZOOM;
-  camera.height = canvas.height * MAP_ZOOM;
-  camera.scale = canvas.width / camera.width;
+  // Virtual viewport = logical viewport × MAP_ZOOM; scale = shrink ratio to logical CSS pixels (render.ts
+  // applies this together with devicePixelRatio). Camera math stays in CSS pixels so it matches mouse aim.
+  camera.width = viewportW * MAP_ZOOM;
+  camera.height = viewportH * MAP_ZOOM;
+  camera.scale = viewportW / camera.width;
 
   const snapshot = net.getSnapshot();
   const localPlayerId = net.sessionId;
@@ -171,10 +189,10 @@ function frame() {
   const camScale = camera.scale ?? 1;
   localPlayerScreenOrigin = localPlayer
     ? {
-        x: (animator.get(localPlayer.id).x - camera.x) * camScale + canvas.width / 2,
-        y: (animator.get(localPlayer.id).y - camera.y) * camScale + canvas.height / 2,
+        x: (animator.get(localPlayer.id).x - camera.x) * camScale + viewportW / 2,
+        y: (animator.get(localPlayer.id).y - camera.y) * camScale + viewportH / 2,
       }
-    : { x: canvas.width / 2, y: canvas.height / 2 };
+    : { x: viewportW / 2, y: viewportH / 2 };
   latestLocalFishState = localPlayer?.fishState ?? "idle";
 
   // Audio system checks and dynamic SFX triggers
@@ -264,9 +282,11 @@ function frame() {
     localPlayerId,
     nowMs,
     getPlayerAnimation: (playerId) => animator.get(playerId),
+    devicePixelRatio: devicePixelRatioValue,
   });
 
   ui.updateLeaderboard(snapshot.leaderboard, localPlayerId);
+  ui.updateMobileControls(latestLocalFishState);
   // Cast power bar is only meaningful when idle — during fishing, holding the mouse
   // means something else entirely (hooking/reeling), not charging cast power.
   ui.updateCastMeter(net.status === "connected" && latestLocalFishState === "idle" ? input.castChargeFraction : null);

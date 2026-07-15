@@ -1,5 +1,46 @@
 # Progress Log
 
+## 2026-07-15 - Audit + tối ưu hiệu năng FE & BE
+
+Audit toàn bộ frontend và backend về hiệu năng runtime (không đổi luật game, không đụng `shared/`).
+Kết luận: kiến trúc đã tốt, không có vấn đề nghiêm trọng; đã xử lý các điểm ưu tiên cao/trung bình.
+`npm run typecheck` sạch, `npm run build -w frontend` build được, đo thời gian dựng grid = ~16.7ms.
+
+Backend (BE agent):
+- `backend/src/systems/movement.ts`: thay collision di chuyển từ gọi `isInsideAnyLake` (point-in-polygon
+  qua mọi hồ, riêng sông Hàn ~132 đỉnh, AABB phủ gần cả map nên hiếm khi reject rẻ) — trước đây tới ~15
+  lần/tick/người đang di chuyển — bằng **spatial grid** rasterize 1 lần lúc khởi động (cell 16px,
+  ~222k ô, dựng ~16.7ms). Lookup O(1). Grid được **dilate 1 ô** để bảo toàn (không cho lọt vào nước).
+- `backend/src/systems/npcFishers.ts`: NPC đứng yên nên pin `currentLakeId` lúc tạo (`createNpc`), và
+  `rebalanceNpcFishers` đọc trực tiếp field này thay vì gọi lại `findNearestLake` (O(hồ × đỉnh)) mỗi giây.
+
+Frontend (FE agent):
+- `frontend/src/ui.ts`: `updateLeaderboard` và `updateCollection` được gọi mỗi frame nhưng dữ liệu hiếm
+  đổi → thêm **dirty-check key**, chỉ ghi lại innerHTML khi thực sự thay đổi (hết DOM thrashing 60fps).
+  Dừng vòng lặp `animateSkinPreview` khi vào game (`enterGame`), khôi phục khi về màn kết nối.
+- `frontend/src/render.ts`:
+  - Shore patches: thay `createRadialGradient` mỗi ô mỗi frame bằng **sprite offscreen cache theo màu**
+    + `drawImage` (loại bỏ hoàn toàn cấp phát gradient mỗi frame).
+  - `drawLake`: precompute ring hình học world-space + bán kính bao 1 lần lúc load; mỗi frame chỉ chiếu
+    camera vào **mảng scratch tái sử dụng** (hết `.map()` cấp phát mỗi frame; riêng sông ~1200 tuple/frame).
+    Bounds min/max màn hình tính 1 lần trong 1 vòng lặp, dùng lại cho river-flow + tên hồ.
+  - Cull hồ dùng bán kính precompute thay cho `Math.max(...polygon.map(hypot))` mỗi frame.
+  - Tái sử dụng `Map` `visuals` giữa các frame.
+- `frontend/src/main.ts`: xử lý **devicePixelRatio** — backing store canvas scale theo dpr (nét trên
+  Retina/HiDPI), toán camera/aim chuyển sang dùng kích thước CSS logic (`viewportW/H`); `render()` áp dpr.
+
+Chưa làm (ghi nhận để cân nhắc sau, tránh rủi ro cắt ngang FE/BE trong lần này):
+- De-sync `PlayerSchema.collection` (đang `@type([...])` sync tới mọi client dù chỉ chủ sở hữu cần) —
+  cần FE tự dựng collection từ event `catch_result`; là thay đổi phối hợp FE+BE nên để lần sau.
+
+Bổ sung 2026-07-15 (nén og-image):
+- `frontend/public/og-image.jpg`: tạo bản JPEG 1200×669 (quality 82, ~273KB) từ `og-image.png`
+  (1376×768, ~1.6MB) bằng `sips`, giữ đúng tỉ lệ 16:9 (không méo). Giảm ~83%.
+- `frontend/index.html`: trỏ `og:image` / `twitter:image` / JSON-LD `image`+`screenshot` sang `.jpg`,
+  thêm `og:image:type=image/jpeg`, sửa `og:image:height` 630→669 cho khớp kích thước thật.
+- File `og-image.png` gốc đã XOÁ khỏi `public/` (2026-07-15) sau khi xác nhận — deploy nhẹ hơn ~1.4MB,
+  chỉ còn `og-image.jpg`.
+
 ## 2026-07-14 - Thiết kế lại ảnh đại diện chia sẻ mạng xã hội (og-image.png)
 
 Thay thế ảnh `og-image.png` mặc định bằng ảnh minh họa hài hước theo chủ đề game câu cá: một chú cá béo ngố đeo vương miện đang cầm cần câu kéo ngược lại nhân vật Kirby hồng bay trên không trung.

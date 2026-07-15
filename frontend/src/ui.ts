@@ -59,6 +59,13 @@ export class UI {
   private skinPreviewCtx: CanvasRenderingContext2D;
   private skinSwatchesEl: HTMLDivElement;
   private selectedSkinId: string;
+  private skinPreviewRaf: number | undefined;
+  private animateSkinPreview: () => void = () => {};
+
+  // Dirty-check keys so the leaderboard/collection DOM is only rebuilt when the data actually changes,
+  // instead of tearing down + re-serializing innerHTML on every animation frame (60fps DOM thrashing).
+  private lastLeaderboardKey = "";
+  private lastCollectionKey = "";
 
   private castMeter: HTMLDivElement;
   private castMeterFill: HTMLDivElement;
@@ -83,6 +90,7 @@ export class UI {
   private catchModalNew: HTMLDivElement;
   private catchModalTimeout: number | undefined;
   private catchValueAnimFrame: number | undefined;
+  private mobileActionBtn: HTMLButtonElement | null = null;
 
   constructor(container: HTMLElement) {
     initAdSense();
@@ -148,9 +156,10 @@ export class UI {
 
     const animateSkinPreview = () => {
       drawSkinPreview(this.skinPreviewCtx, this.skinPreviewCanvas.width, this.skinPreviewCanvas.height, this.selectedSkinId, Date.now());
-      requestAnimationFrame(animateSkinPreview);
+      this.skinPreviewRaf = requestAnimationFrame(animateSkinPreview);
     };
-    requestAnimationFrame(animateSkinPreview);
+    this.animateSkinPreview = animateSkinPreview;
+    this.skinPreviewRaf = requestAnimationFrame(animateSkinPreview);
 
     // --- In-game HUD ---
     this.hud = document.createElement("div");
@@ -180,6 +189,15 @@ export class UI {
       </div>
       <div class="minimap-frame panel-cut">
         <canvas class="minimap" width="140" height="140"></canvas>
+      </div>
+      <!-- Mobile controls overlay -->
+      <div class="mobile-controls-container">
+        <div id="mobile-joystick" class="mobile-joystick">
+          <div class="joystick-base">
+            <div class="joystick-handle"></div>
+          </div>
+        </div>
+        <button id="mobile-action-btn" class="mobile-action-btn wood-button" type="button">CAST</button>
       </div>
       <div class="cast-meter hidden">
         <div class="cast-meter-track"><div class="cast-meter-fill"></div></div>
@@ -229,7 +247,25 @@ export class UI {
       </div>
     `;
     this.root.appendChild(this.hud);
+    const leaderboardEl = this.hud.querySelector<HTMLDivElement>(".leaderboard")!;
     this.leaderboardList = this.hud.querySelector<HTMLOListElement>(".leaderboard-list")!;
+    
+    // Toggle leaderboard collapse on mobile
+    const leaderboardHeader = leaderboardEl.querySelector("h2");
+    if (leaderboardHeader) {
+      leaderboardHeader.style.cursor = "pointer";
+      leaderboardHeader.addEventListener("click", () => {
+        if (document.body.classList.contains("is-mobile")) {
+          leaderboardEl.classList.toggle("collapsed");
+        }
+      });
+    }
+    // Auto collapse initially on mobile
+    const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    if (isMobile) {
+      leaderboardEl.classList.add("collapsed");
+    }
+
     this.caughtCountValue = this.hud.querySelector<HTMLSpanElement>(".stats-caught-count")!;
     this.caughtValue = this.hud.querySelector<HTMLSpanElement>(".stats-caught-value")!;
     this.currentLakeValue = this.hud.querySelector<HTMLSpanElement>(".stats-current-lake")!;
@@ -238,6 +274,7 @@ export class UI {
 
     this.castMeter = this.hud.querySelector<HTMLDivElement>(".cast-meter")!;
     this.castMeterFill = this.hud.querySelector<HTMLDivElement>(".cast-meter-fill")!;
+    this.mobileActionBtn = this.hud.querySelector<HTMLButtonElement>("#mobile-action-btn");
 
     this.fishingModal = this.hud.querySelector<HTMLDivElement>(".fishing-modal")!;
     this.fishingModalCanvas = this.hud.querySelector<HTMLCanvasElement>(".fishing-modal-canvas")!;
@@ -343,18 +380,36 @@ export class UI {
   enterGame() {
     this.connectScreen.classList.add("hidden");
     this.hud.classList.remove("hidden");
+    // The skin-preview canvas is now hidden — stop its rAF loop so it doesn't keep clearing + redrawing
+    // a character every frame behind the game (wasted work while invisible).
+    if (this.skinPreviewRaf != null) {
+      cancelAnimationFrame(this.skinPreviewRaf);
+      this.skinPreviewRaf = undefined;
+    }
     loadAdBanner("hud-ad-banner", import.meta.env.VITE_ADSENSE_SLOT_HUD);
   }
 
   backToConnectScreen() {
     this.connectScreen.classList.remove("hidden");
     this.hud.classList.add("hidden");
+    // Resume the skin-preview animation now that the connect screen is visible again.
+    if (this.skinPreviewRaf == null) {
+      this.skinPreviewRaf = requestAnimationFrame(this.animateSkinPreview);
+    }
+    // Force a fresh render of leaderboard/collection on the next session (data is per-session).
+    this.lastLeaderboardKey = "";
+    this.lastCollectionKey = "";
     this.setConnecting(false);
     loadAdBanner("connect-ad-banner", import.meta.env.VITE_ADSENSE_SLOT_CONNECT);
   }
 
   updateLeaderboard(entries: LeaderboardEntry[], localPlayerId: string | null) {
     const top = [...entries].sort((a, b) => b.totalValue - a.totalValue).slice(0, 10);
+    // Skip the innerHTML rebuild unless the visible content actually changed — this runs every frame but the
+    // leaderboard only changes on catch events, so most frames are a no-op.
+    const key = `${localPlayerId ?? ""}|${top.map((e) => `${e.playerId}:${Math.round(e.totalValue)}:${e.name}`).join(",")}`;
+    if (key === this.lastLeaderboardKey) return;
+    this.lastLeaderboardKey = key;
     this.leaderboardList.innerHTML = top
       .map((entry) => {
         const isLocal = entry.playerId === localPlayerId;
@@ -378,6 +433,11 @@ export class UI {
   /** Fish collection log — count + the always-available modal list, checked off as species are
    * caught for the first time. `collection` is the local player's list of caught species ids. */
   updateCollection(collection: string[]) {
+    // Called every frame from main.ts — but the collection only grows on a (rare) first-catch, so skip the
+    // count + full catalog-list DOM rebuild unless it actually changed.
+    const key = collection.join(",");
+    if (key === this.lastCollectionKey) return;
+    this.lastCollectionKey = key;
     this.collectionCount.textContent = String(collection.length);
     this.renderCollectionList(collection);
   }
@@ -564,6 +624,20 @@ export class UI {
       ctx.arc(mx, my, 4, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
+    }
+  }
+
+  updateMobileControls(fishState: string) {
+    if (!this.mobileActionBtn) return;
+    if (fishState === "reeling") {
+      this.mobileActionBtn.textContent = "REEL";
+      this.mobileActionBtn.classList.add("danger");
+    } else if (fishState === "waiting" || fishState === "bite") {
+      this.mobileActionBtn.textContent = "REEL";
+      this.mobileActionBtn.classList.remove("danger");
+    } else {
+      this.mobileActionBtn.textContent = "CAST";
+      this.mobileActionBtn.classList.remove("danger");
     }
   }
 }

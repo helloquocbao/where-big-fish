@@ -8,8 +8,10 @@
 // [-WORLD_HEIGHT/2, WORLD_HEIGHT/2] (see backend/src/systems/utils.ts and movement.ts).
 export { WORLD_WIDTH, WORLD_HEIGHT } from "@bomio/shared";
 
-// Colyseus server endpoint.
-export const SERVER_URL = import.meta.env.VITE_SERVER_URL || "ws://localhost:2567";
+// Colyseus server endpoint (dynamically targets same host IP for mobile local testing).
+export const SERVER_URL =
+  import.meta.env.VITE_SERVER_URL ||
+  (window.location.protocol === "https:" ? "wss://" : "ws://") + window.location.hostname + ":2567";
 export const ROOM_NAME = "game";
 
 // Visual scaling for the character ball — re-exported from @bomio/shared since it's also used to

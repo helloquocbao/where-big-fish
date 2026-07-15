@@ -63,6 +63,17 @@ export class InputController {
   private chargeStartAt: number | null = null;
   private reelHeld = false;
 
+  private touchStartX = 0;
+  private touchStartY = 0;
+  private touchStartAt = 0;
+
+  // Virtual Joystick properties
+  private joystickAngle = 0;
+  private joystickMoving = false;
+  private joystickTouchId: number | null = null;
+  private joystickCenter = { x: 0, y: 0 };
+  private maxJoystickDist = 45; // limit handle travel (px)
+
   private canvas: HTMLCanvasElement;
   private send: (message: ClientMessage) => void;
   private getOrigin: () => { x: number; y: number };
@@ -78,10 +89,7 @@ export class InputController {
   constructor(
     canvas: HTMLCanvasElement,
     send: (message: ClientMessage) => void,
-    // Where the local player is actually drawn on screen this frame — normally the canvas center,
-    // but not when the camera is pinned at the lake's edge.
     getOrigin: () => { x: number; y: number },
-    // Trạng thái câu cá hiện tại của local player — quyết định chuột trái làm gì (cast/hook/reel).
     getFishState: () => FishingState,
     getPlayerPos: () => { x: number; y: number },
   ) {
@@ -98,19 +106,38 @@ export class InputController {
     canvas.addEventListener("mouseup", this.onMouseUp);
     canvas.addEventListener("mouseleave", this.onMouseLeave);
     canvas.addEventListener("contextmenu", this.onContextMenu);
+
+    canvas.addEventListener("touchstart", this.onTouchStart, { passive: false });
+    canvas.addEventListener("touchmove", this.onTouchMove, { passive: false });
+    canvas.addEventListener("touchend", this.onTouchEnd, { passive: false });
+
+    // Bind virtual joystick DOM events if they exist
+    setTimeout(() => {
+      const joystickEl = document.getElementById("mobile-joystick");
+      if (joystickEl) {
+        joystickEl.addEventListener("touchstart", this.onJoystickStart, { passive: false });
+        joystickEl.addEventListener("touchmove", this.onJoystickMove, { passive: false });
+        joystickEl.addEventListener("touchend", this.onJoystickEnd, { passive: false });
+      }
+
+      const actionBtnEl = document.getElementById("mobile-action-btn");
+      if (actionBtnEl) {
+        actionBtnEl.addEventListener("touchstart", this.onActionBtnStart, { passive: false });
+        actionBtnEl.addEventListener("touchend", this.onActionBtnEnd, { passive: false });
+      }
+    }, 100);
+
     window.addEventListener("keydown", this.onKeyDown);
     window.addEventListener("keyup", this.onKeyUp);
     window.addEventListener("blur", this.onWindowBlur);
   }
 
-  /** Binds additional mousedown/mouseup/mouseleave (reusing the exact handlers bound to canvas) to another
-   * DOM element — used for the fishing modal (ui.ts#fishingModalInteractiveEl): clicking/holding right inside
-   * the modal also reels/pulls the rod just like on the canvas, because the modal covers the canvas and the canvas
-   * no longer receives these events while the modal is open. */
   bindAdditionalTarget(el: HTMLElement) {
     el.addEventListener("mousedown", this.onMouseDown);
     el.addEventListener("mouseup", this.onMouseUp);
     el.addEventListener("mouseleave", this.onMouseLeave);
+    el.addEventListener("touchstart", this.onTouchStart, { passive: false });
+    el.addEventListener("touchend", this.onTouchEnd, { passive: false });
   }
 
   get isReelHeld(): boolean {
@@ -123,10 +150,166 @@ export class InputController {
     this.canvas.removeEventListener("mouseup", this.onMouseUp);
     this.canvas.removeEventListener("mouseleave", this.onMouseLeave);
     this.canvas.removeEventListener("contextmenu", this.onContextMenu);
+
+    this.canvas.removeEventListener("touchstart", this.onTouchStart);
+    this.canvas.removeEventListener("touchmove", this.onTouchMove);
+    this.canvas.removeEventListener("touchend", this.onTouchEnd);
+
+    const joystickEl = document.getElementById("mobile-joystick");
+    if (joystickEl) {
+      joystickEl.removeEventListener("touchstart", this.onJoystickStart);
+      joystickEl.removeEventListener("touchmove", this.onJoystickMove);
+      joystickEl.removeEventListener("touchend", this.onJoystickEnd);
+    }
+
+    const actionBtnEl = document.getElementById("mobile-action-btn");
+    if (actionBtnEl) {
+      actionBtnEl.removeEventListener("touchstart", this.onActionBtnStart);
+      actionBtnEl.removeEventListener("touchend", this.onActionBtnEnd);
+    }
+
     window.removeEventListener("keydown", this.onKeyDown);
     window.removeEventListener("keyup", this.onKeyUp);
     window.removeEventListener("blur", this.onWindowBlur);
   }
+
+  private onJoystickStart = (e: TouchEvent) => {
+    e.preventDefault();
+    const joystickEl = document.getElementById("mobile-joystick");
+    if (!joystickEl) return;
+    const rect = joystickEl.getBoundingClientRect();
+    this.joystickCenter = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+    const touch = e.changedTouches[0];
+    this.joystickTouchId = touch.identifier;
+    this.handleJoystickMove(touch.clientX, touch.clientY);
+  };
+
+  private onJoystickMove = (e: TouchEvent) => {
+    e.preventDefault();
+    if (this.joystickTouchId === null) return;
+    for (let i = 0; i < e.touches.length; i++) {
+      const touch = e.touches[i];
+      if (touch.identifier === this.joystickTouchId) {
+        this.handleJoystickMove(touch.clientX, touch.clientY);
+        break;
+      }
+    }
+  };
+
+  private handleJoystickMove(clientX: number, clientY: number) {
+    const dx = clientX - this.joystickCenter.x;
+    const dy = clientY - this.joystickCenter.y;
+    const dist = Math.hypot(dx, dy);
+
+    this.joystickAngle = Math.atan2(dy, dx);
+    this.joystickMoving = dist > 5; // deadzone
+
+    const handleEl = document.querySelector(".joystick-handle") as HTMLElement;
+    if (handleEl) {
+      const clampDist = Math.min(dist, this.maxJoystickDist);
+      const hx = Math.cos(this.joystickAngle) * clampDist;
+      const hy = Math.sin(this.joystickAngle) * clampDist;
+      handleEl.style.transform = `translate(${hx}px, ${hy}px)`;
+    }
+  }
+
+  private onJoystickEnd = (e: TouchEvent) => {
+    e.preventDefault();
+    if (this.joystickTouchId === null) return;
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const touch = e.changedTouches[i];
+      if (touch.identifier === this.joystickTouchId) {
+        this.joystickTouchId = null;
+        this.joystickMoving = false;
+
+        const handleEl = document.querySelector(".joystick-handle") as HTMLElement;
+        if (handleEl) {
+          handleEl.style.transform = `translate(0px, 0px)`;
+        }
+        break;
+      }
+    }
+  };
+
+  private onActionBtnStart = (e: TouchEvent) => {
+    e.preventDefault();
+    if (this.getFishState() === "reeling") {
+      this.reelHeld = true;
+    } else if (this.getFishState() === "idle") {
+      this.chargeStartAt = performance.now();
+    }
+  };
+
+  private onActionBtnEnd = (e: TouchEvent) => {
+    e.preventDefault();
+    if (this.reelHeld) {
+      this.reelHeld = false;
+      return;
+    }
+    if (this.getFishState() === "idle") {
+      this.releaseCast();
+    }
+  };
+
+  private onTouchStart = (e: TouchEvent) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = this.canvas.getBoundingClientRect();
+    this.touchStartX = touch.clientX - rect.left;
+    this.touchStartY = touch.clientY - rect.top;
+    this.mouseX = this.touchStartX;
+    this.mouseY = this.touchStartY;
+    this.touchStartAt = performance.now();
+
+    if (this.getFishState() === "reeling") {
+      this.reelHeld = true;
+    } else {
+      this.chargeStartAt = performance.now();
+    }
+  };
+
+  private onTouchMove = (e: TouchEvent) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = this.canvas.getBoundingClientRect();
+    this.mouseX = touch.clientX - rect.left;
+    this.mouseY = touch.clientY - rect.top;
+  };
+
+  private onTouchEnd = (e: TouchEvent) => {
+    e.preventDefault();
+    if (this.reelHeld) {
+      this.reelHeld = false;
+      return;
+    }
+
+    const duration = performance.now() - this.touchStartAt;
+    const dx = this.mouseX - this.touchStartX;
+    const dy = this.mouseY - this.touchStartY;
+    const dist = Math.hypot(dx, dy);
+
+    if (this.getFishState() === "idle") {
+      if (duration < 250 && dist < 15) {
+        // Simple tap -> walk there!
+        this.chargeStartAt = null;
+        const origin = this.getOrigin();
+        const mdx = this.mouseX - origin.x;
+        const mdy = this.mouseY - origin.y;
+        const playerPos = this.getPlayerPos();
+        
+        this.targetWorldX = playerPos.x + mdx;
+        this.targetWorldY = playerPos.y + mdy;
+        this.hasTarget = true;
+        this.targetMoving = true;
+      } else {
+        // Drag/Hold release -> cast!
+        this.releaseCast();
+      }
+    }
+  };
 
   private onMouseMove = (e: MouseEvent) => {
     const rect = this.canvas.getBoundingClientRect();
@@ -223,6 +406,10 @@ export class InputController {
   /** Current angle + movement state, derived from the vector sum of held WASD/arrow keys or right-click destination.
    * No keys held and no right-click destination -> moving=false, keeping the last facing angle when moving. */
   private get movementInput(): { angle: number; moving: boolean } {
+    if (this.joystickMoving) {
+      this.lastMovementAngle = this.joystickAngle;
+      return { angle: this.joystickAngle, moving: true };
+    }
     if (this.heldMoveKeys.size > 0) {
       let dx = 0;
       let dy = 0;
@@ -235,6 +422,7 @@ export class InputController {
       this.lastMovementAngle = Math.atan2(dy, dx);
       return { angle: this.lastMovementAngle, moving: true };
     } else if (this.hasTarget) {
+      this.lastMovementAngle = this.targetAngle;
       return { angle: this.targetAngle, moving: this.targetMoving };
     }
     return { angle: this.lastMovementAngle, moving: false };
@@ -242,6 +430,10 @@ export class InputController {
 
   /** Angle (radians) from wherever the local player is actually drawn this frame to the mouse. */
   get pointerAngle(): number {
+    const isMobile = document.body.classList.contains("is-mobile");
+    if (isMobile) {
+      return this.lastMovementAngle;
+    }
     const origin = this.getOrigin();
     const dx = this.mouseX - origin.x;
     const dy = this.mouseY - origin.y;

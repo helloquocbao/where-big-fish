@@ -65,6 +65,31 @@ function isNearAnyLakeEdge(worldX: number, worldY: number): boolean {
 const MEADOW_PATCH_CELL_SIZE = 480;
 const MEADOW_PATCH_COLORS = ["rgba(150,205,90,0.45)", "rgba(200,235,140,0.5)", "rgba(120,190,80,0.4)"];
 
+// Meadow patches used to allocate a fresh radial gradient (ctx.createRadialGradient) for EVERY visible
+// cell EVERY frame (~15-25 gradients/frame × 60fps, all immediately GC'd — a top GC offender). Instead we
+// pre-render each patch color once onto a small offscreen sprite (radial color→transparent) and blit it with
+// drawImage scaled to the cell radius — zero per-frame gradient allocation, identical visual result. Bounded
+// by MEADOW_PATCH_COLORS.length sprites total.
+const PATCH_SPRITE_SIZE = 128;
+const patchSpriteCache = new Map<string, HTMLCanvasElement>();
+function getPatchSprite(color: string): HTMLCanvasElement {
+  let sprite = patchSpriteCache.get(color);
+  if (!sprite) {
+    sprite = document.createElement("canvas");
+    sprite.width = PATCH_SPRITE_SIZE;
+    sprite.height = PATCH_SPRITE_SIZE;
+    const sctx = sprite.getContext("2d")!;
+    const half = PATCH_SPRITE_SIZE / 2;
+    const g = sctx.createRadialGradient(half, half, 0, half, half, half);
+    g.addColorStop(0, color);
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    sctx.fillStyle = g;
+    sctx.fillRect(0, 0, PATCH_SPRITE_SIZE, PATCH_SPRITE_SIZE);
+    patchSpriteCache.set(color, sprite);
+  }
+  return sprite;
+}
+
 /** Static decoration layers (meadow patches, trees, reeds...) are scattered according to a DETERMINISTIC function of grid cell coordinates
  * in world space — the result never changes for a cell. Previously, every frame recalculated placement + expensive
  * lake/mountain checks (point-in-polygon, river ~132 vertices) for each visible cell. Now we cache the STATIC decision
@@ -113,13 +138,9 @@ function drawShorePatches(ctx: CanvasRenderingContext2D, camera: Camera) {
       const cell = cachedCell(shorePatchCache, cx, cy, computeShorePatchCell);
       if (!cell) continue;
       const [sx, sy] = worldToScreen(camera, cell.worldX, cell.worldY);
-      const gradient = ctx.createRadialGradient(sx, sy, 0, sx, sy, cell.radius);
-      gradient.addColorStop(0, cell.color);
-      gradient.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.arc(sx, sy, cell.radius, 0, Math.PI * 2);
-      ctx.fill();
+      const sprite = getPatchSprite(cell.color);
+      const diameter = cell.radius * 2;
+      ctx.drawImage(sprite, sx - cell.radius, sy - cell.radius, diameter, diameter);
     }
   }
 }
@@ -388,24 +409,84 @@ function traceBlobPath(ctx: CanvasRenderingContext2D, points: [number, number][]
 
 const SHORE_RING_WIDTH = 22;
 
-function drawLake(ctx: CanvasRenderingContext2D, camera: Camera, lake: LakeDefinition, nowMs: number) {
-  const waterPoints: [number, number][] = lake.polygon.map((p) =>
-    worldToScreen(camera, lake.centerX + p.x, lake.centerY + p.y),
-  );
+/**
+ * Per-lake render geometry, precomputed ONCE at module load. Lake polygons are static (the same shape every
+ * frame — only the camera moves), so the world-space water/shore/wet-shore point rings never change. Previously
+ * drawLake rebuilt three fresh arrays with `.map()` every frame (the river alone has ~132 vertices → ~1200 tuple
+ * allocations/frame just for it), plus recomputed hypot/scale per vertex. Now we store the static world-space rings
+ * and reusable screen-space scratch arrays that we overwrite in place each frame (subtract camera → no allocation).
+ * `maxBoundingRadius` is also precomputed here for the off-screen cull in render().
+ */
+interface LakeRenderGeometry {
+  water: { x: number; y: number }[];
+  shore: { x: number; y: number }[];
+  wetShore: { x: number; y: number }[];
+  waterScreen: [number, number][];
+  shoreScreen: [number, number][];
+  wetShoreScreen: [number, number][];
+  maxBoundingRadius: number;
+}
 
-  // Dry Sand Shore points (outer shore)
-  const shorePoints: [number, number][] = lake.polygon.map((p) => {
+const lakeRenderGeometry = new Map<string, LakeRenderGeometry>();
+for (const lake of LAKE_DEFINITIONS) {
+  const water = lake.polygon.map((p) => ({ x: lake.centerX + p.x, y: lake.centerY + p.y }));
+  const shore = lake.polygon.map((p) => {
     const len = Math.max(Math.hypot(p.x, p.y), 1);
     const scale = (len + SHORE_RING_WIDTH) / len;
-    return worldToScreen(camera, lake.centerX + p.x * scale, lake.centerY + p.y * scale);
+    return { x: lake.centerX + p.x * scale, y: lake.centerY + p.y * scale };
   });
-
-  // Wet Sand Shore points (inner shore)
-  const wetShorePoints: [number, number][] = lake.polygon.map((p) => {
+  const wetShore = lake.polygon.map((p) => {
     const len = Math.max(Math.hypot(p.x, p.y), 1);
     const scale = (len + SHORE_RING_WIDTH * 0.42) / len;
-    return worldToScreen(camera, lake.centerX + p.x * scale, lake.centerY + p.y * scale);
+    return { x: lake.centerX + p.x * scale, y: lake.centerY + p.y * scale };
   });
+  let maxR = 0;
+  for (const p of lake.polygon) {
+    const d = Math.hypot(p.x, p.y);
+    if (d > maxR) maxR = d;
+  }
+  lakeRenderGeometry.set(lake.id, {
+    water,
+    shore,
+    wetShore,
+    waterScreen: water.map(() => [0, 0] as [number, number]),
+    shoreScreen: shore.map(() => [0, 0] as [number, number]),
+    wetShoreScreen: wetShore.map(() => [0, 0] as [number, number]),
+    maxBoundingRadius: maxR + SHORE_RING_WIDTH,
+  });
+}
+
+/** Overwrites `screen` in place with the camera-projected coords of `world` (no allocation). */
+function projectRing(camera: Camera, world: { x: number; y: number }[], screen: [number, number][]): void {
+  const offX = camera.width / 2 - camera.x;
+  const offY = camera.height / 2 - camera.y;
+  for (let i = 0; i < world.length; i++) {
+    screen[i][0] = world[i].x + offX;
+    screen[i][1] = world[i].y + offY;
+  }
+}
+
+function drawLake(ctx: CanvasRenderingContext2D, camera: Camera, lake: LakeDefinition, nowMs: number) {
+  const geo = lakeRenderGeometry.get(lake.id)!;
+  const waterPoints = geo.waterScreen;
+  const shorePoints = geo.shoreScreen;
+  const wetShorePoints = geo.wetShoreScreen;
+  projectRing(camera, geo.water, waterPoints);
+  projectRing(camera, geo.shore, shorePoints);
+  projectRing(camera, geo.wetShore, wetShorePoints);
+
+  // Screen-space bounds of the water ring — computed once here in a single pass and reused by the river
+  // flow lines + lake-name placement below (previously each did its own Math.min/max(...map()) spread).
+  let minSx = Infinity;
+  let maxSx = -Infinity;
+  let minSy = Infinity;
+  let maxSy = -Infinity;
+  for (const [sx, sy] of waterPoints) {
+    if (sx < minSx) minSx = sx;
+    if (sx > maxSx) maxSx = sx;
+    if (sy < minSy) minSy = sy;
+    if (sy > maxSy) maxSy = sy;
+  }
 
   const [cx, cy] = worldToScreen(camera, lake.centerX, lake.centerY);
   const maxRadius = Math.max(lake.baseRadiusX, lake.baseRadiusY);
@@ -527,10 +608,6 @@ function drawLake(ctx: CanvasRenderingContext2D, camera: Camera, lake: LakeDefin
     ctx.setLineDash([30, 90]);
 
     const flowOffset = (nowMs * 0.08) % 120;
-    const minSx = Math.min(...waterPoints.map(([sx]) => sx));
-    const maxSx = Math.max(...waterPoints.map(([sx]) => sx));
-    const minSy = Math.min(...waterPoints.map(([, sy]) => sy));
-    const maxSy = Math.max(...waterPoints.map(([, sy]) => sy));
 
     ctx.lineDashOffset = -flowOffset;
     for (const offset of [-45, -15, 15, 45]) {
@@ -550,7 +627,7 @@ function drawLake(ctx: CanvasRenderingContext2D, camera: Camera, lake: LakeDefin
 
 
   // Lake name, shown above the water block — helps orientation on the large map with many lakes.
-  const minSy = Math.min(...waterPoints.map(([, sy]) => sy));
+  // (minSy computed once at the top of drawLake.)
   ctx.save();
   ctx.font = "bold 14px 'Baloo 2', system-ui, sans-serif";
   ctx.textAlign = "center";
@@ -1253,6 +1330,10 @@ export interface RenderOptions {
   localPlayerId: string | null;
   nowMs: number;
   getPlayerAnimation: (playerId: string) => PlayerAnimation;
+  /** Physical-to-CSS pixel ratio of the canvas backing store (window.devicePixelRatio). Applied on top of the
+   * zoom scale so the scene renders at native resolution on HiDPI/Retina displays instead of being upscaled/blurry.
+   * Defaults to 1. */
+  devicePixelRatio?: number;
 }
 
 /** Instant water splash effect when the bobber hits the lake surface (Vicent 2026-07-14): a few expanding ripple rings +
@@ -1266,6 +1347,9 @@ interface CastSplash {
 }
 const castSplashes: CastSplash[] = [];
 const CAST_SPLASH_DURATION_MS = 650;
+
+// Reused across frames to avoid allocating a fresh Map every render() — cleared at the start of each frame.
+const visualsScratch = new Map<string, VisualPosition>();
 
 export function spawnCastSplash(worldX: number, worldY: number, nowMs: number): void {
   const drops: { vx: number; vy: number }[] = [];
@@ -1346,14 +1430,19 @@ export function render(ctx: CanvasRenderingContext2D, opts: RenderOptions) {
   // thật của canvas — mọi vị trí + kích thước thu nhỏ đồng đều. worldToScreen giữ nguyên (virtual),
   // các phép cull so với camera.width/height (cũng virtual) vẫn đúng. reset về identity sau khi vẽ.
   const zoomScale = camera.scale ?? 1;
+  const dpr = opts.devicePixelRatio ?? 1;
   ctx.save();
-  ctx.scale(zoomScale, zoomScale);
+  // dpr scales the backing store up to native pixels (crisp on Retina); zoomScale shrinks the virtual world
+  // into that space. Both are applied once here for the whole scene.
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.scale(zoomScale * dpr, zoomScale * dpr);
 
   clearBackground(ctx, camera, snapshot.players, nowMs);
   for (const lake of LAKE_DEFINITIONS) {
-    // Cheap off-screen cull: skip lakes whose bounding circle (max jittered vertex distance) can't
-    // possibly touch the current viewport, so a big multi-lake map doesn't redraw all 6 every frame.
-    const maxRadius = Math.max(...lake.polygon.map((p) => Math.hypot(p.x, p.y))) + SHORE_RING_WIDTH;
+    // Cheap off-screen cull: skip lakes whose bounding circle (max jittered vertex distance, precomputed at
+    // module load) can't possibly touch the current viewport, so a big multi-lake map doesn't redraw all of
+    // them every frame.
+    const maxRadius = lakeRenderGeometry.get(lake.id)!.maxBoundingRadius;
     const [lcx, lcy] = worldToScreen(camera, lake.centerX, lake.centerY);
     if (lcx < -maxRadius || lcy < -maxRadius || lcx > camera.width + maxRadius || lcy > camera.height + maxRadius) continue;
     drawLake(ctx, camera, lake, nowMs);
@@ -1366,7 +1455,8 @@ export function render(ctx: CanvasRenderingContext2D, opts: RenderOptions) {
   // Hiệu ứng bắn nước vẽ ngay trên mặt hồ, trước khi vẽ nhân vật/phao (nằm dưới các đối tượng đó).
   drawCastSplashes(ctx, camera, nowMs);
 
-  const visuals = new Map<string, VisualPosition>();
+  const visuals = visualsScratch;
+  visuals.clear();
   for (const player of snapshot.players) {
     visuals.set(player.id, computePlayerVisualPosition(player, opts.getPlayerAnimation(player.id)));
   }

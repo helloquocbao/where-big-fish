@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="mask-icon" href="/favicon.svg" color="#e79b2e" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#e79b2e" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="application-name" content="Where Big Fish" />
@@ -42,9 +42,10 @@
       content="Cast your line, win the reel minigame, collect 16 fish of every rarity, and climb the live leaderboard alongside other players in real time. Free, no download."
     />
     <meta property="og:url" content="https://wherebigfish.com/" />
-    <meta property="og:image" content="https://wherebigfish.com/og-image.png" />
+    <meta property="og:image" content="https://wherebigfish.com/og-image.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:image:height" content="669" />
     <meta property="og:image:alt" content="Where Big Fish — free real-time multiplayer fishing game" />
     <meta property="og:locale" content="en_US" />
 
@@ -55,7 +56,7 @@
       name="twitter:description"
       content="Cast your line, win the reel minigame, collect fish of every rarity, and climb the live leaderboard in this real-time multiplayer fishing game. Free, no download."
     />
-    <meta name="twitter:image" content="https://wherebigfish.com/og-image.png" />
+    <meta name="twitter:image" content="https://wherebigfish.com/og-image.jpg" />
     <meta name="twitter:image:alt" content="Where Big Fish — free real-time multiplayer fishing game" />
 
     <meta name="keywords" content="where big fish, multiplayer fishing game, html5 fishing game, online fishing game, browser game, free to play, real-time multiplayer, fishing minigame, fish collection, leaderboard" />
@@ -72,8 +73,8 @@
             "name": "Where Big Fish",
             "alternateName": "Where Big Fish — Multiplayer Fishing Game",
             "url": "https://wherebigfish.com/",
-            "image": "https://wherebigfish.com/og-image.png",
-            "screenshot": "https://wherebigfish.com/og-image.png",
+            "image": "https://wherebigfish.com/og-image.jpg",
+            "screenshot": "https://wherebigfish.com/og-image.jpg",
             "description": "Where Big Fish is a free real-time multiplayer fishing game that runs in the browser with no download. Cast your line, win the reel minigame, catch 16 fish of every rarity, fill your collection, and climb the live leaderboard with other players in the same lake.",
             "applicationCategory": "GameApplication",
             "operatingSystem": "Any (web browser)",
@@ -149,11 +150,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet" />
 
-    <!-- Google AdSense Verification & Loader -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=%VITE_ADSENSE_CLIENT_ID%" crossorigin="anonymous"></script>
   </head>
   <body>
     <div id="app"></div>
+    <div id="rotate-device-overlay">
+      <div class="rotate-card">
+        <h2>Rotate Device</h2>
+        <p>Please rotate your device to landscape mode for the best experience.</p>
+        <div class="rotate-phone-icon">📱</div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
 
     <!-- Crawlable content for search engines & AI answer engines. The game is a full-screen canvas

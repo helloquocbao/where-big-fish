@@ -43,6 +43,9 @@ function createNpc(lake: LakeDefinition): PlayerSchema {
   const spawn = spawnPointNearLake(lake);
   npc.x = spawn.x;
   npc.y = spawn.y;
+  // NPCs never move, so their lake never changes — pin it at creation so rebalanceNpcFishers can read it
+  // directly instead of re-running findNearestLake (O(lakes × vertices)) for every NPC on every rebalance.
+  npc.currentLakeId = lake.id;
   npc.angle = Math.random() * Math.PI * 2;
   npc.desiredAngle = npc.angle;
   // Stagger first cast so a batch of NPCs created together doesn't all cast in lockstep.
@@ -66,11 +69,17 @@ export function rebalanceNpcFishers(players: MapSchema<PlayerSchema>): void {
   }
 
   for (const [id, p] of players) {
+    if (p.isNpc) {
+      // NPCs are pinned to a lake at creation (currentLakeId) and never move — no need to recompute
+      // findNearestLake for them every rebalance. Fall back to the geometry lookup only if unset.
+      const lakeId = p.currentLakeId || findNearestLake(p.x, p.y)?.lake.id;
+      if (lakeId && npcIdsByLake.has(lakeId)) npcIdsByLake.get(lakeId)!.push(id);
+      continue;
+    }
     const nearest = findNearestLake(p.x, p.y);
     if (!nearest) continue;
     const lakeId = nearest.lake.id;
-    if (p.isNpc) npcIdsByLake.get(lakeId)?.push(id);
-    else realCountByLake.set(lakeId, (realCountByLake.get(lakeId) ?? 0) + 1);
+    realCountByLake.set(lakeId, (realCountByLake.get(lakeId) ?? 0) + 1);
   }
 
   for (const lake of LAKE_DEFINITIONS) {
