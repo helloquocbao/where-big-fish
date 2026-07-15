@@ -87,7 +87,11 @@ export interface ReelResultMessage {
   timeInZoneMs: number;
 }
 
-export type ClientMessage = InputMoveMessage | InputCastMessage | ReelResultMessage;
+export interface InputRetractMessage {
+  type: "retract";
+}
+
+export type ClientMessage = InputMoveMessage | InputCastMessage | ReelResultMessage | InputRetractMessage;
 
 // ---- Server -> Client event messages (in addition to periodic state sync) ----
 

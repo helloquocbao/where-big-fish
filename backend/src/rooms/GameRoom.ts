@@ -12,7 +12,7 @@ import {
 import type { ClientMessage, ServerEvent } from "@bomio/shared";
 import { RoomState, PlayerSchema } from "../schema/State.js";
 import { stepPlayerMovement } from "../systems/movement.js";
-import { tryCast, updateBiteScheduling, updateReeling, resolveReel } from "../systems/fishing.js";
+import { tryCast, retractCast, updateBiteScheduling, updateReeling, resolveReel } from "../systems/fishing.js";
 import { recomputeLeaderboard } from "../systems/leaderboard.js";
 import { randomSpawnPoint } from "../systems/utils.js";
 import { rebalanceNpcFishers, updateNpcFishers } from "../systems/npcFishers.js";
@@ -60,6 +60,16 @@ export class GameRoom extends Room<RoomState> {
       if (result === "too_far") {
         client.send("cast_rejected", { type: "cast_rejected", reason: "too_far_from_lake" });
       }
+    });
+
+    this.onMessage("retract", (client) => {
+      const player = this.state.players.get(client.sessionId);
+      if (!player) return;
+
+      const now = Date.now();
+      if (now - player.lastActionMessageAt < MIN_ACTION_MESSAGE_INTERVAL_MS) return;
+      player.lastActionMessageAt = now;
+      retractCast(player);
     });
 
     // Client runs the fishing reel minigame themselves and reports the result back (client-authoritative, reduces server load —

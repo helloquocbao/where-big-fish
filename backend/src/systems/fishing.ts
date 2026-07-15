@@ -113,6 +113,14 @@ export function tryCast(player: PlayerSchema, angle: number, power: number, now:
   return "ok";
 }
 
+export function retractCast(player: PlayerSchema): boolean {
+  if (player.fishState === "waiting") {
+    resetToIdle(player);
+    return true;
+  }
+  return false;
+}
+
 function resetToIdle(player: PlayerSchema): void {
   player.fishState = "idle";
   player.activeFishSpeciesId = "";

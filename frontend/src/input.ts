@@ -236,9 +236,12 @@ export class InputController {
 
   private onActionBtnStart = (e: TouchEvent) => {
     e.preventDefault();
-    if (this.getFishState() === "reeling") {
+    const state = this.getFishState();
+    if (state === "reeling") {
       this.reelHeld = true;
-    } else if (this.getFishState() === "idle") {
+    } else if (state === "waiting") {
+      this.send({ type: "retract" });
+    } else if (state === "idle") {
       this.chargeStartAt = performance.now();
     }
   };
@@ -334,11 +337,14 @@ export class InputController {
 
   private onMouseDown = (e: MouseEvent) => {
     if (e.button !== 0) return;
-    if (this.getFishState() === "reeling") {
+    const state = this.getFishState();
+    if (state === "reeling") {
       // Hold mouse = pull catch zone up. No longer send anything to server — minigame runs entirely on the client
       // (see reelSim.ts), server only receives the final result. Only set local flag for simulation + click SFX.
       this.reelHeld = true;
-    } else {
+    } else if (state === "waiting") {
+      this.send({ type: "retract" });
+    } else if (state === "idle") {
       this.chargeStartAt = performance.now();
     }
   };
@@ -378,8 +384,12 @@ export class InputController {
       this.heldMoveKeys.set(e.code, Date.now());
       this.hasTarget = false; // Pressing WASD cancels right-click movement destination
     }
-    // Space no longer does anything — hook phase was removed (fish bite automatically enters reeling), reeling only uses
-    // mouse (see class docstring).
+    if (e.code === "Space") {
+      e.preventDefault();
+      if (this.getFishState() === "waiting") {
+        this.send({ type: "retract" });
+      }
+    }
   };
 
   private onKeyUp = (e: KeyboardEvent) => {
