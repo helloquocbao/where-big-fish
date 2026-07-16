@@ -243,10 +243,12 @@ export class UI {
           <button type="button" class="catch-modal-close" aria-label="Close">×</button>
           <div class="catch-modal-new hidden">New species caught!</div>
           <canvas class="catch-modal-canvas" width="240" height="120"></canvas>
-          <div class="catch-modal-name"></div>
-          <div class="catch-modal-weight"></div>
-          <div class="catch-modal-rarity"></div>
-          <div class="catch-modal-value"></div>
+          <div class="catch-modal-info">
+            <div class="catch-modal-name"></div>
+            <div class="catch-modal-weight"></div>
+            <div class="catch-modal-rarity"></div>
+            <div class="catch-modal-value"></div>
+          </div>
         </div>
       </div>
     `;

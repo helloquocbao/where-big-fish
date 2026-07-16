@@ -375,15 +375,11 @@ export class InputController {
   }
 
   private onKeyDown = (e: KeyboardEvent) => {
-    if (e.code in MOVE_KEY_VECTORS) {
-      e.preventDefault(); // prevent arrow keys from scrolling the page
-      // Use Date.now() (not performance.now()) because this timestamp will be compared with
-      // `nowMs` in `tick`/`purgeStaleKeys`, and main.ts calls `input.tick(Date.now())` — 2 clocks
-      // with different origins (performance.now() starts from page load) will cause the difference to be extremely large,
-      // making all keys considered "stuck" and deleted instantly every frame (recent bug: couldn't move at all).
-      this.heldMoveKeys.set(e.code, Date.now());
-      this.hasTarget = false; // Pressing WASD cancels right-click movement destination
+    const targetTagName = (e.target as HTMLElement)?.tagName;
+    if (targetTagName === "INPUT" || targetTagName === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable) {
+      return;
     }
+
     if (e.code === "Space") {
       e.preventDefault();
       if (this.getFishState() === "waiting") {
@@ -392,46 +388,26 @@ export class InputController {
     }
   };
 
-  private onKeyUp = (e: KeyboardEvent) => {
-    if (e.code in MOVE_KEY_VECTORS) {
-      this.heldMoveKeys.delete(e.code);
-    }
+  private onKeyUp = (_e: KeyboardEvent) => {
+    // Keyboard movement disabled
   };
 
-  /** Cleans up "stuck" keys — keys that haven't repeated keydown for a long time (> KEY_STALE_MS) but
-   * have never received a corresponding keyup. Called every frame from `tick` before calculating movement direction. */
-  private purgeStaleKeys(nowMs: number) {
-    for (const [code, lastSeenAt] of this.heldMoveKeys) {
-      if (nowMs - lastSeenAt > InputController.KEY_STALE_MS) {
-        this.heldMoveKeys.delete(code);
-      }
-    }
+  private purgeStaleKeys(_nowMs: number) {
+    // Keyboard movement disabled
   }
 
   private onWindowBlur = () => {
-    this.heldMoveKeys.clear();
     this.hasTarget = false;
   };
 
-  /** Current angle + movement state, derived from the vector sum of held WASD/arrow keys or right-click destination.
-   * No keys held and no right-click destination -> moving=false, keeping the last facing angle when moving. */
+  /** Current angle + movement state, derived from the virtual joystick or right-click destination.
+   * No active inputs -> moving=false, keeping the last facing angle when moving. */
   private get movementInput(): { angle: number; moving: boolean } {
     if (this.joystickMoving) {
       this.lastMovementAngle = this.joystickAngle;
       return { angle: this.joystickAngle, moving: true };
     }
-    if (this.heldMoveKeys.size > 0) {
-      let dx = 0;
-      let dy = 0;
-      for (const code of this.heldMoveKeys.keys()) {
-        const v = MOVE_KEY_VECTORS[code];
-        dx += v.dx;
-        dy += v.dy;
-      }
-      if (dx === 0 && dy === 0) return { angle: this.lastMovementAngle, moving: false };
-      this.lastMovementAngle = Math.atan2(dy, dx);
-      return { angle: this.lastMovementAngle, moving: true };
-    } else if (this.hasTarget) {
+    if (this.hasTarget) {
       this.lastMovementAngle = this.targetAngle;
       return { angle: this.targetAngle, moving: this.targetMoving };
     }
