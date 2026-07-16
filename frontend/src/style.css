@@ -100,8 +100,8 @@ body {
 
 #app {
   position: relative;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
 }
 
 /* Crawlable content for SEO/GEO (see index.html <main class="seo-content">). Do NOT use display:none
@@ -127,6 +127,8 @@ body.is-mobile .seo-content {
 .game-canvas {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
   display: block;
   cursor: crosshair;
 }

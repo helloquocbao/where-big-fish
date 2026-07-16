@@ -37,13 +37,11 @@ window.addEventListener("click", initAudio, { once: true, capture: true });
 window.addEventListener("keydown", initAudio, { once: true, capture: true });
 
 function resizeCanvas() {
-  viewportW = window.innerWidth;
-  viewportH = window.innerHeight;
+  viewportW = canvas.clientWidth || window.innerWidth;
+  viewportH = canvas.clientHeight || window.innerHeight;
   devicePixelRatioValue = window.devicePixelRatio || 1;
   canvas.width = Math.round(viewportW * devicePixelRatioValue);
   canvas.height = Math.round(viewportH * devicePixelRatioValue);
-  canvas.style.width = `${viewportW}px`;
-  canvas.style.height = `${viewportH}px`;
 }
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
