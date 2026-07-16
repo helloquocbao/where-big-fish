@@ -8,6 +8,10 @@ import { ReelSim } from "./reelSim.ts";
 import { PlayerAnimator } from "./animation.ts";
 import { WORLD_WIDTH, WORLD_HEIGHT } from "./config.ts";
 import { audioManager } from "./audio.ts";
+import { initAnalytics, trackEvent } from "./analytics.ts";
+
+// Initialize Google Analytics 4 (GA4)
+initAnalytics();
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 app.innerHTML = "";
@@ -80,15 +84,25 @@ const net = new Net({
       if (event.success && event.speciesId) {
         ui.showCatchModal(event.speciesId, event.rarity, event.value ?? 0, event.weight ?? 0, event.isFirstCatch ?? false);
         audioManager.playCatch(event.rarity ?? "common");
+        trackEvent("catch_fish", {
+          speciesId: event.speciesId,
+          rarity: event.rarity,
+          value: event.value ?? 0,
+          weight: event.weight ?? 0,
+          isFirstCatch: event.isFirstCatch ?? false
+        });
       } else if (event.reason === "fish_escaped") {
         ui.showToast("The fish got away... try again!", "danger");
         audioManager.playEscape();
+        trackEvent("fish_escape", { reason: event.reason });
       }
     } else if (event.type === "cast_rejected" && event.reason === "too_far_from_lake") {
       ui.showToast("Stand closer to a lake or river shore to cast!", "warning");
       audioManager.playReject();
+      trackEvent("cast_rejected", { reason: event.reason });
     } else if (event.type === "fish_bite" && event.playerId === net.sessionId) {
       audioManager.playBite();
+      trackEvent("fish_bite");
     }
     // "fish_bite" is purely visual (see render.ts's drawBiteIndicator, driven straight off
     // fishState/biteExpiresAt in the synced snapshot) — no extra toast needed, it would just be
@@ -132,12 +146,14 @@ let reelResultSent = false;
 
 ui.onPlay(async (name, skinId) => {
   audioManager.init();
+  trackEvent("play_clicked", { name, skinId });
   if (net.status === "connected") {
     ui.enterGame();
     return;
   }
   try {
     await net.connect(name, skinId);
+    trackEvent("join_game", { name, skinId });
   } catch {
     // Status already reflects the error via onStatusChange; nothing else to do — keeps the
     // connect screen usable (graceful degradation) if the backend isn't reachable yet.

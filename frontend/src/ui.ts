@@ -110,10 +110,11 @@ export class UI {
             <canvas class="skin-preview" width="90" height="110"></canvas>
             <div class="skin-swatches"></div>
           </div>
-          <input type="text" maxlength="16" placeholder="Your name" class="name-input" />
+          <label for="player-name-input" class="sr-only">Your name</label>
+          <input id="player-name-input" type="text" maxlength="16" placeholder="Your name" class="name-input" />
           <div class="connect-actions">
             <button class="play-button" type="button">Play</button>
-            <button class="audio-toggle-button wood-button" type="button" title="Mute/Unmute Sound"></button>
+            <button class="audio-toggle-button wood-button" type="button" title="Mute/Unmute Sound" aria-label="Mute or unmute sound"></button>
           </div>
           <p class="error-text"></p>
         </div>
@@ -144,14 +145,17 @@ export class UI {
     this.selectedSkinId = SKIN_CATALOG.some((s) => s.id === savedSkin) ? savedSkin! : DEFAULT_SKIN_ID;
     this.skinSwatchesEl.innerHTML = SKIN_CATALOG.map(
       (skin) =>
-        `<button type="button" class="skin-swatch${skin.id === this.selectedSkinId ? " selected" : ""}" data-skin="${skin.id}" style="background:${skin.bodyColor}" title="${escapeHtml(skin.name)}"></button>`,
+        `<button type="button" class="skin-swatch${skin.id === this.selectedSkinId ? " selected" : ""}" data-skin="${skin.id}" style="background:${skin.bodyColor}" title="${escapeHtml(skin.name)}" aria-label="${escapeHtml(skin.name)} skin" aria-pressed="${skin.id === this.selectedSkinId}"></button>`,
     ).join("");
     this.skinSwatchesEl.addEventListener("click", (e) => {
       const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".skin-swatch");
       if (!btn?.dataset.skin) return;
       this.selectedSkinId = btn.dataset.skin;
       localStorage.setItem("bomio.skin", this.selectedSkinId);
-      this.skinSwatchesEl.querySelectorAll(".skin-swatch").forEach((el) => el.classList.toggle("selected", el === btn));
+      this.skinSwatchesEl.querySelectorAll(".skin-swatch").forEach((el) => {
+        el.classList.toggle("selected", el === btn);
+        el.setAttribute("aria-pressed", String(el === btn));
+      });
     });
 
     const animateSkinPreview = () => {
@@ -184,7 +188,7 @@ export class UI {
         <div>Total score <span class="stats-caught-value">0</span></div>
         <div class="stats-actions">
           <button type="button" class="collection-button">🐟 Fish Index (<span class="collection-count">0</span>/${FISH_CATALOG.length})</button>
-          <button type="button" class="audio-toggle-button wood-button" title="Mute/Unmute Sound"></button>
+          <button type="button" class="audio-toggle-button wood-button" title="Mute/Unmute Sound" aria-label="Mute or unmute sound"></button>
         </div>
       </div>
       <div class="minimap-frame panel-cut">
@@ -214,7 +218,7 @@ export class UI {
         <div class="collection-modal-card panel-cut">
           <div class="collection-modal-header">
             <h2>🐟 Fish Collection</h2>
-            <button type="button" class="collection-close">×</button>
+            <button type="button" class="collection-close" aria-label="Close">×</button>
           </div>
           <div class="collection-list"></div>
           <div class="ad-banner-mini">
@@ -236,7 +240,7 @@ export class UI {
             <span></span><span></span><span></span><span></span><span></span><span></span>
             <span></span><span></span><span></span><span></span><span></span><span></span>
           </div>
-          <button type="button" class="catch-modal-close">×</button>
+          <button type="button" class="catch-modal-close" aria-label="Close">×</button>
           <div class="catch-modal-new hidden">New species caught!</div>
           <canvas class="catch-modal-canvas" width="240" height="120"></canvas>
           <div class="catch-modal-name"></div>
@@ -323,6 +327,7 @@ export class UI {
       const buttons = this.root.querySelectorAll(".audio-toggle-button");
       buttons.forEach((btn) => {
         btn.innerHTML = isMuted ? SPEAKER_OFF_SVG : SPEAKER_ON_SVG;
+        btn.setAttribute("aria-label", isMuted ? "Unmute sound" : "Mute sound");
       });
     };
     updateAudioButtons();
@@ -380,6 +385,9 @@ export class UI {
   enterGame() {
     this.connectScreen.classList.add("hidden");
     this.hud.classList.remove("hidden");
+    // Gates the mobile "rotate device" overlay (see style.css) — only actual gameplay needs landscape,
+    // not the connect screen (name entry/skin picker already work fine in portrait).
+    document.body.classList.add("in-game");
     // The skin-preview canvas is now hidden — stop its rAF loop so it doesn't keep clearing + redrawing
     // a character every frame behind the game (wasted work while invisible).
     if (this.skinPreviewRaf != null) {
@@ -392,6 +400,7 @@ export class UI {
   backToConnectScreen() {
     this.connectScreen.classList.remove("hidden");
     this.hud.classList.add("hidden");
+    document.body.classList.remove("in-game");
     // Resume the skin-preview animation now that the connect screen is visible again.
     if (this.skinPreviewRaf == null) {
       this.skinPreviewRaf = requestAnimationFrame(this.animateSkinPreview);
