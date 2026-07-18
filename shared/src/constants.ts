@@ -140,7 +140,7 @@ export const FISH_CATALOG: FishSpecies[] = [
   { id: "sad_blobfish", name: "Sad Blobfish", rarity: "rare", color: "#ffb6c1", weight: 5, value: 450, biteWaitMinMs: 4000, biteWaitMaxMs: 10000, reelDifficulty: 0.55, minWeight: 1.0, maxWeight: 9.0, description: "A blobfish with a permanently sad face. Looks like a crying blob of pink jelly." },
   { id: "vicent_wallet", name: "Vicent's Wallet", rarity: "legendary", color: "#8b0000", weight: 1, value: 3000, biteWaitMinMs: 8000, biteWaitMaxMs: 18000, reelDifficulty: 0.85, minWeight: 0.1, maxWeight: 0.5, description: "The missing wallet of game developer Vicent! Full of credit cards and gold coins." },
   // Boss
-  { id: "fish_leviathan", name: "Leviathan", rarity: "BOSS", color: "#4B0082", weight: 0.5, value: 50000, biteWaitMinMs: 1000, biteWaitMaxMs: 2000, reelDifficulty: 0.99, minWeight: 500.0, maxWeight: 2000.0, description: "A legendary sea monster. Pulls you into the depths if you fail." },
+  { id: "fish_leviathan", name: "Leviathan", rarity: "BOSS", color: "#4B0082", weight: 0.5, value: 50000, biteWaitMinMs: 5000, biteWaitMaxMs: 15000, reelDifficulty: 0.99, minWeight: 500.0, maxWeight: 2000.0, description: "A legendary sea monster. Pulls you into the depths if you fail." },
 ];
 
 /** Thời gian kéo cá mặc định cho Boss (Thủy quái) (ms). Rất dài để thử thách người chơi. */
