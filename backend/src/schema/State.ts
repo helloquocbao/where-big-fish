@@ -31,6 +31,8 @@ export class PlayerSchema extends Schema {
    * lake yet this session. See shared/src/types.ts#PlayerState. */
   @type("string") currentLakeId: string = "";
 
+  @type("string") assistingPlayerId: string = "";
+
   // ---- Server-internal bookkeeping, NOT part of the shared PlayerState wire shape ----
   /** Desired movement angle from the last "move" input — not synced (frontend doesn't need it,
    * only the resulting x/y/angle). */

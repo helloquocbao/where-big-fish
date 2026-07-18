@@ -114,7 +114,7 @@ const LAKE_SHAPES: LakeShapeInput[] = [
     baseRadiusY: 280,
     vertexCount: 10,
     jitter: 0.15,
-    fishWeights: { silver_carp: 30, minnow: 26 },
+    fishWeights: { silver_carp: 30, minnow: 26, fish_leviathan: 999999 },
   },
   {
     id: "ho_guong",
@@ -125,7 +125,7 @@ const LAKE_SHAPES: LakeShapeInput[] = [
     baseRadiusY: 440,
     vertexCount: 12,
     jitter: 0.2,
-    fishWeights: { silver_carp: 20, catfish: 20, tilapia: 12 },
+    fishWeights: { silver_carp: 20, catfish: 20, tilapia: 12, fish_leviathan: 999999 },
   },
   {
     id: "ho_ran",
@@ -136,7 +136,7 @@ const LAKE_SHAPES: LakeShapeInput[] = [
     baseRadiusY: 300,
     vertexCount: 16,
     jitter: 0.35,
-    fishWeights: { tilapia: 12, snakehead: 9, catfish: 15 },
+    fishWeights: { tilapia: 12, snakehead: 9, catfish: 15, fish_leviathan: 999999 },
   },
   {
     id: "dam_sen",
@@ -147,7 +147,7 @@ const LAKE_SHAPES: LakeShapeInput[] = [
     baseRadiusY: 360,
     vertexCount: 11,
     jitter: 0.4,
-    fishWeights: { snakehead: 10, koi: 4 },
+    fishWeights: { snakehead: 10, koi: 4, fish_leviathan: 999999 },
   },
   {
     id: "vinh_bang",
@@ -158,7 +158,7 @@ const LAKE_SHAPES: LakeShapeInput[] = [
     baseRadiusY: 620,
     vertexCount: 14,
     jitter: 0.4,
-    fishWeights: { tilapia: 6, koi: 5, giant_barb: 4 },
+    fishWeights: { tilapia: 6, koi: 5, giant_barb: 4, fish_leviathan: 999999 },
   },
   {
     id: "ho_rong",
@@ -169,7 +169,7 @@ const LAKE_SHAPES: LakeShapeInput[] = [
     baseRadiusY: 650,
     vertexCount: 13,
     jitter: 0.25,
-    fishWeights: { koi: 3, giant_barb: 4, golden_dragonfish: 1 },
+    fishWeights: { koi: 3, giant_barb: 4, golden_dragonfish: 1, fish_leviathan: 999999 },
   },
   // ---- 1 Single River (Single winding river connecting left to right/sea) ----
   {
@@ -181,7 +181,7 @@ const LAKE_SHAPES: LakeShapeInput[] = [
     baseRadiusY: 80,
     vertexCount: 80,
     jitter: 0,
-    fishWeights: { silver_carp: 20, tilapia: 20, catfish: 15, snakehead: 10 },
+    fishWeights: { silver_carp: 20, tilapia: 20, catfish: 15, snakehead: 10, fish_leviathan: 999999 },
   },
   // ---- Sea on the right (Sea on the right) ----
   {
@@ -193,7 +193,7 @@ const LAKE_SHAPES: LakeShapeInput[] = [
     baseRadiusY: 3800,
     vertexCount: 18,
     jitter: 0.08,
-    fishWeights: { butterfish: 22, mackerel: 14, tuna: 6, baby_shark: 1 },
+    fishWeights: { butterfish: 22, mackerel: 14, tuna: 6, baby_shark: 1, fish_leviathan: 999999 },
   },
 ];
 

@@ -1,5 +1,29 @@
 # Progress Log
 
+## 2026-07-18 - Thêm trang Policy, khôi phục WASD, sửa lỗi hiển thị chữ và định dạng số
+
+- **Khôi phục di chuyển bàn phím (WASD)**: Khôi phục lại tính năng di chuyển bằng bàn phím (phím WASD và các phím mũi tên) trong `frontend/src/input.ts` theo đúng mong muốn của người chơi.
+- **Sửa lỗi không nhập được chữ `awds`**: Thêm `e.stopPropagation()` trong `frontend/src/ui.ts` ở phần lắng nghe phím của ô nhập tên để tránh việc sự kiện bàn phím bị nổi bọt (bubble) lên `window` và bị ghost event listener chặn các phím WASD.
+- **Sửa chữ tiếng Việt**: Loại bỏ chữ tiếng Việt `(Thủy Quái)` trong phần hướng dẫn của modal `How to Play` để đảm bảo toàn bộ ngôn ngữ hiển thị trong game là tiếng Anh.
+- **Điều chỉnh tỷ lệ xuất hiện Thuỷ Quái**: Điều chỉnh giá trị `fishWeights` của `fish_leviathan` lên `999999` trong `shared/src/lakes.ts` và giảm thời gian chờ cắn câu của Thuỷ Quái xuống còn 1-2 giây trong `shared/src/constants.ts` để phục vụ mục đích kiểm thử nhanh. Biên dịch lại gói `shared` (`npm run build:shared`).
+- **Thêm trang chính sách (Policy)**:
+  - Tạo trang `frontend/policy.html` chứa Chính sách bảo mật & Điều khoản sử dụng bằng tiếng Anh.
+  - Tạo cấu hình đa trang `frontend/vite.config.ts` để Vite build cả `index.html` và `policy.html`.
+  - Thêm liên kết truy cập đến `/policy.html` ở góc dưới thẻ nhập tên trên giao diện kết nối (`frontend/src/ui.ts`).
+  - Thêm các CSS tương ứng cho trang Policy và liên kết trong `frontend/src/style.css`.
+- **Định dạng số dễ đọc**: Thay đổi hiển thị cân nặng và điểm số trên modal kết quả câu cá (`frontend/src/ui.ts`) sử dụng `toLocaleString("en-US")` để hiển thị dấu phẩy phân cách hàng nghìn (ví dụ: `+85,489` và `1,564.67 kg`).
+
+## 2026-07-17 - Tinh chỉnh UI, hiệu ứng thua Thuỷ Quái và sửa lỗi kẹt minigame
+
+- **Định dạng số UI**: Thêm `.toLocaleString()` cho các con số trong Leaderboard (bảng xếp hạng) và góc trái màn hình (Stats) để hiển thị dấu phẩy (vd: `1,000,000`), giúp người chơi dễ đọc điểm số hơn.
+- **Hiệu ứng thua Thuỷ Quái (Thất bại)**: 
+  - Loại bỏ thông báo lỗi đỏ "Connection lost" khô khan khi bị thuỷ quái kéo xuống hồ.
+  - Thêm hoạt ảnh (animation): Nhân vật từ từ chìm xuống nước (fade out) kèm hiệu ứng bọt nước (splash) lớn ngay tại chỗ đứng. Hiệu ứng này được nhìn thấy bởi chính người chơi và cả những người xung quanh.
+  - Sau khi hoạt ảnh kết thúc (~2s), tự động ngắt kết nối trong im lặng (silent disconnect) và đưa người chơi mượt mà về màn hình chọn tên để chơi lại.
+- **Sửa lỗi kẹt minigame của người phụ**:
+  - Trạng thái `boss_assisting` ở server được dọn dẹp chặt chẽ hơn. Nếu người chơi chính (target) bỏ chạy (RUN), ngắt kết nối, hoặc **hết giờ (timeout)**, server sẽ ép toàn bộ nhóm vào trạng thái thất bại (bị lôi xuống hồ) và báo kết quả rõ ràng, hoặc dọn dẹp người phụ về `idle`.
+  - Sửa triệt để lỗi "người phụ câu xong bị kẹt minigame không thao tác được và không nhận được thông báo thắng/thua" do người chính bị mất kết nối hoặc tab trình duyệt bị ngủ đông (throttle).
+
 ## 2026-07-15 - Audit + tối ưu hiệu năng FE & BE
 
 Audit toàn bộ frontend và backend về hiệu năng runtime (không đổi luật game, không đụng `shared/`).

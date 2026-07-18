@@ -12,7 +12,7 @@ import {
 import type { ClientMessage, ServerEvent } from "@bomio/shared";
 import { RoomState, PlayerSchema } from "../schema/State.js";
 import { stepPlayerMovement } from "../systems/movement.js";
-import { tryCast, retractCast, updateBiteScheduling, updateReeling, resolveReel } from "../systems/fishing.js";
+import { tryCast, retractCast, updateBiteScheduling, updateReeling, resolveReel, handleBossAction, handleAssistBoss } from "../systems/fishing.js";
 import { recomputeLeaderboard } from "../systems/leaderboard.js";
 import { randomSpawnPoint } from "../systems/utils.js";
 import { rebalanceNpcFishers, updateNpcFishers } from "../systems/npcFishers.js";
@@ -27,6 +27,15 @@ export class GameRoom extends Room<RoomState> {
   private lastLeaderboardUpdate = 0;
   private lastNpcRebalance = 0;
   private lastNpcUpdate = 0;
+
+  /** Safety net for onJoin/onMessage/simulation-interval handlers: Colyseus only wraps these in a
+   * try/catch that reports here INSTEAD of letting the exception propagate to the process-wide
+   * `uncaughtException` handler (which calls gracefullyShutdown -> process.exit, killing every room
+   * on this machine for one bad client message). Without this method defined, none of the wrapping
+   * happens at all — see @colyseus/core Room.js's `#registerUncaughtExceptionHandlers`. */
+  onUncaughtException(err: Error, methodName: string): void {
+    console.error(`[GameRoom ${this.roomId}] uncaught exception in ${methodName}:`, err);
+  }
 
   onCreate(): void {
     this.setState(new RoomState());
@@ -72,13 +81,45 @@ export class GameRoom extends Room<RoomState> {
       retractCast(player);
     });
 
+    this.onMessage("boss_action", (client, message: ClientMessage & { type: "boss_action" }) => {
+      const player = this.state.players.get(client.sessionId);
+      if (!player) return;
+      if (message?.action !== "reel" && message?.action !== "run") return;
+
+      const now = Date.now();
+      if (now - player.lastActionMessageAt < MIN_ACTION_MESSAGE_INTERVAL_MS) return;
+      player.lastActionMessageAt = now;
+      handleBossAction(player, message.action, now, this.state.players, (playerId, event) => this.notifyPlayer(playerId, event));
+    });
+
+    this.onMessage("assist_boss", (client, message: ClientMessage & { type: "assist_boss" }) => {
+      const player = this.state.players.get(client.sessionId);
+      if (!player) return;
+      if (typeof message?.targetPlayerId !== "string") return;
+
+      const now = Date.now();
+      if (now - player.lastActionMessageAt < MIN_ACTION_MESSAGE_INTERVAL_MS) return;
+      player.lastActionMessageAt = now;
+      handleAssistBoss(player, message.targetPlayerId, this.state.players, (playerId, event) => this.notifyPlayer(playerId, event));
+    });
+
     // Client runs the fishing reel minigame themselves and reports the result back (client-authoritative, reduces server load —
     // Vicent 2026-07-14). Server clamps + rolls + awards points in resolveReel; sends specifically to this client.
     this.onMessage("reel_result", (client, message: ClientMessage & { type: "reel_result" }) => {
       const player = this.state.players.get(client.sessionId);
       if (!player) return;
-      if (typeof message?.timeInZoneMs !== "number") return;
-      resolveReel(player, message.timeInZoneMs, (playerId, event) => this.notifyPlayer(playerId, event));
+      if (typeof message?.timeInZoneMs !== "number" || !Number.isFinite(message.timeInZoneMs)) return;
+
+      const now = Date.now();
+      if (now - player.lastActionMessageAt < MIN_ACTION_MESSAGE_INTERVAL_MS) return;
+      player.lastActionMessageAt = now;
+      resolveReel(
+        player,
+        message.timeInZoneMs,
+        this.state.players,
+        (playerId, event) => this.notifyPlayer(playerId, event),
+        (event) => this.broadcast(event.type, event)
+      );
     });
 
     this.setSimulationInterval(() => this.update(), TICK_INTERVAL_MS);
@@ -87,7 +128,11 @@ export class GameRoom extends Room<RoomState> {
   onJoin(client: Client, options: { name?: string; skinId?: string }): void {
     const player = new PlayerSchema();
     player.id = client.sessionId;
-    player.name = (options?.name ?? "Player").slice(0, 20) || "Player";
+    // options comes straight from the untrusted joinOrCreate payload — must check typeof before calling
+    // any string method on it (an array also has .slice() and would pass a truthy check unnoticed, then
+    // crash the whole process later when Colyseus tries to string-encode it for broadcast).
+    const rawName = typeof options?.name === "string" ? options.name.slice(0, 20).trim() : "";
+    player.name = rawName || "Player";
     player.skinId = getSkinDefinition(options?.skinId).id;
     const spawn = randomSpawnPoint();
     player.x = spawn.x;

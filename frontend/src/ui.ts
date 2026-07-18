@@ -41,6 +41,7 @@ const SPEAKER_OFF_SVG = `<svg viewBox="0 0 24 24" width="60%" height="60%" fill=
 export class UI {
   readonly root: HTMLDivElement;
   private connectScreen: HTMLDivElement;
+  private helpModal: HTMLDivElement;
   private nameInput: HTMLInputElement;
   private playButton: HTMLButtonElement;
   private errorText: HTMLParagraphElement;
@@ -92,6 +93,14 @@ export class UI {
   private catchValueAnimFrame: number | undefined;
   private mobileActionBtn: HTMLButtonElement | null = null;
 
+  public bossChoiceModal: HTMLDivElement;
+  public bossReelBtn: HTMLButtonElement;
+  public bossRunBtn: HTMLButtonElement;
+  public assistBossBtn: HTMLButtonElement;
+  
+  public onBossAction?: (action: "reel" | "run") => void;
+  public onAssistBoss?: () => void;
+
   constructor(container: HTMLElement) {
     initAdSense();
     this.root = document.createElement("div");
@@ -115,8 +124,12 @@ export class UI {
           <div class="connect-actions">
             <button class="play-button" type="button">Play</button>
             <button class="audio-toggle-button wood-button" type="button" title="Mute/Unmute Sound" aria-label="Mute or unmute sound"></button>
+            <button class="help-toggle-button wood-button" type="button" title="How to Play" aria-label="How to play">?</button>
           </div>
           <p class="error-text"></p>
+          <div class="connect-footer">
+            <a href="/policy.html" class="policy-link">Privacy Policy & Terms</a>
+          </div>
         </div>
         <div class="ad-banner panel-cut">
           <div class="ad-banner-label">ADVERTISEMENT</div>
@@ -130,6 +143,41 @@ export class UI {
       </div>
     `;
     this.root.appendChild(this.connectScreen);
+
+    // --- Help Modal ---
+    this.helpModal = document.createElement("div");
+    this.helpModal.className = "help-modal hidden";
+    this.helpModal.innerHTML = `
+      <div class="help-modal-card panel-cut">
+        <div class="help-modal-header">
+          <h2>❓ How to Play</h2>
+          <button type="button" class="help-close" aria-label="Close">×</button>
+        </div>
+        <div class="help-content">
+          <div class="help-step">
+            <span class="step-num">1</span>
+            <p>Move around the lake shore using <strong>WASD</strong>, <strong>Arrow keys</strong>, or by holding <strong>Right-Click</strong>.</p>
+          </div>
+          <div class="help-step">
+            <span class="step-num">2</span>
+            <p>Stand close to the shore, <strong>Hold Left-Click</strong> to charge cast power, and release to throw your line.</p>
+          </div>
+          <div class="help-step">
+            <span class="step-num">3</span>
+            <p>When a fish bites, <strong>Hold Left-Click</strong> to raise the green catch zone, keep the fish inside it to fill the progress bar.</p>
+          </div>
+          <div class="help-step">
+            <span class="step-num">4</span>
+            <p>Compete with other players to catch the highest value fish and climb the live leaderboard!</p>
+          </div>
+          <div class="help-step warning-step">
+            <span class="step-num">⚠️</span>
+            <p>Watch out for the legendary <strong>Leviathan</strong>! Co-op with nearby players to assist each other, or it will drag you into the depths!</p>
+          </div>
+        </div>
+      </div>
+    `;
+    this.root.appendChild(this.helpModal);
     loadAdBanner("connect-ad-banner", import.meta.env.VITE_ADSENSE_SLOT_CONNECT);
     this.nameInput = this.connectScreen.querySelector(".name-input")!;
     this.playButton = this.connectScreen.querySelector(".play-button")!;
@@ -251,6 +299,17 @@ export class UI {
           </div>
         </div>
       </div>
+      <div class="boss-choice-modal hidden">
+        <div class="boss-choice-card panel-cut">
+          <h2>⚠️ LEVIATHAN HOOKED! ⚠️</h2>
+          <p>A monstrous Leviathan is on the line. Reel it in for massive rewards, but if you fail, you will be dragged into the depths!</p>
+          <div class="boss-choice-actions">
+            <button class="boss-reel-btn wood-button" type="button">REEL</button>
+            <button class="boss-run-btn wood-button" type="button">RUN</button>
+          </div>
+        </div>
+      </div>
+      <button class="assist-boss-btn wood-button hidden" type="button">ASSIST</button>
     `;
     this.root.appendChild(this.hud);
     const leaderboardEl = this.hud.querySelector<HTMLDivElement>(".leaderboard")!;
@@ -287,6 +346,24 @@ export class UI {
     this.fishingModalCanvasCtx = this.fishingModalCanvas.getContext("2d")!;
 
     this.collectionButton = this.hud.querySelector<HTMLButtonElement>(".collection-button")!;
+    
+    this.bossChoiceModal = this.hud.querySelector<HTMLDivElement>(".boss-choice-modal")!;
+    this.bossReelBtn = this.hud.querySelector<HTMLButtonElement>(".boss-reel-btn")!;
+    this.bossRunBtn = this.hud.querySelector<HTMLButtonElement>(".boss-run-btn")!;
+    this.assistBossBtn = this.hud.querySelector<HTMLButtonElement>(".assist-boss-btn")!;
+
+    this.bossReelBtn.addEventListener("click", () => {
+      this.bossChoiceModal.classList.add("hidden");
+      this.onBossAction?.("reel");
+    });
+    this.bossRunBtn.addEventListener("click", () => {
+      this.bossChoiceModal.classList.add("hidden");
+      this.onBossAction?.("run");
+    });
+    this.assistBossBtn.addEventListener("click", () => {
+      this.assistBossBtn.classList.add("hidden");
+      this.onAssistBoss?.();
+    });
     this.collectionCount = this.hud.querySelector<HTMLSpanElement>(".collection-count")!;
     this.collectionModal = this.hud.querySelector<HTMLDivElement>(".collection-modal")!;
     this.collectionList = this.hud.querySelector<HTMLDivElement>(".collection-list")!;
@@ -342,6 +419,20 @@ export class UI {
         updateAudioButtons();
       }
     });
+
+    // Help modal triggers
+    const helpBtn = this.connectScreen.querySelector(".help-toggle-button")!;
+    const helpCloseBtn = this.helpModal.querySelector(".help-close")!;
+    helpBtn.addEventListener("click", () => {
+      this.helpModal.classList.remove("hidden");
+    });
+    const closeHelp = () => {
+      this.helpModal.classList.add("hidden");
+    };
+    helpCloseBtn.addEventListener("click", closeHelp);
+    this.helpModal.addEventListener("click", (e) => {
+      if (e.target === this.helpModal) closeHelp();
+    });
   }
 
   /** Shows a short-lived toast (e.g. a catch result). `variant` only changes the accent color. */
@@ -362,6 +453,7 @@ export class UI {
     };
     this.playButton.addEventListener("click", submit);
     this.nameInput.addEventListener("keydown", (e) => {
+      e.stopPropagation();
       if (e.key === "Enter") submit();
     });
   }
@@ -424,15 +516,15 @@ export class UI {
     this.leaderboardList.innerHTML = top
       .map((entry) => {
         const isLocal = entry.playerId === localPlayerId;
-        return `<li class="${isLocal ? "me" : ""}">${escapeHtml(entry.name)} — ${Math.round(entry.totalValue)}</li>`;
+        return `<li class="${isLocal ? "me" : ""}">${escapeHtml(entry.name)} — ${Math.round(entry.totalValue).toLocaleString()}</li>`;
       })
       .join("");
   }
 
   /** Bottom-left readout: total fish caught + total value. */
   updateStats(caughtCount: number, totalValue: number) {
-    this.caughtCountValue.textContent = String(caughtCount);
-    this.caughtValue.textContent = String(Math.round(totalValue));
+    this.caughtCountValue.textContent = caughtCount.toLocaleString();
+    this.caughtValue.textContent = Math.round(totalValue).toLocaleString();
   }
 
   /** Name of the lake where the player last successfully cast their line (PlayerState.currentLakeId) — "" if they haven't
@@ -547,7 +639,7 @@ export class UI {
     drawFishIcon(this.catchModalCtx, this.catchModalCanvas.width / 2, this.catchModalCanvas.height / 2, 130, species.id, species.color);
 
     this.catchModalName.textContent = species.name;
-    this.catchModalWeight.textContent = `Weight: ${weight.toFixed(2)} kg`;
+    this.catchModalWeight.textContent = `Weight: ${weight.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kg`;
     this.catchModalRarity.textContent = rarity ? RARITY_LABEL[rarity] : "";
     this.catchModalRarity.style.color = rarity ? RARITY_COLOR[rarity] : "";
     this.catchModalNew.classList.toggle("hidden", !isFirstCatch);
@@ -584,11 +676,11 @@ export class UI {
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / durationMs);
       const eased = 1 - Math.pow(1 - t, 3);
-      this.catchModalValue.textContent = `+${Math.round(roundedTarget * eased)}`;
+      this.catchModalValue.textContent = `+${Math.round(roundedTarget * eased).toLocaleString("en-US")}`;
       if (t < 1) {
         this.catchValueAnimFrame = requestAnimationFrame(tick);
       } else {
-        this.catchModalValue.textContent = `+${roundedTarget}`;
+        this.catchModalValue.textContent = `+${roundedTarget.toLocaleString("en-US")}`;
         this.catchValueAnimFrame = undefined;
       }
     };

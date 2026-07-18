@@ -17,6 +17,8 @@ export interface PlayerAnimation {
   angle: number;
   walkPhase: number; // radians, advances with distance traveled (not wall-clock) so stride rate matches actual movement speed
   isMoving: boolean;
+  isDraggedDown: boolean;
+  draggedDownStartMs: number;
 }
 
 interface AnimState extends PlayerAnimation {
@@ -67,6 +69,8 @@ export class PlayerAnimator {
           angle: player.angle,
           walkPhase: 0,
           isMoving: false,
+          isDraggedDown: false,
+          draggedDownStartMs: 0,
           lastUpdateMs: nowMs,
         });
         continue;
@@ -100,9 +104,16 @@ export class PlayerAnimator {
   }
 
   get(playerId: string): PlayerAnimation {
-    const s = this.states.get(playerId);
-    return s
-      ? { x: s.x, y: s.y, angle: s.angle, walkPhase: s.walkPhase, isMoving: s.isMoving }
-      : { x: 0, y: 0, angle: 0, walkPhase: 0, isMoving: false };
+    const st = this.states.get(playerId);
+    if (!st) return { x: 0, y: 0, angle: 0, walkPhase: 0, isMoving: false, isDraggedDown: false, draggedDownStartMs: 0 };
+    return st;
+  }
+
+  triggerDragDown(playerId: string, nowMs: number) {
+    const st = this.states.get(playerId);
+    if (st) {
+      st.isDraggedDown = true;
+      st.draggedDownStartMs = nowMs;
+    }
   }
 }

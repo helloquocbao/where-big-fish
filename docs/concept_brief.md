@@ -101,13 +101,22 @@ giành giật trực tiếp với người khác.
   modal "Sổ Cá" — động lực chơi lại chính của MVP này. Hiện tại lưu theo phiên chơi (mất khi rời
   phòng, không có tài khoản/DB) — xem mục Next Steps.
 
-### 4. Bảng xếp hạng
+### 4. Cơ chế Đánh Boss Co-op (Thuỷ Quái)
+
+- **Cắn câu & Lựa chọn**: Có một tỷ lệ rất nhỏ (hoặc tuỳ chỉnh trong `fishWeights`) câu trúng Thuỷ Quái (độ hiếm `BOSS`). Khi cắn câu, màn hình sẽ cảnh báo nguy hiểm, người chơi có quyền lựa chọn: Bỏ chạy (Run) để bảo toàn điểm số, hoặc Chiến đấu (Reel).
+- **Độ khó khổng lồ**: Minigame kéo cá của Thuỷ Quái kéo dài hơn rất nhiều (30 giây thay vì 8 giây) và cá giằng co cực mạnh. Một mình người chơi chính gần như không thể câu thành công.
+- **Kêu gọi trợ giúp (Assist)**: Bất kỳ người chơi nào đứng gần (trong bán kính `150` đơn vị) đều sẽ thấy nút "ASSIST" trên đầu người chơi chính. Bấm vào để cùng tham gia kéo cá. Mỗi người tham gia sẽ được chơi minigame riêng của mình, thao tác chuẩn xác của họ sẽ giúp giảm bớt sức kéo của Thuỷ Quái, giúp người chính dễ kéo cá lên hơn.
+- **Phần thưởng & Trừng phạt (Group Wipe)**:
+  - **Thành công**: Nếu người chơi chính kéo đầy 100%, TOÀN BỘ những người phụ giúp đều nhận được 100% điểm thưởng và cá cũng được ghi vào sổ sưu tập của họ (ngang bằng người chính).
+  - **Thất bại**: Nếu người chơi chính thất bại (đứt dây), bỏ chạy giữa chừng hoặc mất kết nối (timeout), **toàn bộ nhóm tham gia** (cả chính và phụ) đều sẽ bị trừng phạt: điểm số và số cá tích luỹ bị reset về 0, nhân vật bị kéo chìm xuống đáy hồ và đưa về lại màn hình chọn tên để hồi sinh.
+
+### 5. Bảng xếp hạng
 
 - Xếp theo **tổng giá trị cá đã bắt được** trong phiên hiện tại (room-local, giống MVP leaderboard
   của bản game cũ) — đây là lớp "cạnh tranh nhẹ" duy nhất, hoàn toàn không tương tác trực tiếp giữa
   người chơi (không giành giật cá của nhau).
 
-### 5. NPC câu cá (population filler)
+### 6. NPC câu cá (population filler)
 
 - Thuần cosmetic, tái sử dụng đúng state machine câu cá thật (không phải logic giả lập riêng) —
   tự thả cần, cá cắn là tự động vào kéo cá (không còn bước móc câu nên NPC cũng không cần "phản

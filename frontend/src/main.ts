@@ -1,5 +1,6 @@
 import "./style.css";
 import type { FishingState } from "@bomio/shared";
+import { getFishSpecies } from "@bomio/shared";
 import { Net } from "./net.ts";
 import { UI } from "./ui.ts";
 import { InputController } from "./input.ts";
@@ -93,6 +94,10 @@ const net = new Net({
         ui.showToast("The fish got away... try again!", "danger");
         audioManager.playEscape();
         trackEvent("fish_escape", { reason: event.reason });
+      } else if (event.reason === "dragged_in") {
+        ui.showToast("You were dragged into the depths!", "danger");
+        audioManager.playEscape(); // TODO: maybe a specific death sound
+        trackEvent("boss_dragged_in");
       }
     } else if (event.type === "cast_rejected" && event.reason === "too_far_from_lake") {
       ui.showToast("Stand closer to a lake or river shore to cast!", "warning");
@@ -101,12 +106,74 @@ const net = new Net({
     } else if (event.type === "fish_bite" && event.playerId === net.sessionId) {
       audioManager.playBite();
       trackEvent("fish_bite");
+    } else if (event.type === "boss_hooked" && event.playerId === net.sessionId) {
+      audioManager.playBite(); // Or a custom scary roar sound later
+      ui.bossChoiceModal.classList.remove("hidden");
+    } else if (event.type === "boss_dragged_in") {
+      // 1. Trigger drag down visual for everyone in the room to see
+      const snapshot = net.getSnapshot();
+      for (const pid of event.playerIds) {
+        animator.triggerDragDown(pid, Date.now());
+        const p = snapshot.players.find(x => x.id === pid);
+        if (p) {
+          // Play a big splash where they were standing
+          spawnCastSplash(p.x, p.y, Date.now());
+        }
+      }
+
+      if (net.sessionId && event.playerIds.includes(net.sessionId)) {
+        // We were dragged in. Wait for the sink animation to finish before disconnecting.
+        setTimeout(() => {
+          // Silently disconnect and show the name modal (connect screen) again
+          net.disconnect(true);
+          ui.backToConnectScreen();
+        }, 2000);
+      }
+    } else if (event.type === "boss_helpers_update" && event.playerId === net.sessionId) {
+      ui.showToast(`+${event.count} helpers joining the fight!`, "info");
     }
     // "fish_bite" is purely visual (see render.ts's drawBiteIndicator, driven straight off
     // fishState/biteExpiresAt in the synced snapshot) — no extra toast needed, it would just be
     // noisy given how often it fires.
   },
 });
+
+ui.onBossAction = (action) => {
+  net.send({ type: "boss_action", action });
+};
+
+ui.onAssistBoss = () => {
+  // Find closest player fighting a boss
+  const snapshot = net.getSnapshot();
+  const localPlayer = snapshot.players.find(p => p.id === net.sessionId);
+  if (!localPlayer) return;
+  
+  let closestId = "";
+  let closestDist = Infinity;
+  for (const p of snapshot.players) {
+    if (p.id !== net.sessionId && (p.fishState === "boss_choice" || p.fishState === "reeling" || p.fishState === "boss_assisting")) {
+      // Since we don't have pendingSpeciesId in client PlayerState, we can assume boss_choice/boss_assisting means boss.
+      // For reeling, we can check activeFishSpeciesId if available.
+      let isBoss = p.fishState === "boss_choice" || p.fishState === "boss_assisting";
+      if (p.fishState === "reeling" && p.activeFishSpeciesId) {
+        const species = getFishSpecies(p.activeFishSpeciesId);
+        if (species?.rarity === "BOSS") isBoss = true;
+      }
+
+      if (isBoss) {
+        const dist = (p.x - localPlayer.x)**2 + (p.y - localPlayer.y)**2;
+        if (dist < 150 * 150 && dist < closestDist) {
+          closestDist = dist;
+          closestId = p.id;
+        }
+      }
+    }
+  }
+
+  if (closestId) {
+    net.send({ type: "assist_boss", targetPlayerId: closestId });
+  }
+};
 
 const input = new InputController(
   canvas,
@@ -209,6 +276,31 @@ function frame() {
     : { x: viewportW / 2, y: viewportH / 2 };
   latestLocalFishState = localPlayer?.fishState ?? "idle";
 
+  // Boss Assist Button Check
+  if (localPlayer && latestLocalFishState === "idle") {
+    let canAssist = false;
+    for (const p of snapshot.players) {
+      if (p.id !== localPlayer.id && (p.fishState === "boss_choice" || p.fishState === "reeling" || p.fishState === "boss_assisting")) {
+        let isBoss = p.fishState === "boss_choice" || p.fishState === "boss_assisting";
+        if (p.fishState === "reeling" && p.activeFishSpeciesId) {
+          const species = getFishSpecies(p.activeFishSpeciesId);
+          if (species?.rarity === "BOSS") isBoss = true;
+        }
+
+        if (isBoss) {
+          const distSq = (p.x - localPlayer.x)**2 + (p.y - localPlayer.y)**2;
+          if (distSq < 150 * 150) {
+            canAssist = true;
+            break;
+          }
+        }
+      }
+    }
+    ui.assistBossBtn.classList.toggle("hidden", !canAssist);
+  } else {
+    ui.assistBossBtn.classList.add("hidden");
+  }
+
   // Audio system checks and dynamic SFX triggers
   if (localPlayer) {
     const currentFishState = localPlayer.fishState;
@@ -233,11 +325,11 @@ function frame() {
         }, 180);
       }
       // Start new reeling session: start client simulation (lazy start below if species is not synced yet).
-      if (currentFishState === "reeling") {
+      if (currentFishState === "reeling" || currentFishState === "boss_assisting") {
         reelResultSent = false;
         lastReelFrameMs = 0;
         reelSim.stop();
-      } else if (lastFishState === "reeling") {
+      } else if (lastFishState === "reeling" || lastFishState === "boss_assisting") {
         // Exit reeling (result received): stop simulation.
         reelSim.stop();
         reelResultSent = false;
@@ -261,7 +353,7 @@ function frame() {
     }
 
     // 3. Reeling clicks (hold mouse to push the catching bar up in the "1-bar" minigame)
-    if (currentFishState === "reeling" && input.isReelHeld) {
+    if ((currentFishState === "reeling" || currentFishState === "boss_assisting") && input.isReelHeld) {
       if (nowMs - lastReelClickTime > 90) {
         audioManager.playReelClick();
         lastReelClickTime = nowMs;
@@ -269,15 +361,28 @@ function frame() {
     }
 
     // 4. Simulate reeling minigame on client side (smooth 60fps). Lazy start when species info is synced.
-    if (currentFishState === "reeling") {
-      if (!reelSim.active && localPlayer.activeFishSpeciesId) {
-        reelSim.start(localPlayer.activeFishSpeciesId, localPlayer.activeFishWeight);
+    if (currentFishState === "reeling" || currentFishState === "boss_assisting") {
+      let targetSpeciesId = localPlayer.activeFishSpeciesId;
+      let targetWeight = localPlayer.activeFishWeight;
+      
+      // If assisting, grab info from the main player we are helping
+      if (currentFishState === "boss_assisting" && localPlayer.assistingPlayerId) {
+        const target = snapshot.players.find(p => p.id === localPlayer.assistingPlayerId);
+        if (target) {
+          targetSpeciesId = target.activeFishSpeciesId;
+          targetWeight = target.activeFishWeight;
+        }
+      }
+
+      if (!reelSim.active && targetSpeciesId) {
+        reelSim.start(targetSpeciesId, targetWeight);
       }
       if (reelSim.active) {
         const dtMs = lastReelFrameMs > 0 ? Math.min(100, nowMs - lastReelFrameMs) : 0;
         reelSim.update(dtMs, input.isReelHeld);
         // Time out: report total time of the fish in the catching zone to server (once) to clamp + roll probability.
-        if (reelSim.done && !reelResultSent) {
+        // Helpers don't send reel_result, they just play visually
+        if (reelSim.done && !reelResultSent && currentFishState === "reeling") {
           net.send({ type: "reel_result", timeInZoneMs: reelSim.timeInZoneMs });
           reelResultSent = true;
         }
@@ -312,12 +417,12 @@ function frame() {
 
     // Render the modal directly from client simulation (running at 60fps in section 4 above) — absolutely smooth,
     // no longer dependent on network rhythm, so interpolation is no longer needed.
-    ui.updateFishingModal(localPlayer.fishState === "reeling", {
+    ui.updateFishingModal(localPlayer.fishState === "reeling" || localPlayer.fishState === "boss_assisting", {
       reelProgress: reelSim.progress,
       reelFishY: reelSim.fishY,
       reelZoneY: reelSim.zoneY,
-      speciesId: localPlayer.activeFishSpeciesId,
-      activeFishWeight: localPlayer.activeFishWeight,
+      speciesId: reelSim.speciesId, // Use reelSim's speciesId since it handles assisting case
+      activeFishWeight: reelSim.weight, // Same reasoning: reelSim already resolved the correct weight for the assisting case
       nowMs,
     });
   } else {

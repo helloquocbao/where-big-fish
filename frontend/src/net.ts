@@ -28,6 +28,7 @@ export class Net {
   private client: Client | null = null;
   private room: Room | null = null;
   private events: NetEvents;
+  private silentDisconnect = false;
   status: ConnectionStatus = "idle";
 
   constructor(events: NetEvents = {}) {
@@ -54,9 +55,11 @@ export class Net {
       }
       const room = await this.client.joinOrCreate(ROOM_NAME, { name, skinId });
       this.room = room;
+      this.silentDisconnect = false;
       this.setStatus("connected");
 
       room.onLeave(() => {
+        if (this.silentDisconnect) return;
         this.setStatus("disconnected", "Disconnected from server.");
       });
       room.onError((_code, message) => {
@@ -94,7 +97,8 @@ export class Net {
     }
   }
 
-  disconnect(): void {
+  disconnect(silent = false): void {
+    this.silentDisconnect = silent;
     this.room?.leave();
     this.room = null;
     this.setStatus("idle");

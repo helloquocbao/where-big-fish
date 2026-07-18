@@ -96,7 +96,7 @@ export const CAST_MIN_RANGE = 60;
 export const CAST_MAX_RANGE = 420;
 
 // ---- Cá & độ hiếm ----
-export type FishRarity = "common" | "uncommon" | "rare" | "legendary";
+export type FishRarity = "common" | "uncommon" | "rare" | "legendary" | "BOSS";
 
 export interface FishSpecies {
   id: string;
@@ -139,7 +139,12 @@ export const FISH_CATALOG: FishSpecies[] = [
   { id: "soggy_bread", name: "Soggy Bread", rarity: "common", color: "#e1c699", weight: 18, value: 20, biteWaitMinMs: 1000, biteWaitMaxMs: 2800, reelDifficulty: 0.04, minWeight: 0.2, maxWeight: 0.6, description: "A soggy piece of bread soaked in the lake for days. Don't squeeze it too hard or it turns into mush!" },
   { id: "sad_blobfish", name: "Sad Blobfish", rarity: "rare", color: "#ffb6c1", weight: 5, value: 450, biteWaitMinMs: 4000, biteWaitMaxMs: 10000, reelDifficulty: 0.55, minWeight: 1.0, maxWeight: 9.0, description: "A blobfish with a permanently sad face. Looks like a crying blob of pink jelly." },
   { id: "vicent_wallet", name: "Vicent's Wallet", rarity: "legendary", color: "#8b0000", weight: 1, value: 3000, biteWaitMinMs: 8000, biteWaitMaxMs: 18000, reelDifficulty: 0.85, minWeight: 0.1, maxWeight: 0.5, description: "The missing wallet of game developer Vicent! Full of credit cards and gold coins." },
+  // Boss
+  { id: "fish_leviathan", name: "Leviathan", rarity: "BOSS", color: "#4B0082", weight: 0.5, value: 50000, biteWaitMinMs: 1000, biteWaitMaxMs: 2000, reelDifficulty: 0.99, minWeight: 500.0, maxWeight: 2000.0, description: "A legendary sea monster. Pulls you into the depths if you fail." },
 ];
+
+/** Thời gian kéo cá mặc định cho Boss (Thủy quái) (ms). Rất dài để thử thách người chơi. */
+export const BOSS_REEL_DURATION_MS = 30000;
 
 export function computeActualDifficulty(baseDifficulty: number, weight: number, minWeight: number, maxWeight: number): number {
   const weightRange = maxWeight - minWeight;
@@ -174,6 +179,7 @@ export const RARITY_LABEL: Record<FishRarity, string> = {
   uncommon: "Uncommon",
   rare: "Rare",
   legendary: "Legendary",
+  BOSS: "BOSS",
 };
 
 export const RARITY_COLOR: Record<FishRarity, string> = {
@@ -181,6 +187,7 @@ export const RARITY_COLOR: Record<FishRarity, string> = {
   uncommon: "#5b8def",
   rare: "#b56fd9",
   legendary: "#ffd700",
+  BOSS: "#ff4d4d",
 };
 
 const FISH_BY_ID = new Map(FISH_CATALOG.map((f) => [f.id, f]));

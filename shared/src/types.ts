@@ -12,7 +12,7 @@ import type { FishRarity } from "./constants.js";
  * decision: remove the click-in-time-within-0.9s step to simplify the core loop, see docs/progress.md).
  * Also no separate "casting" state — server resolves cast synchronously (idle -> waiting in 1 step,
  * see backend/src/systems/fishing.ts#tryCast), so the bobber has no "flying" phase at the state level. */
-export type FishingState = "idle" | "waiting" | "reeling";
+export type FishingState = "idle" | "waiting" | "reeling" | "boss_choice" | "boss_assisting";
 
 export interface PlayerState {
   id: string;
@@ -42,6 +42,7 @@ export interface PlayerState {
   caughtCount: number;
   totalValue: number;
   collection: string[]; // list of speciesId ever caught (no duplicates) — personal collection book
+  assistingPlayerId: string; // The ID of the main player this player is currently helping (when fishState === "boss_assisting"), "" if none
 
   /** id of the lake (see shared/src/lakes.ts#LAKE_DEFINITIONS) where the rod was successfully cast most recently — ""
    * if the player has not fished in any lake this session. Only updated when casting (tryCast), not the "lake standing
@@ -91,7 +92,17 @@ export interface InputRetractMessage {
   type: "retract";
 }
 
-export type ClientMessage = InputMoveMessage | InputCastMessage | ReelResultMessage | InputRetractMessage;
+export interface InputBossActionMessage {
+  type: "boss_action";
+  action: "reel" | "run";
+}
+
+export interface InputAssistBossMessage {
+  type: "assist_boss";
+  targetPlayerId: string;
+}
+
+export type ClientMessage = InputMoveMessage | InputCastMessage | ReelResultMessage | InputRetractMessage | InputBossActionMessage | InputAssistBossMessage;
 
 // ---- Server -> Client event messages (in addition to periodic state sync) ----
 
@@ -109,9 +120,12 @@ export type ServerEvent =
       value?: number;
       weight?: number; // Weight of the caught fish (kg)
       isFirstCatch?: boolean; // true if this is the first time catching this species (added to collection book)
-      reason?: "fish_escaped"; // REEL_DURATION_MS exceeded, probability roll based on % of time in catch zone
+      reason?: "fish_escaped" | "dragged_in"; // REEL_DURATION_MS exceeded, probability roll based on % of time in catch zone
       // failed — fish escaped. No longer "line_snapped" (line snapped) after removing the tension mechanism.
     }
   // Sent PRIVATELY to the player who just failed to cast because they stood outside the LAKE_CAST_RANGE of all lakes (see
   // backend/src/systems/fishing.ts#tryCast) — not broadcasted to the whole room, only that player needs to know.
-  | { type: "cast_rejected"; reason: "too_far_from_lake" };
+  | { type: "cast_rejected"; reason: "too_far_from_lake" }
+  | { type: "boss_hooked"; playerId: string; speciesId: string }
+  | { type: "boss_helpers_update"; playerId: string; count: number }
+  | { type: "boss_dragged_in"; playerIds: string[] };

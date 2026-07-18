@@ -11,6 +11,7 @@ import {
   isInsideLake,
   pickRandomFishSpeciesForLake,
   LAKE_CAST_RANGE,
+  BOSS_REEL_DURATION_MS,
 } from "@bomio/shared";
 import type { ServerEvent } from "@bomio/shared";
 import type { PlayerSchema } from "../schema/State.js";
@@ -136,6 +137,7 @@ function resetToIdle(player: PlayerSchema): void {
   player.reelStartedAtMs = 0;
   player.reelDurationMs = REEL_DURATION_MS;
   player.reelTimeInZoneMs = 0;
+  player.assistingPlayerId = "";
 }
 
 /** Per-tick: when it's time for the fish to bite (`biteAt`), AUTOMATICALLY hook and enter the reel minigame directly — no
@@ -145,6 +147,22 @@ function resetToIdle(player: PlayerSchema): void {
 export function updateBiteScheduling(ctx: FishingContext): void {
   for (const [, player] of ctx.players) {
     if (player.fishState === "waiting" && ctx.now >= player.biteAt) {
+      const pendingSpecies = getFishSpecies(player.pendingSpeciesId);
+      if (pendingSpecies?.rarity === "BOSS") {
+        if (player.isNpc) {
+          // NPCs don't take part in the boss risk/reward system (no client to show the choice/fight to,
+          // and the NPC auto-catch shortcut below has no rarity gate) — treat the bite as a pass instead
+          // of letting it fall through and get auto-caught for full boss value at no risk.
+          resetToIdle(player);
+          continue;
+        }
+        // Boss fight choice
+        player.fishState = "boss_choice";
+        player.biteAt = 0;
+        ctx.notify(player.id, { type: "boss_hooked", playerId: player.id, speciesId: pendingSpecies.id });
+        continue;
+      }
+
       player.fishState = "reeling";
       player.activeFishSpeciesId = player.pendingSpeciesId;
       const species = getFishSpecies(player.activeFishSpeciesId);
@@ -171,6 +189,80 @@ export function updateBiteScheduling(ctx: FishingContext): void {
   }
 }
 
+export function handleBossAction(
+  player: PlayerSchema,
+  action: "reel" | "run",
+  now: number,
+  allPlayers: MapSchema<PlayerSchema>,
+  notify: (playerId: string, event: ServerEvent) => void
+): void {
+  if (player.fishState !== "boss_choice") return;
+
+  if (action === "run") {
+    resetToIdle(player);
+    notify(player.id, { type: "catch_result", playerId: player.id, success: false, reason: "fish_escaped" });
+    // Helpers assisting this fight get no other signal that it's over (their own fishState flip to idle is
+    // silent) — give them the same explicit result so the group always gets a clear outcome, not just a modal
+    // that vanishes with no explanation (see docs/progress.md).
+    for (const [, helper] of allPlayers) {
+      if (helper.assistingPlayerId === player.id) {
+        resetToIdle(helper);
+        notify(helper.id, { type: "catch_result", playerId: helper.id, success: false, reason: "fish_escaped" });
+      }
+    }
+    return;
+  }
+
+  // action === "reel"
+  player.fishState = "reeling"; // Re-use reeling state, client will see it's a boss from activeFishSpeciesId
+  player.activeFishSpeciesId = player.pendingSpeciesId;
+  const species = getFishSpecies(player.activeFishSpeciesId);
+  player.activeFishWeight = species ? Math.round(randRange(species.minWeight, species.maxWeight) * 100) / 100 : 1000;
+  player.reelDurationMs = BOSS_REEL_DURATION_MS; // Fixed massive duration for bosses
+  player.pendingSpeciesId = "";
+
+  player.reelProgress = 0;
+  player.reelFishY = 50;
+  player.reelZoneY = 50;
+  player.reelZoneVelocity = 0;
+  player.reelFishTargetY = 50;
+  player.reelFishNextRetargetAt = now;
+  player.reelStartedAtMs = now;
+  player.reelTimeInZoneMs = 0;
+  
+  // Re-use fish_bite to trigger the reel minigame UI
+  notify(player.id, { type: "fish_bite", playerId: player.id });
+}
+
+export function handleAssistBoss(
+  player: PlayerSchema, 
+  targetPlayerId: string, 
+  allPlayers: MapSchema<PlayerSchema>,
+  notify: (playerId: string, event: ServerEvent) => void
+): void {
+  if (player.fishState !== "idle") return; // Must be idle to assist
+  
+  const target = allPlayers.get(targetPlayerId);
+  if (!target) return;
+  if (target.fishState !== "boss_choice" && target.fishState !== "reeling") return; // target must be fighting boss
+  const targetSpecies = getFishSpecies(target.activeFishSpeciesId || target.pendingSpeciesId);
+  if (targetSpecies?.rarity !== "BOSS") return;
+
+  // Check distance (must be close to target)
+  const distSq = (player.x - target.x) ** 2 + (player.y - target.y) ** 2;
+  if (distSq > 150 * 150) return; // Must be within 150 units
+
+  player.fishState = "boss_assisting";
+  player.assistingPlayerId = target.id;
+
+  // Notify the main player that they got a helper (could be used by client to ease the minigame)
+  let helperCount = 0;
+  for (const [, p] of allPlayers) {
+    if (p.assistingPlayerId === target.id) helperCount++;
+  }
+  notify(target.id, { type: "boss_helpers_update", playerId: target.id, count: helperCount });
+}
+
 /** Per-tick: advance the "1 bar" reel minigame for everyone who is reeling (redesign requested
  * directly by Vicent, with 2 hand-drawn sketches — see shared/src/constants.ts under the Reel section).
  *
@@ -185,6 +277,15 @@ export function updateBiteScheduling(ctx: FishingContext): void {
  * based on the % of time the fish spent inside the catch zone during that session to decide if caught or lost. */
 export function updateReeling(ctx: FishingContext): void {
   for (const [, player] of ctx.players) {
+    // Cleanup stuck assistants if their target disconnected or is no longer fighting
+    if (player.fishState === "boss_assisting") {
+      const target = ctx.players.get(player.assistingPlayerId);
+      if (!target || (target.fishState !== "boss_choice" && target.fishState !== "reeling")) {
+        resetToIdle(player);
+      }
+      continue;
+    }
+
     if (player.fishState !== "reeling") continue;
 
     // NPCs DO NOT run the actual reel minigame: no client renders the reel-internals of NPCs
@@ -229,7 +330,9 @@ export function updateReeling(ctx: FishingContext): void {
 export function resolveReel(
   player: PlayerSchema,
   timeInZoneMs: number,
+  allPlayers: MapSchema<PlayerSchema>,
   notify: (playerId: string, event: ServerEvent) => void,
+  broadcast: (event: ServerEvent) => void,
 ): void {
   if (player.fishState !== "reeling") return;
   const species = getFishSpecies(player.activeFishSpeciesId);
@@ -237,14 +340,40 @@ export function resolveReel(
     resetToIdle(player);
     return;
   }
+
+  // Anti-cheat: Check if the client sent the message too early (Instant Catch hack)
+  const elapsedMs = Date.now() - player.reelStartedAtMs;
+  // We allow a 1.5s (1500ms) tolerance buffer for network jitter/client loop desync.
+  // If they finish a 15s minigame in less than 13.5s, it's physically impossible and is a hack.
+  if (elapsedMs < player.reelDurationMs - 1500) {
+    console.warn(`[Anti-Cheat] Player ${player.id} tried to instant-catch! Elapsed: ${elapsedMs}ms, required: ${player.reelDurationMs}ms`);
+    resetToIdle(player);
+    notify(player.id, { type: "catch_result", playerId: player.id, success: false, reason: "fish_escaped" });
+    return;
+  }
+
+  const isBoss = species.rarity === "BOSS";
+
+  // Find helpers
+  const helpers: PlayerSchema[] = [];
+  if (isBoss) {
+    for (const [, p] of allPlayers) {
+      if (p.assistingPlayerId === player.id) helpers.push(p);
+    }
+  }
+
+  // Calculate success chance
   const clampedInZone = Math.max(0, Math.min(player.reelDurationMs, Number(timeInZoneMs) || 0));
   const catchChance = clamp(clampedInZone / player.reelDurationMs, 0, 1);
   const success = Math.random() < catchChance;
+
   if (success) {
-    const isFirstCatch = !player.collection.includes(species.id);
-    // Finalize weight BEFORE resetToIdle (which sets activeFishWeight = 0) — otherwise weight becomes 0 (old bug).
+    // ---- SUCCESS ----
     const caughtWeight = player.activeFishWeight;
     const catchScore = computeCatchScore(species.value, caughtWeight, species.minWeight, species.maxWeight);
+
+    // Reward main player
+    const isFirstCatch = !player.collection.includes(species.id);
     player.caughtCount += 1;
     player.totalValue += catchScore;
     if (isFirstCatch) player.collection.push(species.id);
@@ -259,8 +388,51 @@ export function resolveReel(
       weight: caughtWeight,
       isFirstCatch,
     });
+
+    // Reward helpers (Full points)
+    if (isBoss) {
+      for (const helper of helpers) {
+        const helperFirstCatch = !helper.collection.includes(species.id);
+        helper.caughtCount += 1;
+        helper.totalValue += catchScore;
+        if (helperFirstCatch) helper.collection.push(species.id);
+        resetToIdle(helper);
+        notify(helper.id, {
+          type: "catch_result",
+          playerId: helper.id,
+          success: true,
+          speciesId: species.id,
+          rarity: species.rarity,
+          value: catchScore,
+          weight: caughtWeight,
+          isFirstCatch: helperFirstCatch,
+        });
+      }
+    }
   } else {
-    resetToIdle(player);
-    notify(player.id, { type: "catch_result", playerId: player.id, success: false, reason: "fish_escaped" });
+    // ---- FAIL ----
+    if (isBoss) {
+      // GROUP WIPE
+      const wipedIds = [player.id, ...helpers.map((h) => h.id)];
+      // Reset scores and set idle
+      player.totalValue = 0;
+      player.caughtCount = 0;
+      resetToIdle(player);
+      for (const helper of helpers) {
+        helper.totalValue = 0;
+        helper.caughtCount = 0;
+        resetToIdle(helper);
+      }
+      // Broadcast death animation
+      broadcast({ type: "boss_dragged_in", playerIds: wipedIds });
+      // Send individual fail results
+      notify(player.id, { type: "catch_result", playerId: player.id, success: false, reason: "dragged_in" });
+      for (const helper of helpers) {
+        notify(helper.id, { type: "catch_result", playerId: helper.id, success: false, reason: "dragged_in" });
+      }
+    } else {
+      resetToIdle(player);
+      notify(player.id, { type: "catch_result", playerId: player.id, success: false, reason: "fish_escaped" });
+    }
   }
 }

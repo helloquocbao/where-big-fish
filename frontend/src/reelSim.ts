@@ -16,6 +16,7 @@ import {
   REEL_FISH_RETARGET_MAX_MS,
   REEL_FISH_TARGET_MARGIN,
   REEL_DURATION_MS,
+  BOSS_REEL_DURATION_MS,
   computeReelZoneSize,
   computeReelFishSpeed,
   computeActualDifficulty,
@@ -30,6 +31,7 @@ export class ReelSim {
   active = false;
   done = false;
   speciesId = "";
+  weight = 0;
   private zoneSize = 40;
   private fishSpeed = 0;
   durationMs = REEL_DURATION_MS;
@@ -53,8 +55,9 @@ export class ReelSim {
     const diff = computeActualDifficulty(sp.reelDifficulty, weight, sp.minWeight, sp.maxWeight);
     this.zoneSize = computeReelZoneSize(diff);
     this.fishSpeed = computeReelFishSpeed(diff);
-    this.durationMs = computeReelDurationMs(weight, sp.minWeight, sp.maxWeight);
+    this.durationMs = sp.rarity === "BOSS" ? BOSS_REEL_DURATION_MS : computeReelDurationMs(weight, sp.minWeight, sp.maxWeight);
     this.speciesId = speciesId;
+    this.weight = weight;
     this.fishY = 50;
     this.zoneY = 50;
     this.zoneVel = 0;

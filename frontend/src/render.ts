@@ -7,6 +7,7 @@ import type { PlayerState, RoomSnapshot, SkinDefinition, SkinTopper, LakeDefinit
 import {
   getSkinDefinition,
   hashString,
+  getFishSpecies,
   LAKE_DEFINITIONS,
   isInsideAnyLake,
   distanceToLakeBoundary,
@@ -987,10 +988,19 @@ function drawCharacter(
   // Idle breathing bob (small, slow) when stationary only.
   const bobOffset = animation.isMoving ? 0 : Math.sin(nowMs / 500) * radius * 0.06;
 
+  let yOffset = 0;
+  let alpha = 1;
+  if (animation.isDraggedDown) {
+    const elapsed = nowMs - animation.draggedDownStartMs;
+    yOffset = (elapsed / 1000) * 80; // Sink down into the lake
+    alpha = Math.max(0, 1 - elapsed / 1500); // Fade out over 1.5s
+  }
+
   const cx = sx;
-  const cy = sy + radius + bobOffset;
+  const cy = sy + radius + bobOffset + yOffset;
 
   ctx.save();
+  ctx.globalAlpha = alpha;
   ctx.translate(cx, cy);
   ctx.rotate(angle);
 
@@ -1046,7 +1056,7 @@ function drawYouMarker(ctx: CanvasRenderingContext2D, sx: number, sy: number, si
 export function drawSkinPreview(ctx: CanvasRenderingContext2D, width: number, height: number, skinId: string, nowMs: number) {
   ctx.clearRect(0, 0, width, height);
   const skin = getSkinDefinition(skinId);
-  const idleAnimation: PlayerAnimation = { x: 0, y: 0, angle: -Math.PI / 2, walkPhase: 0, isMoving: false };
+  const idleAnimation: PlayerAnimation = { x: 0, y: 0, angle: -Math.PI / 2, walkPhase: 0, isMoving: false, isDraggedDown: false, draggedDownStartMs: 0 };
   drawCharacter(ctx, width / 2, height * 0.6, 40, -Math.PI / 2, skin, skinId, idleAnimation, nowMs);
 }
 
@@ -1148,13 +1158,20 @@ export function drawModalReelScene(
   ctx.lineWidth = 3;
   ctx.strokeRect(rulerX, playTop, rulerW, playH);
 
+  const isBoss = getFishSpecies(speciesId)?.rarity === "BOSS";
+
   // ---------------------------------------------------------------- WATER CHANNEL (middle, occupies the rest)
   const chX = rulerX + rulerW + 12;
   const chW = width - chX - 14;
   const chCenter = chX + chW / 2;
   const waterGrad = ctx.createLinearGradient(0, playTop, 0, playBottom);
-  waterGrad.addColorStop(0, "#a9dbf5");
-  waterGrad.addColorStop(1, "#6fb4e0");
+  if (isBoss) {
+    waterGrad.addColorStop(0, "#8B0000"); // Dark red
+    waterGrad.addColorStop(1, "#4A0000"); // Darker red
+  } else {
+    waterGrad.addColorStop(0, "#a9dbf5");
+    waterGrad.addColorStop(1, "#6fb4e0");
+  }
   ctx.fillStyle = waterGrad;
   ctx.fillRect(chX, playTop, chW, playH);
   // Faint horizontal water ripples, drifting slowly.

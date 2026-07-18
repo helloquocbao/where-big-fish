@@ -821,8 +821,133 @@ const drawVicentWallet: FishDrawer = (ctx, size, color, _wiggle) => {
   ctx.lineWidth = Math.max(1, size * 0.045);
 };
 
+// ---------------------------------------------------------------- Leviathan (Boss sea monster - massive snake body, multiple spiky fins, glowing red eye, sharp fangs)
+const drawLeviathan: FishDrawer = (ctx, size, color, wiggle) => {
+  const dark = shade(color, 0.55);
+  const glow = "#ff2a2a"; // Glowing red accents/eyes
+  const belly = shade(color, 1.25);
+
+  // 1. Long serpentine tail wiggling
+  ctx.save();
+  ctx.translate(-size * 0.38, 0);
+  ctx.rotate(wiggle * 1.5); // extra wiggly tail
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  // Large ragged/forked dragon tail
+  ctx.lineTo(-size * 0.35, -size * 0.28);
+  ctx.lineTo(-size * 0.24, -size * 0.05);
+  ctx.lineTo(-size * 0.35, size * 0.28);
+  ctx.lineTo(0, size * 0.1);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  
+  // Spikes on the tail
+  ctx.fillStyle = glow;
+  for (const offset of [-0.2, -0.1, 0, 0.1, 0.2]) {
+    ctx.beginPath();
+    ctx.arc(-size * 0.15, size * offset * 0.5, size * 0.03, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // 2. Serpentine body - long ellipse
+  ctx.fillStyle = bodyGrad(ctx, color, size * 0.24);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, size * 0.5, size * 0.24, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // 3. Spiky fins on the back (dorsal spikes)
+  ctx.fillStyle = dark;
+  ctx.beginPath();
+  // Spike 1 (front)
+  ctx.moveTo(size * 0.1, -size * 0.22);
+  ctx.lineTo(size * 0.18, -size * 0.44);
+  ctx.lineTo(size * 0.24, -size * 0.18);
+  // Spike 2 (middle)
+  ctx.lineTo(size * 0.0, -size * 0.23);
+  ctx.lineTo(-size * 0.06, -size * 0.48);
+  ctx.lineTo(-size * 0.12, -size * 0.22);
+  // Spike 3 (back)
+  ctx.lineTo(-size * 0.2, -size * 0.21);
+  ctx.lineTo(-size * 0.26, -size * 0.42);
+  ctx.lineTo(-size * 0.32, -size * 0.15);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // 4. Light belly with segments (dragon-like)
+  ctx.fillStyle = belly;
+  ctx.beginPath();
+  ctx.moveTo(size * 0.42, size * 0.08);
+  ctx.quadraticCurveTo(size * 0.0, size * 0.34, -size * 0.42, size * 0.08);
+  ctx.quadraticCurveTo(size * 0.0, size * 0.22, size * 0.42, size * 0.08);
+  ctx.closePath();
+  ctx.fill();
+
+  // Segment lines on the belly
+  ctx.strokeStyle = dark;
+  ctx.lineWidth = Math.max(1, size * 0.015);
+  for (const dx of [-0.25, -0.1, 0.05, 0.2]) {
+    ctx.beginPath();
+    ctx.moveTo(size * dx, size * 0.14);
+    ctx.lineTo(size * (dx + 0.02), size * 0.24);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = "rgba(0,0,0,0.3)";
+  ctx.lineWidth = Math.max(1, size * 0.045);
+
+  // 5. Angry Glowing Eye (Red glowing eye with dark mask)
+  ctx.fillStyle = "#110a08";
+  ctx.beginPath();
+  ctx.ellipse(size * 0.3, -size * 0.05, size * 0.09, size * 0.06, 0.15, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = glow; // neon red
+  ctx.beginPath();
+  ctx.arc(size * 0.32, -size * 0.05, size * 0.04, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Inner white glow
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.arc(size * 0.33, -size * 0.06, size * 0.015, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 6. Huge jaw with sharp fangs!
+  ctx.fillStyle = glow;
+  // Draw mouth line
+  ctx.strokeStyle = dark;
+  ctx.lineWidth = Math.max(1.5, size * 0.025);
+  ctx.beginPath();
+  ctx.moveTo(size * 0.22, size * 0.08);
+  ctx.quadraticCurveTo(size * 0.36, size * 0.16, size * 0.48, size * 0.06);
+  ctx.stroke();
+
+  // Sharp fangs hanging down from upper jaw
+  ctx.fillStyle = "#fffaf0"; // bone white
+  ctx.strokeStyle = "rgba(0,0,0,0.3)";
+  ctx.lineWidth = Math.max(0.5, size * 0.01);
+  for (const [fx, fy, h] of [[0.34, 0.08, 0.07], [0.4, 0.09, 0.08], [0.45, 0.08, 0.06]]) {
+    ctx.beginPath();
+    ctx.moveTo(size * fx, size * fy);
+    ctx.lineTo(size * (fx + 0.01), size * (fy + h));
+    ctx.lineTo(size * (fx + 0.025), size * fy);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  // Restore line widths
+  ctx.strokeStyle = "rgba(0,0,0,0.3)";
+  ctx.lineWidth = Math.max(1, size * 0.045);
+};
+
 // ---------------------------------------------------------------- registry + dispatcher
 const FISH_DRAWERS: Record<string, FishDrawer> = {
+  fish_leviathan: drawLeviathan,
   silver_carp: drawSilverCarp,
   minnow: drawMinnow,
   catfish: drawCatfish,

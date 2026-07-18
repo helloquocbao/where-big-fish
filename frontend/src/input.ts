@@ -25,16 +25,14 @@ import { CAST_MAX_CHARGE_MS, MOVE_SEND_INTERVAL_MS } from "./config.ts";
 // whatever angle was last stable instead of recomputing a meaningless-and-unstable one.
 const POINTER_DEADZONE_PX = 8;
 
-/** Each held movement key maps to a unit vector — holding multiple keys simultaneously (e.g. W+D) adds
- * the vectors and gets the angle, allowing movement in 8 directions. */
 const MOVE_KEY_VECTORS: Record<string, { dx: number; dy: number }> = {
   KeyW: { dx: 0, dy: -1 },
-  ArrowUp: { dx: 0, dy: -1 },
   KeyS: { dx: 0, dy: 1 },
-  ArrowDown: { dx: 0, dy: 1 },
   KeyA: { dx: -1, dy: 0 },
-  ArrowLeft: { dx: -1, dy: 0 },
   KeyD: { dx: 1, dy: 0 },
+  ArrowUp: { dx: 0, dy: -1 },
+  ArrowDown: { dx: 0, dy: 1 },
+  ArrowLeft: { dx: -1, dy: 0 },
   ArrowRight: { dx: 1, dy: 0 },
 };
 
@@ -46,22 +44,13 @@ export class InputController {
   private lastSentMoving: boolean | null = null;
   private lastMoveSendAt = 0;
 
-  // code -> timestamp (Date.now()) of the latest keydown event for that key — Map instead of Set
-  // to be able to detect "stuck" keys (see purgeStaleKeys).
-  private heldMoveKeys = new Map<string, number>();
   private lastMovementAngle = 0;
-
-  // Time threshold with no repeat keydowns (OS auto-repeat when key is actually held) to consider
-  // the key released. Fixes a real-world issue on Windows when Vietnamese input method (Unikey/EVKey...)
-  // is enabled: the input method hooks keyboard events at the OS level to insert accent marks, sometimes
-  // "swallowing" the original keyup event of the pressed key (e.g., pressing "A"), making the browser think
-  // the key is STILL held forever -> character drifts in one direction without stopping until that key is pressed again.
-  // Actually held keys will auto-repeat keydown events (OS auto-repeat, usually << 1s/interval) so this threshold
-  // does not affect normal movement feel, but automatically "releases" stuck keys after at most ~0.9s instead of stuck forever.
-  private static readonly KEY_STALE_MS = 900;
 
   private chargeStartAt: number | null = null;
   private reelHeld = false;
+
+  private heldMoveKeys = new Map<string, number>();
+  private static readonly KEY_STALE_MS = 2000;
 
   private touchStartX = 0;
   private touchStartY = 0;
@@ -237,7 +226,7 @@ export class InputController {
   private onActionBtnStart = (e: TouchEvent) => {
     e.preventDefault();
     const state = this.getFishState();
-    if (state === "reeling") {
+    if (state === "reeling" || state === "boss_assisting") {
       this.reelHeld = true;
     } else if (state === "waiting") {
       this.send({ type: "retract" });
@@ -267,7 +256,8 @@ export class InputController {
     this.mouseY = this.touchStartY;
     this.touchStartAt = performance.now();
 
-    if (this.getFishState() === "reeling") {
+    const state = this.getFishState();
+    if (state === "reeling" || state === "boss_assisting") {
       this.reelHeld = true;
     } else {
       this.chargeStartAt = performance.now();
@@ -338,7 +328,7 @@ export class InputController {
   private onMouseDown = (e: MouseEvent) => {
     if (e.button !== 0) return;
     const state = this.getFishState();
-    if (state === "reeling") {
+    if (state === "reeling" || state === "boss_assisting") {
       // Hold mouse = pull catch zone up. No longer send anything to server — minigame runs entirely on the client
       // (see reelSim.ts), server only receives the final result. Only set local flag for simulation + click SFX.
       this.reelHeld = true;
@@ -380,6 +370,12 @@ export class InputController {
       return;
     }
 
+    if (e.code in MOVE_KEY_VECTORS) {
+      e.preventDefault(); // prevent arrow keys from scrolling the page
+      this.heldMoveKeys.set(e.code, Date.now());
+      this.hasTarget = false; // Pressing WASD cancels right-click movement destination
+    }
+
     if (e.code === "Space") {
       e.preventDefault();
       if (this.getFishState() === "waiting") {
@@ -388,15 +384,24 @@ export class InputController {
     }
   };
 
-  private onKeyUp = (_e: KeyboardEvent) => {
-    // Keyboard movement disabled
+  private onKeyUp = (e: KeyboardEvent) => {
+    if (e.code in MOVE_KEY_VECTORS) {
+      this.heldMoveKeys.delete(e.code);
+    }
   };
 
-  private purgeStaleKeys(_nowMs: number) {
-    // Keyboard movement disabled
+  /** Cleans up "stuck" keys — keys that haven't repeated keydown for a long time (> KEY_STALE_MS) but
+   * have never received a corresponding keyup. Called every frame from `tick` before calculating movement direction. */
+  private purgeStaleKeys(nowMs: number) {
+    for (const [code, lastSeenAt] of this.heldMoveKeys) {
+      if (nowMs - lastSeenAt > InputController.KEY_STALE_MS) {
+        this.heldMoveKeys.delete(code);
+      }
+    }
   }
 
   private onWindowBlur = () => {
+    this.heldMoveKeys.clear();
     this.hasTarget = false;
   };
 
@@ -407,7 +412,18 @@ export class InputController {
       this.lastMovementAngle = this.joystickAngle;
       return { angle: this.joystickAngle, moving: true };
     }
-    if (this.hasTarget) {
+    if (this.heldMoveKeys.size > 0) {
+      let dx = 0;
+      let dy = 0;
+      for (const code of this.heldMoveKeys.keys()) {
+        const v = MOVE_KEY_VECTORS[code];
+        dx += v.dx;
+        dy += v.dy;
+      }
+      if (dx === 0 && dy === 0) return { angle: this.lastMovementAngle, moving: false };
+      this.lastMovementAngle = Math.atan2(dy, dx);
+      return { angle: this.lastMovementAngle, moving: true };
+    } else if (this.hasTarget) {
       this.lastMovementAngle = this.targetAngle;
       return { angle: this.targetAngle, moving: this.targetMoving };
     }
