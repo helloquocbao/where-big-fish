@@ -1,4 +1,5 @@
 import "./style.css";
+import "./lakeside.css";
 import type { FishingState } from "@bomio/shared";
 import { getFishSpecies } from "@bomio/shared";
 import { Net } from "./net.ts";

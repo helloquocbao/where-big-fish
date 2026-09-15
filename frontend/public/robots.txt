@@ -32,4 +32,4 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://wherebigfish.com/sitemap.xml
+Sitemap: https://www.wherebigfish.com/sitemap.xml

@@ -1,0 +1,59 @@
+/* Hallmark · playful · Cozy Lakeside · reading-first public pages
+ * Pre-emit critique: P4 H4 E4 S4 R4 V4 */
+:root { --paper:#fffaf0; --soft:#e8eedf; --ink:#234c43; --muted:#60796c; --line:#c8d1b9; --sun:#f0c76b; --lake:#327b79; --display:'Baloo 2',system-ui,sans-serif; --body:system-ui,sans-serif; --space:24px; }
+* { box-sizing:border-box; }
+html,body { margin:0; overflow-x:clip; background:var(--paper); color:var(--ink); font-family:var(--body); }
+a { color:var(--lake); text-underline-offset:4px; }
+a:hover { text-decoration-thickness:2px; }
+a:focus-visible,summary:focus-visible { outline:3px solid var(--lake); outline-offset:5px; }
+h1,h2,h3 { font-family:var(--display); font-style:normal; line-height:1.12; overflow-wrap:anywhere; min-width:0; }
+h1 { font-size:clamp(40px,6vw,76px); letter-spacing:-.035em; margin:18px 0 24px; }
+h2 { font-size:clamp(28px,3vw,40px); margin:0 0 20px; }
+h3 { font-size:23px; }
+p,li,dd { line-height:1.8; }
+.site-header,main,footer { width:min(1120px,calc(100% - 48px)); margin:auto; }
+.site-header { display:flex; justify-content:space-between; gap:24px; align-items:center; padding:24px 0; border-bottom:1px solid var(--line); }
+.brand { font:800 25px/1.1 var(--display); color:var(--ink); text-decoration:none; white-space:nowrap; }
+.brand span { display:block; font:11px/1.6 var(--body); color:var(--muted); letter-spacing:.08em; }
+nav,.actions { display:flex; gap:24px; align-items:center; flex-wrap:wrap; }
+nav a,.actions a { white-space:nowrap; font-size:13px; }
+.button { display:inline-flex; justify-content:center; padding:13px 22px; border-radius:10px; background:var(--sun); color:var(--ink); text-decoration:none; font-weight:700; white-space:nowrap; }
+.hero { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:72px; align-items:center; padding:80px 0; }
+.eyebrow { font:700 11px/1.5 var(--body); letter-spacing:.16em; color:var(--muted); }
+.lead { font-size:18px; line-height:1.8; max-width:640px; }
+.fine { font-size:12px; color:var(--muted); margin-top:24px; }
+.outing { background:var(--soft); border-radius:26px 26px 8px 8px; padding:32px; border:1px solid var(--line); }
+.outing h2 { margin-top:18px; font-size:32px; }
+.outing ol { padding-left:24px; }
+.outing li { padding:12px 0 12px 8px; }
+.outing li strong,.outing li span { display:block; }
+.outing li span { font-size:13px; color:var(--muted); }
+.outing>a { font-size:13px; }
+.story { max-width:800px; padding:48px 0; border-top:1px solid var(--line); }
+.story h2:not(:first-child) { margin-top:48px; }
+.story p { color:var(--ink); }
+.reading { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.5fr); gap:64px; padding:64px 0; border-top:1px solid var(--line); }
+.reading-links a { display:block; padding:20px 0; text-decoration:none; border-bottom:1px solid var(--line); }
+.reading-links strong { display:block; font:700 25px var(--display); }
+.reading-links span { font-size:14px; line-height:1.7; color:var(--muted); }
+.page-title { padding:64px 0 36px; max-width:850px; }
+.jump-links { margin-top:24px; }
+summary { cursor:pointer; font-weight:650; padding:20px 0; }
+details { border-bottom:1px solid var(--line); }
+details p { margin-top:0; }
+dt { font-weight:700; margin-top:24px; }
+dd { margin:8px 0 0; }
+.catalog { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.catalog section { padding:24px; border:1px solid var(--line); border-radius:14px; background:var(--soft); }
+.catalog h3 { margin:0 0 8px; }
+.catalog p { font-size:14px; margin:8px 0 0; }
+.table-wrap { overflow-x:auto; }
+table { border-collapse:collapse; width:100%; font-size:14px; }
+th,td { padding:14px 12px; text-align:left; border-bottom:1px solid var(--line); line-height:1.6; }
+th { background:var(--soft); }
+footer { border-top:1px solid var(--line); margin-top:48px; padding:32px 0 48px; }
+footer p { color:var(--muted); font-size:13px; }
+.skip-link { position:absolute; left:16px; top:-80px; padding:12px; background:var(--paper); z-index:5; }
+.skip-link:focus { top:8px; }
+@media(max-width:768px) { .site-header { align-items:flex-start; flex-direction:column; } .site-header nav { gap:16px; } .hero,.reading { grid-template-columns:minmax(0,1fr); gap:32px; padding:40px 0; } .catalog { grid-template-columns:minmax(0,1fr); } .page-title { padding-top:40px; } .outing { padding:24px; } }
+@media(max-width:414px) { .site-header,main,footer { width:calc(100% - 32px); } nav,.actions { gap:16px; } .site-header nav { gap:12px; } nav a { font-size:12px; } .site-header .button { padding:10px 14px; } .lead { font-size:16px; } }

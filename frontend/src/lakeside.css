@@ -1,0 +1,159 @@
+/* Hallmark · genre: playful · design-system: docs/design.md · designed-as-app
+ * Pre-emit critique: P4 H4 E4 S4 R4 V4 */
+:root {
+  --c-outline: #234c43; --c-ink: #234c43; --c-ink-dim: #60796c;
+  --c-parchment: #fffaf0; --c-parchment-deep: #eee9d9;
+  --c-wood: #a5b6a0; --c-wood-light: #f6f2df; --c-wood-shadow: #809780;
+  --c-gold: #f0c76b; --c-amber: #e5b853; --c-focus: #327b79;
+  --c-leaf-dark: #28665a; --c-bg: #a7bd84;
+  --ls-border: #c8d1b9; --ls-soft: #e8eedf; --ls-shadow: #173a3226;
+  --ls-overlay: #183c354d; --ls-white: #fffaf0; --ls-danger: #a3453a;
+  --font-body: system-ui, sans-serif;
+  --tex-parchment: none; --tex-wood-grain: none;
+}
+html, body { overflow-x: clip; }
+button, a, .map-caption { white-space: nowrap; }
+h1, h2 { font-style: normal; overflow-wrap: anywhere; min-width: 0; }
+.panel-cut, .connect-card, .policy-container {
+  background: var(--c-parchment); border: 1px solid var(--ls-border);
+  box-shadow: 0 6px 0 var(--ls-shadow), 0 16px 36px var(--ls-shadow); border-radius: 18px;
+}
+.connect-screen { background: var(--ls-overlay); overflow-y: auto; padding: 24px 12px; box-sizing: border-box; }
+.connect-card-wrapper { width: min(420px, 100%); gap: 18px; margin: auto; }
+.connect-card { width: auto; box-sizing: border-box; padding: 30px; gap: 16px; }
+.expedition-label, .map-caption { font: 700 10px/1.5 var(--font-body); letter-spacing: 0.14em; color: var(--c-ink-dim); }
+.connect-card h1 { font-size: clamp(32px, 5vw, 43px); line-height: 1.05; color: var(--c-ink); text-shadow: none; animation: none; margin: 0; }
+.connect-card .tagline { color: var(--c-ink-dim); font: 14px/1.6 var(--font-body); margin: 0; }
+.skin-picker { background: var(--ls-soft); border: 1px solid var(--ls-border); border-radius: 14px; padding: 12px; box-shadow: none; }
+.skin-swatch { box-shadow: none; border-color: var(--c-parchment); }
+.skin-swatch.selected { outline: 2px solid var(--c-focus); outline-offset: 3px; }
+.name-input { background: var(--ls-white); color: var(--c-ink); border: 1px solid var(--ls-border); box-shadow: none; border-radius: 10px; font: 15px/1.5 var(--font-body); padding: 13px 15px; }
+.name-input:focus { border-color: var(--c-focus); }
+.play-button, .wood-button, .collection-button, .stats-actions .audio-toggle-button {
+  background: var(--c-gold); color: var(--c-ink); border: 1px solid var(--c-amber);
+  box-shadow: 0 3px 0 var(--c-amber); border-radius: 10px; text-shadow: none;
+}
+.play-button:hover, .wood-button:hover, .collection-button:hover { filter: brightness(1.04); box-shadow: 0 4px 0 var(--c-amber); }
+.play-button:disabled { opacity: 0.6; cursor: wait; transform: none; }
+.audio-toggle-button, .help-toggle-button { background: var(--ls-soft); border-color: var(--ls-border); box-shadow: none; }
+.error-text:empty { display: none; }
+.error-text { color: var(--ls-danger); }
+.connect-footer { margin-top: 0; }
+.policy-link { color: var(--c-ink-dim); }
+.ad-banner, .ad-banner-mini, .hud-banner { box-shadow: none; border: 0; background: var(--c-parchment); border-radius: 10px; padding: 8px; }
+.ad-placeholder { background: var(--ls-soft); border: 0; border-radius: 6px; color: var(--c-ink-dim); }
+.ad-placeholder-icon { display: none; }
+.ad-banner-label { color: var(--c-ink-dim); font-size: 8px; letter-spacing: 0.12em; }
+.stats-panel { padding: 16px; min-width: 230px; }
+.stats-panel span { color: var(--c-ink); }
+.stats-panel > div + div { margin-top: 4px; }
+.leaderboard { padding: 14px 18px; }
+.leaderboard h2 { color: var(--c-ink); font-size: 18px; border-bottom: 1px solid var(--ls-border); padding-bottom: 8px; }
+.leaderboard-list li { padding: 2px 0; }
+.leaderboard-list li.me { background: var(--ls-soft); border-radius: 6px; }
+.minimap-frame { padding: 12px; }
+.map-caption { font-size: 8px; text-align: center; margin-bottom: 8px; }
+.minimap { border-radius: 9px; }
+.play-guide { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 3px; background: var(--c-parchment); color: var(--c-ink); padding: 10px 18px; border: 1px solid var(--ls-border); border-radius: 12px; box-shadow: 0 4px 16px var(--ls-shadow); max-width: calc(100% - 32px); text-align: center; }
+.play-guide-title { font-size: 15px; font-weight: 800; }
+.play-guide-detail { font: 11px/1.5 var(--font-body); color: var(--c-ink-dim); }
+.play-guide[data-state="reeling"], .play-guide[data-state="boss_assisting"] { visibility: hidden; }
+.collection-modal, .help-modal, .boss-choice-modal { background: var(--ls-overlay); }
+.collection-modal-card, .help-modal-card, .boss-choice-card { max-width: calc(100vw - 32px); box-sizing: border-box; padding: 24px; }
+.collection-list { gap: 10px; }
+.collection-item { background: var(--ls-soft); border: 1px solid var(--ls-border); border-radius: 12px; box-shadow: none; }
+.collection-item.caught { background: var(--c-parchment); border-color: var(--c-wood); }
+.collection-item-name, .collection-item.caught .collection-item-name { color: var(--c-ink); }
+.collection-item-desc { color: var(--c-ink-dim); }
+.help-step { border-bottom: 1px solid var(--ls-border); padding-bottom: 14px; }
+.help-step p { font: 14px/1.7 var(--font-body); color: var(--c-ink); }
+.help-step .step-num { background: var(--ls-soft); color: var(--c-ink); border: 0; box-shadow: none; }
+.catch-modal-card { border-width: 2px; }
+.catch-modal-name { color: var(--c-ink); text-shadow: none; }
+.boss-choice-card h2 { color: var(--ls-danger); font-size: 24px; }
+.boss-choice-card p { font: 14px/1.7 var(--font-body); }
+.policy-container { color: var(--c-ink); }
+@media (max-width: 1050px) { .play-guide { bottom: 18px; max-width: 260px; } }
+@media (max-width: 768px) {
+  .play-guide { bottom: auto; top: 12px; max-width: 230px; padding: 6px 10px; }
+  .play-guide-title { font-size: 12px; } .play-guide-detail { font-size: 10px; }
+  .map-caption { display: none; }
+  .collection-modal-card, .help-modal-card, .boss-choice-card { padding: 16px; }
+}
+@media (max-width: 480px) {
+  .connect-card, body.is-mobile .connect-card { padding: 22px 18px; width: 100%; }
+  .connect-card-wrapper { width: 100%; }
+  .connect-card .tagline { font-size: 12px; }
+  .ad-banner { max-width: 100%; box-sizing: border-box; overflow-x: clip; }
+  .skin-picker { gap: 12px; }
+}
+@media (max-height: 480px) { .play-guide { display: none; } .connect-screen { align-items: flex-start; } }
+/* The game is a fixed viewport; focus must never scroll the canvas toward SEO copy. */
+html:has(.game-canvas), body:has(.game-canvas) { overflow: clip; }
+body:has(.game-canvas) #app { position: fixed; inset: 0; }
+@media (max-width: 355px) { .connect-card-wrapper > .ad-banner { display: none; } }
+/* Gameplay layout: session compass / leaderboard / bottom action dock. */
+.hud .stats-panel { top: 20px; left: 20px; bottom: auto; min-width: 0; width: 238px; padding: 18px; box-sizing: border-box; }
+.session-label { font: 700 9px/1.5 var(--font-body); letter-spacing: 0.16em; color: var(--c-ink-dim); }
+.hud .stats-panel .location-row { margin: 6px 0 12px; }
+.hud .stats-panel .stats-current-lake { font-size: 21px; line-height: 1.2; }
+.hud .stats-panel .session-metrics { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); border-top: 1px solid var(--ls-border); padding-top: 12px; gap: 12px; }
+.session-metrics > div { display: flex; flex-direction: column; gap: 2px; }
+.hud .session-metrics span { font-size: 25px; font-variant-numeric: tabular-nums; }
+.session-metrics small { font: 11px var(--font-body); }
+.hud .stats-panel .stats-actions { position: fixed; left: 20px; bottom: 20px; width: 250px; margin: 0; padding: 10px; background: var(--c-parchment); border: 1px solid var(--ls-border); border-radius: 14px; box-sizing: border-box; }
+.hud .stats-actions .collection-button { height: 38px; gap: 4px; }
+.hud .stats-actions .audio-toggle-button { height: 38px; width: 38px; flex-shrink: 0; }
+.hud .stats-actions .collection-count { font-size: inherit; }
+.hud .leaderboard { top: 20px; right: 20px; width: 218px; padding: 14px; box-sizing: border-box; }
+.hud .leaderboard h2 { margin: 0; padding: 0; border: 0; }
+.ranking-toggle { display: flex; justify-content: space-between; gap: 16px; align-items: center; width: 100%; border: 0; padding: 0 0 10px; background: none; color: var(--c-ink); font: 800 17px var(--font-display); cursor: pointer; }
+.ranking-toggle span { font: 18px var(--font-body); }
+.hud .leaderboard.collapsed .leaderboard-list { display: none; }
+.hud .leaderboard.collapsed .ranking-toggle { padding-bottom: 0; }
+.hud .leaderboard-list { max-height: 240px; overflow-y: auto; }
+.hud .leaderboard-list li { display: flex; align-items: center; gap: 7px; padding: 5px 4px; font-size: 12px; }
+.hud .leaderboard-list li::before { flex: 0 0 20px; }
+.angler-name { overflow: hidden; text-overflow: ellipsis; flex: 1; }
+.leaderboard-list strong { font-size: 11px; font-variant-numeric: tabular-nums; color: var(--c-ink); }
+.hud .minimap-frame { right: 20px; bottom: 20px; }
+.hud .hud-banner { top: 20px; left: 50%; transform: translateX(-50%); opacity: 0.85; }
+.hud .play-guide { bottom: 22px; padding: 10px 18px; }
+.hud .cast-meter { bottom: 105px; background: var(--c-parchment); padding: 14px 18px; border-radius: 14px; border: 1px solid var(--ls-border); box-shadow: none; }
+.cast-meter-track { background: var(--ls-soft); border: 1px solid var(--ls-border); height: 12px; border-radius: 8px; overflow: clip; }
+.cast-meter-fill { background: var(--c-gold); border-radius: 8px; }
+.cast-meter-label { color: var(--c-ink); text-shadow: none; font: 11px/1.5 var(--font-body); margin-top: 8px; }
+.hud .fishing-modal { background: var(--ls-overlay); }
+.hud .fishing-modal-card { background: var(--c-parchment); border: 1px solid var(--ls-border); border-radius: 22px; box-shadow: 0 16px 48px var(--ls-shadow); padding: 24px; gap: 12px; width: 290px; max-height: calc(100dvh - 24px); overflow-y: auto; }
+.reel-heading h2 { margin: 2px 0; font-size: 30px; color: var(--c-ink); }
+.reel-heading p { margin: 0; color: var(--c-ink-dim); font: 11px/1.5 var(--font-body); }
+.hud .fishing-modal-canvas { width: 150px; height: 270px; border: 0; box-shadow: none; border-radius: 0; }
+.reel-readout { display: flex; align-items: center; justify-content: space-between; width: 100%; color: var(--c-ink); font: 12px var(--font-body); }
+.reel-percent { font: 800 24px var(--font-display); font-variant-numeric: tabular-nums; }
+.reel-instruction { padding-top: 10px; border-top: 1px solid var(--ls-border); font: 11px var(--font-body); color: var(--c-ink-dim); width: 100%; }
+.reel-instruction span { padding: 0 5px; }
+@media (max-width: 1050px) { .hud .hud-banner { display: none; } .hud .play-guide { max-width: 230px; } }
+@media (max-width: 768px) {
+ .hud .stats-panel, body.is-mobile .hud .stats-panel { top: 10px; left: 10px; bottom: auto; width: 170px; padding: 12px; }
+ .hud .stats-panel .stats-current-lake { font-size: 16px; }
+ .hud .session-metrics span { font-size: 19px; }
+ .hud .leaderboard, body.is-mobile .hud .leaderboard { top: 10px; right: 10px; width: 145px; padding: 10px; }
+ .ranking-toggle { font-size: 13px; }
+ .hud .leaderboard-list { max-height: 140px; }
+ body.is-mobile .leaderboard h2::after { content: none; }
+ .hud .play-guide { top: auto; bottom: 84px; max-width: 240px; }
+ .hud .stats-panel .stats-actions { left: 10px; bottom: 10px; width: 210px; }
+ .hud .minimap-frame, body.is-mobile .hud .minimap-frame { right: 10px; bottom: 10px; padding: 6px; }
+ .hud .minimap { width: 88px; height: 88px; }
+ body.is-mobile .hud .stats-panel .stats-actions { bottom: 100px; width: 190px; }
+ body.is-mobile .hud .play-guide { display: none; }
+}
+@media (max-width: 355px) { .hud .stats-panel { width: 150px; } .hud .leaderboard { width: 140px; } }
+@media (max-height: 520px) {
+ .hud .fishing-modal-card { width: 350px; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); padding: 16px; }
+ .fishing-modal-game-container { grid-column: 2; grid-row: 1 / 4; }
+ .hud .fishing-modal-canvas, body.is-mobile .hud .fishing-modal-canvas { width: 125px; height: 225px; }
+ .reel-heading h2 { font-size: 25px; }
+ .hud .leaderboard-list { max-height: 100px; }
+ .hud .play-guide { display: none; }
+}

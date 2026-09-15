@@ -104,26 +104,6 @@ body {
   height: 100%;
 }
 
-/* Crawlable content for SEO/GEO (see index.html <main class="seo-content">). Do NOT use display:none
-   (bots might ignore) — place it directly UNDER the full-viewport game screen; body is overflow:hidden so players
-   can never scroll to it, while crawlers/LLMs can still read the real text. */
-.seo-content {
-  position: absolute;
-  top: 100vh;
-  left: 0;
-  width: 100%;
-  max-width: 900px;
-  padding: 40px;
-  box-sizing: border-box;
-  color: var(--c-ink);
-  font-family: system-ui, sans-serif;
-  z-index: -1;
-}
-
-body.is-mobile .seo-content {
-  display: none !important;
-}
-
 .game-canvas {
   position: absolute;
   inset: 0;

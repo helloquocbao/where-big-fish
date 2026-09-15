@@ -7,14 +7,13 @@ import type { PlayerState, RoomSnapshot, SkinDefinition, SkinTopper, LakeDefinit
 import {
   getSkinDefinition,
   hashString,
-  getFishSpecies,
   LAKE_DEFINITIONS,
   isInsideAnyLake,
   distanceToLakeBoundary,
   aabbDistanceToLake,
   isInsideMountains,
 } from "@bomio/shared";
-import { BALL_RADIUS_RATIO, BALL_FOOT_RADIUS_RATIO, PLAYER_VISUAL_SIZE, WORLD_WIDTH, WORLD_HEIGHT } from "./config.ts";
+import { BALL_RADIUS_RATIO, PLAYER_VISUAL_SIZE, WORLD_WIDTH, WORLD_HEIGHT } from "./config.ts";
 import type { PlayerAnimation } from "./animation.ts";
 // Icon cá tách sang module riêng (mỗi loài 1 hình). Re-export để ui.ts vẫn import từ render.ts như cũ.
 import { drawFishIcon } from "./fishArt.ts";
@@ -323,7 +322,7 @@ function clearBackground(ctx: CanvasRenderingContext2D, camera: Camera, players:
 
   ctx.save();
   // Main Grass area covering the island (extending to left, top, bottom edges)
-  ctx.fillStyle = "#8fc97b";
+  ctx.fillStyle = "#a4bd83";
   ctx.fillRect(x0, y0, (x1 - x0) - 80, y1 - y0);
 
   // Sandy beach on the right edge
@@ -338,6 +337,34 @@ function clearBackground(ctx: CanvasRenderingContext2D, camera: Camera, players:
   drawShorePatches(ctx, camera);
   drawShoreDecorations(ctx, camera, players);
   drawMountains(ctx, camera);
+}
+
+// Decorative landmarks are resolved once against the authoritative lake geometry.
+const shoreSigns = LAKE_DEFINITIONS.filter(lake => lake.id !== "song_chinh" && lake.id !== "bien_dong").map(lake => {
+  const x = lake.centerX;
+  const y = lake.bounds.maxY + 100;
+  return { lake, x, y };
+}).filter(sign => !isInsideAnyLake(sign.x, sign.y) && !isInsideMountains(sign.x, sign.y));
+
+function drawShoreSigns(ctx: CanvasRenderingContext2D, camera: Camera) {
+  ctx.save();
+  for (const sign of shoreSigns) {
+    const [x, y] = worldToScreen(camera, sign.x, sign.y);
+    if (x < -140 || y < -100 || x > camera.width + 140 || y > camera.height + 100) continue;
+    // A small clearing and sign, entirely decorative: no suggested bridge over water.
+    ctx.fillStyle = "#c9c894";
+    ctx.beginPath(); ctx.ellipse(x, y + 8, 92, 32, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "#867655"; ctx.lineWidth = 7;
+    ctx.beginPath(); ctx.moveTo(x - 42, y - 10); ctx.lineTo(x - 42, y + 15);
+    ctx.moveTo(x + 42, y - 10); ctx.lineTo(x + 42, y + 15); ctx.stroke();
+    ctx.fillStyle = "#fff1cb"; ctx.strokeStyle = "#64775c"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(x - 83, y - 49, 166, 45, 8); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#294f42"; ctx.textAlign = "center";
+    ctx.font = "bold 15px 'Baloo 2', system-ui"; ctx.fillText(sign.lake.name, x, y - 29);
+    ctx.font = "10px system-ui";
+    ctx.fillText(`${Object.keys(sign.lake.fishWeights).length} species · fishing shore`, x, y - 13);
+  }
+  ctx.restore();
 }
 
 function drawMountains(ctx: CanvasRenderingContext2D, camera: Camera) {
@@ -831,83 +858,6 @@ function drawProceduralTrees(ctx: CanvasRenderingContext2D, camera: Camera) {
 const BLINK_PERIOD_MS = 3400;
 const BLINK_DURATION_MS = 140;
 
-/** Kirby-style big eyes (white sclera + black pupil + a small glint, closed to a short line while
- * blinking), drawn in the character's own local space (forward = +X, already rotated to face
- * `angle` by the caller). Blink timing is phase-offset per player so a lake full of players
- * doesn't blink in unison. */
-function drawEyes(ctx: CanvasRenderingContext2D, forwardOffset: number, spacing: number, eyeRadius: number, nowMs: number, playerId: string) {
-  const phaseOffset = hashString(playerId) % BLINK_PERIOD_MS;
-  const isBlinking = (nowMs + phaseOffset) % BLINK_PERIOD_MS < BLINK_DURATION_MS;
-
-  for (const side of [-1, 1]) {
-    const ey = side * spacing;
-    if (isBlinking) {
-      ctx.strokeStyle = "#2d2018";
-      ctx.lineWidth = Math.max(1.5, eyeRadius * 0.5);
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      ctx.moveTo(forwardOffset - eyeRadius, ey);
-      ctx.lineTo(forwardOffset + eyeRadius, ey);
-      ctx.stroke();
-    } else {
-      ctx.fillStyle = "#fffaf0";
-      ctx.beginPath();
-      ctx.arc(forwardOffset, ey, eyeRadius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#2d2018";
-      ctx.beginPath();
-      ctx.arc(forwardOffset + eyeRadius * 0.15, ey, eyeRadius * 0.62, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#fffaf0";
-      ctx.beginPath();
-      ctx.arc(forwardOffset - eyeRadius * 0.1, ey - eyeRadius * 0.28, eyeRadius * 0.22, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-}
-
-function drawEars(ctx: CanvasRenderingContext2D, radius: number, color: string) {
-  ctx.fillStyle = color;
-  ctx.strokeStyle = "#2d4a1f";
-  ctx.lineWidth = Math.max(1.5, radius * 0.1);
-  for (const side of [-1, 1]) {
-    ctx.save();
-    ctx.translate(-radius * 0.15, side * radius * 0.45);
-    ctx.rotate(side * 0.4);
-    ctx.beginPath();
-    ctx.ellipse(0, -radius * 0.75, radius * 0.26, radius * 0.65, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
-  }
-}
-
-function drawFins(ctx: CanvasRenderingContext2D, radius: number, color: string, animation: PlayerAnimation) {
-  ctx.fillStyle = color;
-  ctx.strokeStyle = "#2d4a1f";
-  ctx.lineWidth = Math.max(1.5, radius * 0.1);
-  const flap = animation.isMoving ? Math.sin(animation.walkPhase) * 0.3 : 0;
-  for (const side of [-1, 1]) {
-    ctx.save();
-    ctx.translate(0, side * radius * 0.9);
-    ctx.rotate(side * flap);
-    ctx.beginPath();
-    ctx.ellipse(0, side * radius * 0.35, radius * 0.55, radius * 0.16, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
-  }
-}
-
-function drawBlush(ctx: CanvasRenderingContext2D, xOffset: number, spacing: number, blushRadius: number) {
-  ctx.fillStyle = "rgba(255, 140, 160, 0.55)";
-  for (const side of [-1, 1]) {
-    ctx.beginPath();
-    ctx.ellipse(xOffset, side * spacing, blushRadius, blushRadius * 0.65, 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
-}
-
 /** Tiny signature accessory per skin, drawn just above the character in screen space (kept
  * upright regardless of which way the body is rotated, like a name tag). */
 function drawTopper(ctx: CanvasRenderingContext2D, topX: number, topY: number, refSize: number, topper: SkinTopper) {
@@ -964,73 +914,79 @@ function drawTopper(ctx: CanvasRenderingContext2D, topX: number, topY: number, r
   ctx.restore();
 }
 
-/**
- * Draws the character: a round Kirby-style ball body plus bunny ears and side fins — same base
- * design as the original game, minus the gun (no combat in the fishing pivot). `size` is now
- * always PLAYER_VISUAL_SIZE (no more growth mechanic) but kept as a parameter since all the
- * geometry helpers already take it.
- */
+/** Shared upright chibi angler renderer. World anchors and skin IDs remain unchanged. */
 function drawCharacter(
-  ctx: CanvasRenderingContext2D,
-  sx: number,
-  sy: number,
-  size: number,
-  angle: number,
-  skin: SkinDefinition,
-  playerId: string,
-  animation: PlayerAnimation,
-  nowMs: number,
+  ctx: CanvasRenderingContext2D, sx: number, sy: number, size: number,
+  angle: number, skin: SkinDefinition, playerId: string,
+  animation: PlayerAnimation, nowMs: number,
 ) {
-  const color = skin.bodyColor;
-  const radius = size * BALL_RADIUS_RATIO;
-  const footRadius = size * BALL_FOOT_RADIUS_RATIO;
-
-  // Idle breathing bob (small, slow) when stationary only.
-  const bobOffset = animation.isMoving ? 0 : Math.sin(nowMs / 500) * radius * 0.06;
-
-  let yOffset = 0;
-  let alpha = 1;
-  if (animation.isDraggedDown) {
-    const elapsed = nowMs - animation.draggedDownStartMs;
-    yOffset = (elapsed / 1000) * 80; // Sink down into the lake
-    alpha = Math.max(0, 1 - elapsed / 1500); // Fade out over 1.5s
-  }
-
-  const cx = sx;
-  const cy = sy + radius + bobOffset + yOffset;
-
+  const palette = { outline: "#354b42", skin: "#f4c69e", cheek: "#e68e7e",
+    hair: "#674737", hat: "#ead39a", brim: "#c3a46a", boots: "#405c51",
+    white: "#fffaf0", shadow: "rgba(36,64,48,0.18)", rod: "#825c3b" };
+  const sinking = animation.isDraggedDown ? Math.max(0, nowMs - animation.draggedDownStartMs) : 0;
+  const bob = animation.isMoving ? Math.sin(animation.walkPhase * 2) * 0.025 : Math.sin(nowMs / 500) * 0.015;
+  const facing = Math.cos(angle) < -0.15 ? -1 : 1;
+  const stride = animation.isMoving ? Math.sin(animation.walkPhase) * 0.09 : 0;
   ctx.save();
-  ctx.globalAlpha = alpha;
-  ctx.translate(cx, cy);
-  ctx.rotate(angle);
-
-  const footStepLeft = animation.isMoving ? Math.sin(animation.walkPhase) * footRadius * 1.3 : 0;
-  const footStepRight = animation.isMoving ? Math.sin(animation.walkPhase + Math.PI) * footRadius * 1.3 : 0;
-  ctx.fillStyle = "#2d4a1f";
-  for (const [side, step] of [[-1, footStepLeft] as const, [1, footStepRight] as const]) {
-    ctx.beginPath();
-    ctx.ellipse(-radius * 0.3 + step * 0.3, side * radius * 0.65, footRadius, footRadius * 0.7, 0, 0, Math.PI * 2);
-    ctx.fill();
+  ctx.globalAlpha *= Math.max(0, 1 - sinking / 1500);
+  ctx.translate(sx, sy + sinking * 0.08);
+  ctx.scale(size, size);
+  ctx.lineWidth = 0.045;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  const oval = (x: number, y: number, rx: number, ry: number, fill: string, outline = true) => {
+    ctx.fillStyle = fill; ctx.strokeStyle = palette.outline;
+    ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+    if (outline) ctx.stroke();
+  };
+  const rounded = (x: number, y: number, w: number, h: number, r: number, fill: string) => {
+    ctx.fillStyle = fill; ctx.strokeStyle = palette.outline;
+    ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.fill(); ctx.stroke();
+  };
+  oval(0, 1.12, 0.46, 0.1, palette.shadow, false);
+  ctx.translate(0, bob);
+  // Alternating boots and a compact jacket keep the silhouette readable at game scale.
+  rounded(-0.29, 0.88 + stride, 0.24, 0.25, 0.08, palette.boots);
+  rounded(0.05, 0.88 - stride, 0.24, 0.25, 0.08, palette.boots);
+  rounded(-0.32, 0.5, 0.64, 0.46, 0.16, skin.bodyColor);
+  ctx.strokeStyle = palette.outline; ctx.lineWidth = 0.025;
+  ctx.beginPath(); ctx.moveTo(0, 0.66); ctx.lineTo(0, 0.92); ctx.stroke();
+  rounded(-0.24, 0.73, 0.15, 0.12, 0.025, palette.hat);
+  oval(-facing * 0.34, 0.73 + stride * 0.3, 0.1, 0.13, palette.skin);
+  // Rod is held on the facing side; the live line shares this exact tip.
+  ctx.strokeStyle = palette.rod; ctx.lineWidth = 0.065;
+  ctx.beginPath(); ctx.moveTo(facing * 0.36, 0.83);
+  ctx.quadraticCurveTo(facing * 0.61, 0.22, facing * 0.72, -0.24); ctx.stroke();
+  oval(facing * 0.43, 0.67, 0.065, 0.065, palette.brim);
+  oval(facing * 0.36, 0.72, 0.11, 0.1, palette.skin);
+  // Oversized head, ears, fringe, and tiny directional eyes.
+  oval(-0.38, 0.35, 0.08, 0.11, palette.skin);
+  oval(0.38, 0.35, 0.08, 0.11, palette.skin);
+  oval(0, 0.3, 0.39, 0.34, palette.skin);
+  oval(0, 0.095, 0.37, 0.14, palette.hair, false);
+  const look = Math.cos(angle) * 0.045;
+  const blink = (nowMs + hashString(playerId) % BLINK_PERIOD_MS) % BLINK_PERIOD_MS < BLINK_DURATION_MS;
+  for (const side of [-1, 1]) {
+    oval(side * 0.235, 0.43, 0.07, 0.035, palette.cheek, false);
+    if (blink) {
+      ctx.strokeStyle = palette.outline; ctx.lineWidth = 0.03;
+      ctx.beginPath(); ctx.moveTo(side * 0.14 + look - 0.045, 0.34);
+      ctx.lineTo(side * 0.14 + look + 0.045, 0.34); ctx.stroke();
+    } else {
+      oval(side * 0.14 + look, 0.33, 0.035, 0.052, palette.outline, false);
+      oval(side * 0.14 + look - 0.009, 0.313, 0.01, 0.014, palette.white, false);
+    }
   }
-
-  drawEars(ctx, radius, color);
-
-  const strokeWidth = Math.max(2, size * 0.1);
-  ctx.fillStyle = color;
-  ctx.strokeStyle = "#2d4a1f";
-  ctx.lineWidth = strokeWidth;
-  ctx.beginPath();
-  ctx.arc(0, 0, radius, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-
-  drawFins(ctx, radius, color, animation);
-  drawBlush(ctx, radius * 0.15, radius * 0.5, radius * 0.22);
-  drawEyes(ctx, radius * 0.42, radius * 0.36, radius * 0.26, nowMs, playerId);
-
+  ctx.strokeStyle = palette.outline; ctx.lineWidth = 0.023;
+  ctx.beginPath(); ctx.arc(look, 0.44, 0.05, 0.15, Math.PI - 0.15); ctx.stroke();
+  // Straw bucket hat with a skin-coloured ribbon and original collectible topper.
+  oval(0, 0.06, 0.53, 0.13, palette.brim);
+  rounded(-0.34, -0.23, 0.68, 0.3, 0.12, palette.hat);
+  ctx.fillStyle = skin.bodyColor; ctx.fillRect(-0.315, -0.025, 0.63, 0.075);
+  ctx.strokeStyle = palette.outline; ctx.lineWidth = 0.025;
+  ctx.beginPath(); ctx.moveTo(-0.31, 0.055); ctx.lineTo(0.31, 0.055); ctx.stroke();
+  drawTopper(ctx, 0.18, -0.23, 0.3, skin.topper);
   ctx.restore();
-
-  drawTopper(ctx, sx, sy + bobOffset - radius * 0.3, radius, skin.topper);
 }
 
 /** Small bouncing marker above the local player. */
@@ -1057,7 +1013,7 @@ export function drawSkinPreview(ctx: CanvasRenderingContext2D, width: number, he
   ctx.clearRect(0, 0, width, height);
   const skin = getSkinDefinition(skinId);
   const idleAnimation: PlayerAnimation = { x: 0, y: 0, angle: -Math.PI / 2, walkPhase: 0, isMoving: false, isDraggedDown: false, draggedDownStartMs: 0 };
-  drawCharacter(ctx, width / 2, height * 0.6, 40, -Math.PI / 2, skin, skinId, idleAnimation, nowMs);
+  drawCharacter(ctx, width / 2, height * 0.29, Math.min(width / 1.65, height / 1.55), -Math.PI / 2, skin, skinId, idleAnimation, nowMs);
 }
 
 function drawNameTag(ctx: CanvasRenderingContext2D, sx: number, sy: number, size: number, player: PlayerState) {
@@ -1091,180 +1047,31 @@ export function drawModalReelScene(
   speciesId: string = "", // chọn hình cá riêng theo loài (xem fishArt.ts)
 ) {
   ctx.clearRect(0, 0, width, height);
-  const clamp = (v: number) => Math.max(0, Math.min(100, v));
-  const lerp = (a: number, b: number, t: number) => Math.round(a + (b - a) * t);
-
-  // ---------------------------------------------------------------- WOODEN FRAME (background)
-  const woodGrad = ctx.createLinearGradient(0, 0, width, 0);
-  woodGrad.addColorStop(0, "#c79a5b");
-  woodGrad.addColorStop(0.5, "#a9743f");
-  woodGrad.addColorStop(1, "#c79a5b");
-  ctx.fillStyle = woodGrad;
-  ctx.fillRect(0, 0, width, height);
-  // Vertical wooden planks on both edges to match the bamboo/wood border in the image.
-  ctx.fillStyle = "rgba(233, 205, 150, 0.55)";
-  ctx.fillRect(4, 4, 8, height - 8);
-  ctx.fillRect(width - 12, 4, 8, height - 8);
-  ctx.strokeStyle = "rgba(74, 48, 22, 0.5)";
-  ctx.lineWidth = 2;
-  ctx.strokeRect(3, 3, width - 6, height - 6);
-
-  const playTop = 14;
-  const playBottom = height - 14;
-  const playH = playBottom - playTop;
-  const toPixelY = (v: number) => playBottom - (clamp(v) / 100) * playH;
-
-  // ---------------------------------------------------------------- PROGRESS BAR = RULER (left)
-  // Combined progress into the left ruler bar (Vicent 2026-07-14: removed the right column to simplify UI): dark groove,
-  // fill rising from the bottom according to % (red→yellow→green), overlaid with horizontal notches to still look like a "ruler".
-  const rulerX = 14;
-  const rulerW = 20;
-  const pct = clamp(progress);
-  let pr: number, pg: number, pb: number;
-  if (pct < 50) {
-    const t = pct / 50;
-    pr = lerp(224, 242, t); pg = lerp(83, 193, t); pb = lerp(63, 78, t);
-  } else {
-    const t = (pct - 50) / 50;
-    pr = lerp(242, 111, t); pg = lerp(193, 191, t); pb = lerp(78, 79, t);
-  }
-  // Dark groove.
-  ctx.fillStyle = "#3a2a1c";
-  ctx.fillRect(rulerX, playTop, rulerW, playH);
-  // Fill rising from the bottom.
-  const fillH = (pct / 100) * playH;
-  const fillGrad = ctx.createLinearGradient(rulerX, 0, rulerX + rulerW, 0);
-  fillGrad.addColorStop(0, `rgb(${Math.round(pr * 0.8)}, ${Math.round(pg * 0.8)}, ${Math.round(pb * 0.8)})`);
-  fillGrad.addColorStop(0.5, `rgb(${pr}, ${pg}, ${pb})`);
-  fillGrad.addColorStop(1, `rgb(${Math.round(pr * 0.75)}, ${Math.round(pg * 0.75)}, ${Math.round(pb * 0.75)})`);
-  ctx.fillStyle = fillGrad;
-  ctx.fillRect(rulerX, playBottom - fillH, rulerW, fillH);
-  if (fillH > 2) {
-    ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-    ctx.fillRect(rulerX + 3, playBottom - fillH, 3, fillH);
-  }
-  // Horizontal notches (scale) overlaid to still look like a ruler.
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
-  ctx.lineWidth = 1;
-  for (let i = 1; i < 22; i++) {
-    const ty = playTop + (playH * i) / 22;
-    const long = i % 5 === 0;
-    ctx.beginPath();
-    ctx.moveTo(rulerX, ty);
-    ctx.lineTo(rulerX + (long ? rulerW : rulerW * 0.5), ty);
-    ctx.stroke();
-  }
-  ctx.strokeStyle = "#7a5233";
-  ctx.lineWidth = 3;
-  ctx.strokeRect(rulerX, playTop, rulerW, playH);
-
-  const isBoss = getFishSpecies(speciesId)?.rarity === "BOSS";
-
-  // ---------------------------------------------------------------- WATER CHANNEL (middle, occupies the rest)
-  const chX = rulerX + rulerW + 12;
-  const chW = width - chX - 14;
-  const chCenter = chX + chW / 2;
-  const waterGrad = ctx.createLinearGradient(0, playTop, 0, playBottom);
-  if (isBoss) {
-    waterGrad.addColorStop(0, "#8B0000"); // Dark red
-    waterGrad.addColorStop(1, "#4A0000"); // Darker red
-  } else {
-    waterGrad.addColorStop(0, "#a9dbf5");
-    waterGrad.addColorStop(1, "#6fb4e0");
-  }
-  ctx.fillStyle = waterGrad;
-  ctx.fillRect(chX, playTop, chW, playH);
-  // Faint horizontal water ripples, drifting slowly.
+  const colors = { water: "#d5e8e0", line: "#abc9bb", ink: "#234c43", zone: "#9acb88", active: "#b4de95", cream: "#fffaf0", progress: "#327b79" };
+  const top = 12, bottom = height - 12, laneX = 48, laneW = width - 68;
+  const toY = (value: number) => bottom - Math.max(0, Math.min(100, value)) / 100 * (bottom - top);
   ctx.save();
-  ctx.beginPath();
-  ctx.rect(chX, playTop, chW, playH);
-  ctx.clip();
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.22)";
-  ctx.lineWidth = 2;
-  for (let i = 0; i < 7; i++) {
-    const ry = playTop + ((i * 60 + (nowMs / 40) % 60)) % playH;
-    ctx.beginPath();
-    ctx.moveTo(chX, ry);
-    ctx.lineTo(chX + chW, ry);
-    ctx.stroke();
+  ctx.fillStyle = colors.water;
+  ctx.beginPath(); ctx.roundRect(laneX, top, laneW, bottom - top, 18); ctx.fill();
+  ctx.save(); ctx.clip();
+  ctx.strokeStyle = colors.line; ctx.lineWidth = 1;
+  for (let i = 0; i < 10; i++) {
+    const y = top + (i * 42 + nowMs / 90) % (bottom - top);
+    ctx.beginPath(); ctx.moveTo(laneX, y); ctx.quadraticCurveTo(laneX + laneW / 2, y - 8, laneX + laneW, y); ctx.stroke();
   }
+  const zoneTop = toY(zoneY + zoneSize / 2), zoneBottom = toY(zoneY - zoneSize / 2);
+  ctx.fillStyle = Math.abs(fishY - zoneY) <= zoneSize / 2 ? colors.active : colors.zone;
+  ctx.strokeStyle = colors.ink; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(laneX + 8, zoneTop, laneW - 16, Math.max(4, zoneBottom - zoneTop), 9); ctx.fill(); ctx.stroke();
+  drawFishIcon(ctx, laneX + laneW / 2, toY(fishY), laneW * 0.65, speciesId, fishColor, Math.sin(nowMs / 130) * 0.5, 1);
   ctx.restore();
-  ctx.strokeStyle = "#3f7ba0";
-  ctx.lineWidth = 2.5;
-  ctx.strokeRect(chX, playTop, chW, playH);
-
-  // Seaweed at the bottom of the channel to match the image.
-  ctx.strokeStyle = "#4f9f5a";
-  ctx.lineWidth = 3;
-  for (let i = -1; i <= 1; i++) {
-    const bx = chCenter + i * 16;
-    const sway = Math.sin(nowMs / 400 + i) * 4;
-    ctx.beginPath();
-    ctx.moveTo(bx, playBottom - 2);
-    ctx.quadraticCurveTo(bx + sway, playBottom - 16, bx + sway * 1.5, playBottom - 28);
-    ctx.stroke();
-  }
-
-  // ---------------------------------------------------------------- CATCH ZONE
-  const isInZone = Math.abs(fishY - zoneY) <= zoneSize / 2;
-  const zoneTopPx = toPixelY(zoneY + zoneSize / 2);
-  const zoneBottomPx = toPixelY(zoneY - zoneSize / 2);
-  const boxX = chCenter - (chW * 0.62) / 2;
-  const boxW = chW * 0.62;
-  ctx.save();
-  if (isInZone) {
-    ctx.shadowColor = "rgba(120, 220, 90, 0.9)";
-    ctx.shadowBlur = 14;
-  }
-  const boxGrad = ctx.createLinearGradient(0, zoneTopPx, 0, zoneBottomPx);
-  boxGrad.addColorStop(0, isInZone ? "#8fe06a" : "#8fce6c");
-  boxGrad.addColorStop(1, isInZone ? "#5fbf3f" : "#5aa84a");
-  ctx.fillStyle = boxGrad;
-  ctx.globalAlpha = isInZone ? 0.95 : 0.8;
-  ctx.fillRect(boxX, zoneTopPx, boxW, zoneBottomPx - zoneTopPx);
-  ctx.globalAlpha = 1;
-  ctx.shadowBlur = 0;
-  ctx.strokeStyle = isInZone ? "#3c7a24" : "#4f8f2f";
-  ctx.lineWidth = 2.5;
-  ctx.strokeRect(boxX, zoneTopPx, boxW, zoneBottomPx - zoneTopPx);
-  ctx.restore();
-
-  // ---------------------------------------------------------------- FISH
-  const fishPixelY = toPixelY(fishY);
-  const wiggle = Math.sin(nowMs / 130) * 0.5;
-  drawFishIcon(ctx, chCenter, fishPixelY, boxW * 0.9, speciesId, fishColor, wiggle, 1);
-
-  // ---------------------------------------------------------------- TINY ANGLER (bottom-left corner)
-  drawTinyAngler(ctx, rulerX + rulerW / 2, playBottom, nowMs);
-}
-
-/** Tiny pixel-style angler sitting in the bottom-left corner of the minigame frame (decorative, matches Stardew image).
- * Fishing rod bobs slightly over time to look alive. */
-function drawTinyAngler(ctx: CanvasRenderingContext2D, x: number, baseY: number, nowMs: number) {
-  const bob = Math.sin(nowMs / 500) * 1.5;
-  ctx.save();
-  ctx.translate(x, baseY - 4 + bob);
-  // Body (brown shirt).
-  ctx.fillStyle = "#8a5a2c";
-  ctx.fillRect(-7, -14, 14, 14);
-  // Head (skin).
-  ctx.fillStyle = "#e8b98a";
-  ctx.beginPath();
-  ctx.arc(0, -20, 6, 0, Math.PI * 2);
-  ctx.fill();
-  // Hat (ochre).
-  ctx.fillStyle = "#c98a3a";
-  ctx.beginPath();
-  ctx.arc(0, -22, 6.5, Math.PI, Math.PI * 2);
-  ctx.fill();
-  ctx.fillRect(-8, -22, 16, 2.5);
-  // Fishing rod pointing up.
-  ctx.strokeStyle = "#5a3a1c";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(4, -8);
-  ctx.lineTo(16, -34);
-  ctx.stroke();
+  ctx.strokeStyle = colors.line; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(laneX, top, laneW, bottom - top, 18); ctx.stroke();
+  ctx.fillStyle = colors.water;
+  ctx.beginPath(); ctx.roundRect(16, top, 12, bottom - top, 6); ctx.fill();
+  const fillY = toY(progress);
+  ctx.fillStyle = colors.progress;
+  if (bottom > fillY) { ctx.beginPath(); ctx.roundRect(16, fillY, 12, bottom - fillY, 6); ctx.fill(); }
   ctx.restore();
 }
 
@@ -1292,12 +1099,13 @@ function drawFishingLineAndBobber(
   const bobberY = by + bob;
 
   // Line from roughly the character's hand/body height out to the bobber.
-  const lineStartY = sy - size * 0.15;
+  const facing = Math.cos(player.angle) < -0.15 ? -1 : 1;
+  const lineStartY = sy - size * 0.24;
   ctx.save();
   ctx.strokeStyle = "rgba(60, 50, 40, 0.75)";
   ctx.lineWidth = 1.4;
   ctx.beginPath();
-  ctx.moveTo(sx, lineStartY);
+  ctx.moveTo(sx + facing * size * 0.72, lineStartY);
   ctx.lineTo(bx, bobberY);
   ctx.stroke();
 
@@ -1342,6 +1150,8 @@ export function computePlayerVisualPosition(_player: PlayerState, animation: Pla
 }
 
 export interface RenderOptions {
+  /** Hide navigational overlays in decorative landing previews. */
+  showLandmarks?: boolean;
   snapshot: RoomSnapshot;
   camera: Camera;
   localPlayerId: string | null;
@@ -1463,11 +1273,12 @@ export function render(ctx: CanvasRenderingContext2D, opts: RenderOptions) {
     const [lcx, lcy] = worldToScreen(camera, lake.centerX, lake.centerY);
     if (lcx < -maxRadius || lcy < -maxRadius || lcx > camera.width + maxRadius || lcy > camera.height + maxRadius) continue;
     drawLake(ctx, camera, lake, nowMs);
-    drawLakeName(ctx, camera, lake);
+    if (opts.showLandmarks !== false) drawLakeName(ctx, camera, lake);
   }
   drawWorldBounds(ctx, camera);
   drawProceduralTrees(ctx, camera);
   drawFences(ctx, camera);
+  if (opts.showLandmarks !== false) drawShoreSigns(ctx, camera);
 
   // Hiệu ứng bắn nước vẽ ngay trên mặt hồ, trước khi vẽ nhân vật/phao (nằm dưới các đối tượng đó).
   drawCastSplashes(ctx, camera, nowMs);

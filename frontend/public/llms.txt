@@ -6,9 +6,14 @@ Where Big Fish is free-to-play and browser-based on desktop; no account or insta
 
 To play: enter a name and pick a character, then press Play. Walk to a lake, river, or sea shore with WASD or the arrow keys. Hold the mouse to charge power and release to cast toward the cursor. When a fish bites, the reel minigame opens — hold the mouse to lift the green catch zone and keep the moving fish inside it until the progress bar fills. Rarer and heavier fish are worth more points.
 
-There are 16 fish species across common, uncommon, rare, and legendary tiers — from the common Minnow, Silver Carp, and Catfish to the legendary Golden Arowana and Baby Shark — plus a few quirky finds (an Old Boot, Soggy Bread, and Vicent's Wallet). Ocean species (Butterfish, Mackerel, Bluefin Tuna, Baby Shark) appear only in the East Sea, while the rest live across the lakes and river: Village Pond, Mirror Lake, Serpent Lake, Lotus Marsh, Ice Bay, Dragon Lake, and the Han River.
+There are 17 catches species across common, uncommon, rare, and legendary tiers — from the common Minnow, Silver Carp, and Catfish to the legendary Golden Arowana and Baby Shark — plus a few quirky finds (an Old Boot, Soggy Bread, and Vicent's Wallet). Ocean species (Butterfish, Mackerel, Bluefin Tuna, Baby Shark) appear only in the East Sea, while the rest live across the lakes and river: Village Pond, Mirror Lake, Serpent Lake, Lotus Marsh, Ice Bay, Dragon Lake, and the Han River.
 
 ## Links
 
 - [Play Where Big Fish](https://wherebigfish.com/): launch the free multiplayer fishing game in your browser
 - [Sitemap](https://wherebigfish.com/sitemap.xml): list of indexable pages on the site
+
+## Public guides
+- https://www.wherebigfish.com/guide.html
+- https://www.wherebigfish.com/field-guide.html
+- https://www.wherebigfish.com/play/

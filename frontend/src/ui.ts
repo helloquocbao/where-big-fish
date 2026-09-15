@@ -22,7 +22,6 @@ import {
 import { drawSkinPreview, drawFishIcon, drawModalReelScene } from "./render.ts";
 import type { FishRarity } from "@bomio/shared";
 import { audioManager } from "./audio.ts";
-import { initAdSense, loadAdBanner } from "./ads.ts";
 
 // Speaker icon drawn using SVG instead of system emojis 🔊/🔇 — emoji speakers render distorted/broken at small sizes on
 // many machines (especially Windows, depending on the pre-installed emoji font), while SVG uses `currentColor` so it is always
@@ -97,12 +96,12 @@ export class UI {
   public bossReelBtn: HTMLButtonElement;
   public bossRunBtn: HTMLButtonElement;
   public assistBossBtn: HTMLButtonElement;
-  
+
   public onBossAction?: (action: "reel" | "run") => void;
   public onAssistBoss?: () => void;
 
   constructor(container: HTMLElement) {
-    initAdSense();
+
     this.root = document.createElement("div");
     this.root.className = "game-ui";
     container.appendChild(this.root);
@@ -113,8 +112,9 @@ export class UI {
     this.connectScreen.innerHTML = `
       <div class="connect-card-wrapper">
         <div class="connect-card">
+          <div class="expedition-label">A LITTLE LAKESIDE ADVENTURE</div>
           <h1>Where Big Fish</h1>
-          <p class="tagline">Multiple lakes, many fishers — cast your line and see what you catch.</p>
+          <p class="tagline">Pick your angler. Find your shore. Meet your next big catch.</p>
           <div class="skin-picker">
             <canvas class="skin-preview" width="90" height="110"></canvas>
             <div class="skin-swatches"></div>
@@ -128,18 +128,10 @@ export class UI {
           </div>
           <p class="error-text"></p>
           <div class="connect-footer">
-            <a href="/policy.html" class="policy-link">Privacy Policy & Terms</a>
+            <a href="/" class="policy-link">Home</a> · <a href="/guide.html" class="policy-link">How to play</a> · <a href="/policy.html" class="policy-link">Privacy & Terms</a>
           </div>
         </div>
-        <div class="ad-banner panel-cut">
-          <div class="ad-banner-label">ADVERTISEMENT</div>
-          <div class="ad-banner-content" id="connect-ad-banner">
-            <div class="ad-placeholder">
-              <span class="ad-placeholder-icon">📢</span>
-              <span class="ad-placeholder-text">Support the game by whitelisting ads!</span>
-            </div>
-          </div>
-        </div>
+
       </div>
     `;
     this.root.appendChild(this.connectScreen);
@@ -150,7 +142,7 @@ export class UI {
     this.helpModal.innerHTML = `
       <div class="help-modal-card panel-cut">
         <div class="help-modal-header">
-          <h2>❓ How to Play</h2>
+          <h2>A guide to your first catch</h2>
           <button type="button" class="help-close" aria-label="Close">×</button>
         </div>
         <div class="help-content">
@@ -178,7 +170,7 @@ export class UI {
       </div>
     `;
     this.root.appendChild(this.helpModal);
-    loadAdBanner("connect-ad-banner", import.meta.env.VITE_ADSENSE_SLOT_CONNECT);
+
     this.nameInput = this.connectScreen.querySelector(".name-input")!;
     this.playButton = this.connectScreen.querySelector(".play-button")!;
     this.errorText = this.connectScreen.querySelector(".error-text")!;
@@ -217,31 +209,25 @@ export class UI {
     this.hud = document.createElement("div");
     this.hud.className = "hud hidden";
     this.hud.innerHTML = `
-      <div class="hud-banner panel-cut">
-        <div class="ad-banner-label">ADVERTISEMENT</div>
-        <div class="ad-banner-content" id="hud-ad-banner">
-          <div class="ad-placeholder">
-            <span class="ad-placeholder-icon">📢</span>
-            <span class="ad-placeholder-text">Ad banner placeholder (320x50)</span>
-          </div>
-        </div>
-      </div>
+
       <div class="leaderboard panel-cut">
-        <h2>🏆 Leaderboard</h2>
+        <h2><button class="ranking-toggle" type="button" aria-expanded="true">Top anglers <span aria-hidden="true">−</span></button></h2>
         <ol class="leaderboard-list"></ol>
       </div>
       <div class="stats-panel panel-cut">
-        <div>🎣 Fishing in <span class="stats-current-lake">—</span></div>
-        <div>Fish caught <span class="stats-caught-count">0</span></div>
-        <div>Total score <span class="stats-caught-value">0</span></div>
+        <div class="session-label">YOUR FISHING SESSION</div>
+        <div class="location-row"><span class="stats-current-lake">Explore the shores</span></div>
+        <div class="session-metrics"><div><span class="stats-caught-count">0</span><small>Fish caught</small></div><div><span class="stats-caught-value">0</span><small>Total score</small></div></div>
         <div class="stats-actions">
-          <button type="button" class="collection-button">🐟 Fish Index (<span class="collection-count">0</span>/${FISH_CATALOG.length})</button>
+          <button type="button" class="collection-button">Field guide <span class="collection-count">0</span>/${FISH_CATALOG.length}</button>
           <button type="button" class="audio-toggle-button wood-button" title="Mute/Unmute Sound" aria-label="Mute or unmute sound"></button>
         </div>
       </div>
       <div class="minimap-frame panel-cut">
+        <div class="map-caption">THE FISHING GROUNDS</div>
         <canvas class="minimap" width="140" height="140"></canvas>
       </div>
+      <div class="play-guide" aria-live="polite"><span class="play-guide-title">Find your fishing spot</span><span class="play-guide-detail">WASD to move · Hold and release to cast</span></div>
       <!-- Mobile controls overlay -->
       <div class="mobile-controls-container">
         <div id="mobile-joystick" class="mobile-joystick">
@@ -257,27 +243,22 @@ export class UI {
       </div>
       <div class="fishing-modal hidden">
         <div class="fishing-modal-card">
+          <div class="reel-heading"><span class="session-label">ON THE LINE</span><h2>Steady now.</h2><p>Keep the fish inside the green zone.</p></div>
           <div class="fishing-modal-game-container">
             <canvas class="fishing-modal-canvas" width="200" height="360"></canvas>
           </div>
+          <div class="reel-readout"><span>Catch progress</span><strong class="reel-percent">0%</strong></div>
+          <div class="reel-instruction">Hold to lift <span>·</span> Release to lower</div>
         </div>
       </div>
       <div class="collection-modal hidden">
         <div class="collection-modal-card panel-cut">
           <div class="collection-modal-header">
-            <h2>🐟 Fish Collection</h2>
+            <h2>Your field guide</h2>
             <button type="button" class="collection-close" aria-label="Close">×</button>
           </div>
           <div class="collection-list"></div>
-          <div class="ad-banner-mini">
-            <div class="ad-banner-label">ADVERTISEMENT</div>
-            <div class="ad-banner-content" id="collection-ad-banner">
-              <div class="ad-placeholder">
-                <span class="ad-placeholder-icon">📢</span>
-                <span class="ad-placeholder-text">Support the game by whitelisting ads!</span>
-              </div>
-            </div>
-          </div>
+
         </div>
       </div>
       <div class="catch-modal hidden">
@@ -314,17 +295,14 @@ export class UI {
     this.root.appendChild(this.hud);
     const leaderboardEl = this.hud.querySelector<HTMLDivElement>(".leaderboard")!;
     this.leaderboardList = this.hud.querySelector<HTMLOListElement>(".leaderboard-list")!;
-    
+
     // Toggle leaderboard collapse on mobile
-    const leaderboardHeader = leaderboardEl.querySelector("h2");
-    if (leaderboardHeader) {
-      leaderboardHeader.style.cursor = "pointer";
-      leaderboardHeader.addEventListener("click", () => {
-        if (document.body.classList.contains("is-mobile")) {
-          leaderboardEl.classList.toggle("collapsed");
-        }
-      });
-    }
+    const leaderboardHeader = leaderboardEl.querySelector<HTMLButtonElement>(".ranking-toggle")!;
+    leaderboardHeader.addEventListener("click", () => {
+      const collapsed = leaderboardEl.classList.toggle("collapsed");
+      leaderboardHeader.setAttribute("aria-expanded", String(!collapsed));
+      leaderboardHeader.querySelector("span")!.textContent = collapsed ? "+" : "−";
+    });
     // Auto collapse initially on mobile
     const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     if (isMobile) {
@@ -346,7 +324,7 @@ export class UI {
     this.fishingModalCanvasCtx = this.fishingModalCanvas.getContext("2d")!;
 
     this.collectionButton = this.hud.querySelector<HTMLButtonElement>(".collection-button")!;
-    
+
     this.bossChoiceModal = this.hud.querySelector<HTMLDivElement>(".boss-choice-modal")!;
     this.bossReelBtn = this.hud.querySelector<HTMLButtonElement>(".boss-reel-btn")!;
     this.bossRunBtn = this.hud.querySelector<HTMLButtonElement>(".boss-run-btn")!;
@@ -369,7 +347,7 @@ export class UI {
     this.collectionList = this.hud.querySelector<HTMLDivElement>(".collection-list")!;
     this.collectionButton.addEventListener("click", () => {
       this.collectionModal.classList.remove("hidden");
-      loadAdBanner("collection-ad-banner", import.meta.env.VITE_ADSENSE_SLOT_COLLECTION);
+
     });
     this.collectionModal.querySelector(".collection-close")!.addEventListener("click", () => this.collectionModal.classList.add("hidden"));
     this.renderCollectionList([]);
@@ -488,7 +466,7 @@ export class UI {
       cancelAnimationFrame(this.skinPreviewRaf);
       this.skinPreviewRaf = undefined;
     }
-    loadAdBanner("hud-ad-banner", import.meta.env.VITE_ADSENSE_SLOT_HUD);
+
   }
 
   backToConnectScreen() {
@@ -503,7 +481,7 @@ export class UI {
     this.lastLeaderboardKey = "";
     this.lastCollectionKey = "";
     this.setConnecting(false);
-    loadAdBanner("connect-ad-banner", import.meta.env.VITE_ADSENSE_SLOT_CONNECT);
+
   }
 
   updateLeaderboard(entries: LeaderboardEntry[], localPlayerId: string | null) {
@@ -516,7 +494,7 @@ export class UI {
     this.leaderboardList.innerHTML = top
       .map((entry) => {
         const isLocal = entry.playerId === localPlayerId;
-        return `<li class="${isLocal ? "me" : ""}">${escapeHtml(entry.name)} — ${Math.round(entry.totalValue).toLocaleString()}</li>`;
+        return `<li class="${isLocal ? "me" : ""}"><span class="angler-name">${escapeHtml(entry.name)}</span><strong>${Math.round(entry.totalValue).toLocaleString()}</strong></li>`;
       })
       .join("");
   }
@@ -530,7 +508,7 @@ export class UI {
   /** Name of the lake where the player last successfully cast their line (PlayerState.currentLakeId) — "" if they haven't
    * fished in any lake this session yet. */
   updateCurrentLake(lakeId: string) {
-    this.currentLakeValue.textContent = lakeId ? (getLakeById(lakeId)?.name ?? "—") : "—";
+    this.currentLakeValue.textContent = lakeId ? (getLakeById(lakeId)?.name ?? "Unknown shore") : "Explore the shores";
   }
 
   /** Fish collection log — count + the always-available modal list, checked off as species are
@@ -595,6 +573,7 @@ export class UI {
     if (!active) return;
 
     const progressPct = Math.max(0, Math.min(100, data.reelProgress ?? 0));
+    this.fishingModal.querySelector(".reel-percent")!.textContent = `${Math.round(progressPct)}%`;
 
     const species = getFishSpecies(data.speciesId);
     const actualDifficulty = (species && data.activeFishWeight != null)
@@ -731,6 +710,21 @@ export class UI {
   }
 
   updateMobileControls(fishState: string) {
+    const guide = this.hud.querySelector<HTMLElement>(".play-guide")!;
+    if (guide.dataset.state !== fishState) {
+      guide.dataset.state = fishState;
+      const touch = document.body.classList.contains("is-mobile");
+      const tips: Record<string, [string, string]> = {
+        idle: ["Find your fishing spot", touch ? "Joystick to move · Hold CAST, then release" : "WASD to move · Hold and release the mouse to cast"],
+        casting: ["Make it a good cast", "Release when your cast has enough power"],
+        waiting: ["A little patience…", "Watch your float. Reeling starts when a fish bites."],
+        reeling: ["Keep the fish in the green zone", touch ? "Hold REEL to lift · Release to lower" : "Hold the mouse to lift · Release to lower"],
+        boss_assisting: ["You are fishing together", "Keep the fish in the green zone to help your team"],
+      };
+      const tip = tips[fishState] ?? ["Something big is on the line", "Watch the fishing panel for your next move"];
+      guide.querySelector(".play-guide-title")!.textContent = tip[0];
+      guide.querySelector(".play-guide-detail")!.textContent = tip[1];
+    }
     if (!this.mobileActionBtn) return;
     if (fishState === "reeling") {
       this.mobileActionBtn.textContent = "REEL";

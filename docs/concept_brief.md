@@ -49,8 +49,8 @@ giành giật trực tiếp với người khác.
 
 ### 1. Nhân vật & Map nhiều hồ
 
-- Nhân vật: giữ nguyên quả bóng tròn kiểu Kirby (mắt to, tai thỏ, vây hông, phụ kiện theo skin) từ
-  bản game cũ — chỉ bỏ khẩu súng (không còn combat). Không còn cơ chế lớn dần theo điểm (agar.io
+- Nhân vật (cập nhật 2026-09-15): người câu cá chibi, đầu lớn, mũ rộng vành, áo màu theo skin,
+  ủng nhỏ và cần câu. Preview và nhân vật trong game dùng chung thiết kế; skin ID và luật chơi giữ nguyên. Không còn cơ chế lớn dần theo điểm (agar.io
   style) — nhân vật giữ 1 kích thước cố định (`PLAYER_VISUAL_SIZE`), không có khái niệm "chết".
 - **Nhiều hồ câu trong 1 map, 1 room duy nhất** (đổi từ bản MVP đầu chỉ có 1 hồ/room — xem
   `docs/progress.md` log ngày đổi thiết kế): map là 1 room Colyseus chứa `LAKE_DEFINITIONS`

@@ -1,5 +1,38 @@
 # Progress Log
 
+## 2026-09-15 — FE: trang nội dung cho xét duyệt AdSense (hoàn tất local)
+
+- Phạm vi: trang chủ đọc được, game /play/, hướng dẫn, điều hướng và sitemap.
+- Gỡ quảng cáo/placeholder khỏi game; chưa deploy.
+- Đã kiểm tra 6 trang build, links/anchors, metadata xác minh, catalog 17 mục/8 hồ và responsive trang chủ.
+- Theo phản hồi người dùng: trang chủ ưu tiên Play, cảnh map bằng renderer thật và chibi, hướng dẫn đọc được nằm dưới. Preview dừng khi ngoài viewport/tab ẩn, giới hạn 20fps.
+- Chưa deploy hoặc gửi yêu cầu AdSense xét duyệt.
+- Catalog được render HTML từ shared khi build; người dùng hỏi tính cần thiết của thông tin liên hệ, chưa cung cấp email/tên để công khai.
+
+
+## 2026-09-15 — FE: bố cục gameplay mới (hoàn tất)
+
+- HUD phiên câu góc trái, thanh thao tác dưới màn hình, leaderboard thu gọn bằng nút, khung reeling mới. Giữ nguyên gameplay/server.
+- Build TypeScript/Vite + diff check thành công. Đã vào game production kiểm tra bố cục và nút collapse (aria-expanded=false); root không tràn ngang tại 320/375/414/768. Khung reeling đã compile, chưa kiểm tra hết tương tác kéo cá trong phiên chơi.
+
+
+## 2026-09-15 — FE: Cozy Lakeside map + UI (hoàn tất)
+
+- Phạm vi người dùng chốt: FE, tiếp tục backend production.
+- Làm nhẹ panel, đồng bộ màn vào game/HUD/dialog/Policy; thêm hướng dẫn theo trạng thái và biển điểm câu trên đất.
+- Không đổi shared hoặc luật chơi server. Thiết kế: docs/design.md.
+- Đã thêm lakeside.css, hướng dẫn theo trạng thái câu và biển tên hồ (geometry tính một lần, cull ngoài viewport).
+- Kiểm tra build FE + git diff --check; xem entry ở 320/375/414/768 không tràn ngang; kết nối backend production thành công, xác nhận HUD và nhân vật. Sửa focus scroll làm lệch canvas bằng viewport cố định. Chưa chơi hết vòng boss/reeling.
+
+
+## 2026-09-15 — Frontend: thiết kế người câu cá chibi (hoàn tất)
+
+- Người dùng chọn nhân vật người câu cá chibi đội mũ, cầm cần câu.
+- Thay renderer dùng chung cho preview và người chơi/NPC; giữ skin ID, màu áo, vị trí neo và logic gameplay hiện tại.
+- Thêm mũ rộng vành, áo có túi, ủng bước luân phiên, mặt chớp mắt, cần câu đổi bên theo hướng nhìn; dây câu nối từ đầu cần.
+- Kiểm tra: frontend production build (TypeScript + Vite) thành công; git diff --check sạch. Đã xem preview trên trình duyệt ở localhost:5173, nhân vật hiển thị đầy đủ trong khung. Chưa kiểm thử phiên chơi kết nối backend production.
+
+
 ## 2026-07-18 - Thêm trang Policy, khôi phục WASD, sửa lỗi hiển thị chữ và định dạng số
 
 - **Khôi phục di chuyển bàn phím (WASD)**: Khôi phục lại tính năng di chuyển bằng bàn phím (phím WASD và các phím mũi tên) trong `frontend/src/input.ts` theo đúng mong muốn của người chơi.
