@@ -1,5 +1,18 @@
 # Progress Log
 
+## 2026-09-15 — Cấu hình banner nội dung AdSense
+
+- Dùng publisher người dùng cung cấp và Display ad unit Connect Banner (6408218568) trong ảnh để cấu hình VITE_ADSENSE_SLOT_CONTENT ở frontend/.env.production.
+- Mã HUD/collection không được gắn lại vào game; dev vẫn chỉ xem trước. Chưa deploy.
+
+
+## 2026-09-15 — FE: tích hợp AdSense trên trang nội dung
+
+- Một banner responsive ở cuối nội dung trang chủ/guide/field-guide; không import ad loader vào game.
+- Tài khoản đọc từ env hoặc meta xác minh; data-ad-slot CONTENT đang chờ người dùng cung cấp. Không bịa mã.
+- Dev chỉ preview; production không load nếu thiếu cấu hình. Request một lần khi slot vào viewport; ẩn khi script lỗi hoặc Google báo unfilled.
+
+
 ## 2026-09-15 — FE: trang nội dung cho xét duyệt AdSense (hoàn tất local)
 
 - Phạm vi: trang chủ đọc được, game /play/, hướng dẫn, điều hướng và sitemap.

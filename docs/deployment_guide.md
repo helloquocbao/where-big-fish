@@ -148,3 +148,13 @@ Vì Frontend là ứng dụng Single Page Application (Vite tĩnh), bạn có th
    - Build command: `npm run build`
    - Output directory: `frontend/dist`
    - Biến môi trường lúc build: Thiết lập `VITE_SERVER_URL=wss://game-backend.yourdomain.com` trong cài đặt môi trường của dịch vụ hosting.
+
+## Content-page AdSense (2026-09-15)
+
+- Public pages `/`, `/guide.html`, `/field-guide.html` each have one responsive Display placement after their content.
+- Set `VITE_ADSENSE_SLOT_CONTENT` to the actual Display ad unit's `data-ad-slot`, then rebuild the frontend. No slot ID has been supplied yet; production remains inactive until configured.
+- `VITE_ADSENSE_CLIENT_ID` can supply the publisher ID; otherwise the loader uses the existing account verification meta generated from ads.txt.
+- Vite dev always shows a clearly labelled preview without live ad requests, even with `--mode production`.
+- `/play/`, Policy and About do not import the advertising module. Review Auto ads settings in AdSense separately; they are account-controlled.
+- Before serving ads where required, configure the appropriate Google-certified consent message/CMP in AdSense Privacy & messaging.
+- Site approval is managed by Google; integration does not override a low-value-content rejection. No deployment or review submission was performed by this change.
